@@ -14,6 +14,7 @@ public class FieldIdentifiers {
   // Nested fields.
   public static final String LINK_RECORDS_REQUEST = "LinkRecordsRequest";
   public static final String HIP_ON_INIT_RESPONSE = "HIPOnInitResponse";
+  public static final String HIP_ON_CONFIRM = "HIPOnConfirm";
   public static final String HIP_ON_ADD_CARE_CONTEXT_RESPONSE = "HIPOnAddCareContext";
   public static final String CONSENT_REQUEST_ID = "ConsentRequestId";
   public static final String CONSENT_DETAILS_RESPONSE = "ConsentDetailsResponse";

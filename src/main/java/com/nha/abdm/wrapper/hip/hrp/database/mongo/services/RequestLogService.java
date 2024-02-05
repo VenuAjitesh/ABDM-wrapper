@@ -243,11 +243,11 @@ public class RequestLogService<T> {
             Criteria.where("gatewayRequestId").is(linkOnConfirmResponse.getResp().getRequestId()));
     RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
     HashMap<String, Object> map = existingRecord.getRequestDetails();
-    map.put("HIPOnConfirm", linkOnConfirmResponse);
+    map.put(FieldIdentifiers.HIP_ON_CONFIRM, linkOnConfirmResponse);
     if (existingRecord != null) {
       Update update =
           (new Update())
-              .set("rawResponse", map)
+              .set(FieldIdentifiers.REQUEST_DETAILS, map)
               .set("gatewayRequestId", linkAddCareContext.getRequestId());
       mongoTemplate.updateFirst(query, update, RequestLog.class);
     }
@@ -266,9 +266,9 @@ public class RequestLogService<T> {
             Criteria.where("gatewayRequestId").is(linkOnInitResponse.getResp().getRequestId()));
     RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
     HashMap<String, Object> map = existingRecord.getRequestDetails();
-    map.put("HIPOnInitOtp", linkOnInitResponse);
+    map.put(FieldIdentifiers.HIP_ON_INIT_RESPONSE, linkOnInitResponse);
     if (existingRecord != null) {
-      Update update = (new Update()).set("rawResponse", map);
+      Update update = (new Update()).set(FieldIdentifiers.REQUEST_DETAILS, map);
       mongoTemplate.updateFirst(query, update, RequestLog.class);
     }
   }
