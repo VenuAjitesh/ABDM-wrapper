@@ -1,7 +1,6 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer;
 
-import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
@@ -10,9 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class DataTransferService implements DataTransferInterface {
   /**
-   * The callback from ABDM gateway after consentGrant for dataTransfer,
-   * POST method for /on-notify
-   * @param HIPConsentNotification careContext and demographics details are provided, and implement a logic to check the existence of the careContexts.
+   * The callback from ABDM gateway after consentGrant for dataTransfer, POST method for /on-notify
+   *
+   * @param HIPConsentNotification careContext and demographics details are provided, and implement
+   *     a logic to check the existence of the careContexts.
    */
   @Override
   public void notifyOnReceived(HIPConsentNotification HIPConsentNotification) {
@@ -20,8 +20,8 @@ public class DataTransferService implements DataTransferInterface {
   }
 
   /**
-   *
    * POST /on-request as an acknowledgement for agreeing to make dataTransfer to ABDM gateway.
+   *
    * @param HIPHealthInformationRequest HIU public keys and dataPush URL is provided
    */
   @Override
@@ -32,7 +32,9 @@ public class DataTransferService implements DataTransferInterface {
 
   /**
    * Requesting HIP for FHIR bundle
-   * @param HIPHealthInformationRequest use the requestId to fetch the careContexts from dump to request HIP.
+   *
+   * @param HIPHealthInformationRequest use the requestId to fetch the careContexts from dump to
+   *     request HIP.
    */
   @Override
   public void initiateBundleRequest(HIPHealthInformationRequest HIPHealthInformationRequest) {
@@ -40,8 +42,8 @@ public class DataTransferService implements DataTransferInterface {
   }
 
   /**
-   * Encrypt the bundle and
-   * POST to /dataPushUrl of HIU
+   * Encrypt the bundle and POST to /dataPushUrl of HIU
+   *
    * @param bundleResponseHIP FHIR bundle received from HIP for the particular patients
    */
   @Override

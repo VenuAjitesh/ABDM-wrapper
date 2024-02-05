@@ -5,7 +5,6 @@ import static com.nha.abdm.wrapper.common.dataPackaging.Constants.*;
 
 import com.nha.abdm.wrapper.common.dataPackaging.keys.KeyController;
 import com.nha.abdm.wrapper.common.dataPackaging.keys.KeyMaterial;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPRequestBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 import java.math.BigInteger;
@@ -39,13 +38,18 @@ public class EncryptionController {
   @Autowired KeyController keyController;
 
   public EncryptionResponse encrypt(
-          @RequestBody HIPHealthInformationRequest hipHealthInformationRequest, BundleResponseHIP bundleResponse)
+      @RequestBody HIPHealthInformationRequest hipHealthInformationRequest,
+      BundleResponseHIP bundleResponse)
       throws Exception {
     KeyMaterial senderKeys = keyController.fetchKeys();
     KeyMaterial receiverKeys =
         KeyMaterial.builder()
             .publicKey(
-                    hipHealthInformationRequest.getHiRequest().getKeyMaterial().getDhPublicKey().getKeyValue())
+                hipHealthInformationRequest
+                    .getHiRequest()
+                    .getKeyMaterial()
+                    .getDhPublicKey()
+                    .getKeyValue())
             .nonce(hipHealthInformationRequest.getHiRequest().getKeyMaterial().getNonce())
             .build();
     byte[] xorOfRandom = xorOfRandom(senderKeys.getNonce(), receiverKeys.getNonce());
@@ -164,6 +168,6 @@ public class EncryptionController {
   public PublicKey getKey(String key) throws Exception {
     byte[] bytesForBase64String = getBytesForBase64String(key);
 
-      return loadPublicKey(bytesForBase64String);
+    return loadPublicKey(bytesForBase64String);
   }
 }
