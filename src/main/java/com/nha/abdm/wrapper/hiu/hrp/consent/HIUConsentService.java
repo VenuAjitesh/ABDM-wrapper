@@ -88,7 +88,7 @@ public class HIUConsentService implements HIUConsentInterface {
           .clientRequestId(initConsentRequest.getRequestId())
           .httpStatusCode(response.getStatusCode())
           .build();
-      //Catching BadRequest response from post request
+      // Catching BadRequest response from post request
     } catch (WebClientResponseException.BadRequest ex) {
       ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
@@ -158,17 +158,17 @@ public class HIUConsentService implements HIUConsentInterface {
           .status(requestLog.getStatus())
           .httpStatusCode(HttpStatus.OK)
           .build();
-    //Catching BadRequest response from post request
-  } catch (WebClientResponseException.BadRequest ex) {
-    ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
-    log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      // Catching BadRequest response from post request
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateError(
-              requestLog.getGatewayRequestId(), error.getMessage(), RequestStatus.CONSENT_STATUS_ERROR);
+          requestLog.getGatewayRequestId(), error.getMessage(), RequestStatus.CONSENT_STATUS_ERROR);
       return ConsentStatusResponse.builder()
-              .error(error.getMessage())
-              .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-              .build();
-  }  catch (Exception ex) {
+          .error(error.getMessage())
+          .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+          .build();
+    } catch (Exception ex) {
       String error =
           "Exception while fetching consent status: "
               + ex.getMessage()
@@ -200,11 +200,11 @@ public class HIUConsentService implements HIUConsentInterface {
                 : "Error from gateway while getting consent status: " + onNotifyRequest.toString();
         log.error(error);
       }
-    //Catching BadRequest response from post request
-  } catch (WebClientResponseException.BadRequest ex) {
-    ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
-    log.error("HTTP error on-notify {}: {}", ex.getStatusCode(), error);
-  }  catch (Exception ex) {
+      // Catching BadRequest response from post request
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error on-notify {}: {}", ex.getStatusCode(), error);
+    } catch (Exception ex) {
       String error =
           "Exception while executing on notify: "
               + ex.getMessage()
@@ -236,17 +236,17 @@ public class HIUConsentService implements HIUConsentInterface {
             .httpStatusCode(response.getStatusCode())
             .build();
       }
-    //Catching BadRequest response from post request
-  } catch (WebClientResponseException.BadRequest ex) {
-    ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
-    log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      // Catching BadRequest response from post request
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateStatus(
-              requestLog.getGatewayRequestId(), RequestStatus.CONSENT_FETCH_ERROR);
+          requestLog.getGatewayRequestId(), RequestStatus.CONSENT_FETCH_ERROR);
       return ConsentResponse.builder()
-              .error(error.getMessage())
-              .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-              .build();
-  }  catch (Exception ex) {
+          .error(error.getMessage())
+          .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+          .build();
+    } catch (Exception ex) {
       String error =
           "Exception while fetching consent: "
               + ex.getMessage()

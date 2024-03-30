@@ -196,8 +196,8 @@ public class WorkflowManager {
     healthInformationInterface.healthInformation(hipHealthInformationRequest);
   }
 
-  public void profileShare(ProfileShare profileShare) {
+  public void profileShare(ProfileShare profileShare, String hipId) {
     log.debug(profileShare.toString());
-    profileShareInterface.shareProfile(profileShare);
+    profileShareInterface.shareProfile(profileShare, hipId);
   }
 }

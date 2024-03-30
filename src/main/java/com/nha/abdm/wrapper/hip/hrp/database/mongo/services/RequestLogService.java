@@ -158,12 +158,17 @@ public class RequestLogService<T> {
     if (requestLog != null) {
       if (StringUtils.isNotBlank(requestLog.getError())) {
         return RequestStatusResponse.builder()
+            .requestId(requestId)
+            .status("Error")
             .error(ErrorResponse.builder().message(requestLog.getError()).build())
             .build();
       }
       if (Objects.nonNull(requestLog.getStatus())
           && StringUtils.isNotBlank(requestLog.getStatus().getValue())) {
-        return RequestStatusResponse.builder().status(requestLog.getStatus().getValue()).build();
+        return RequestStatusResponse.builder()
+            .requestId(requestId)
+            .status(requestLog.getStatus().getValue())
+            .build();
       }
     }
     throw new IllegalDataStateException("Request not found in database for: " + requestId);
@@ -322,6 +327,10 @@ public class RequestLogService<T> {
   }
 
   public void updateStatus(String requestId, RequestStatus requestStatus) {
+    log.info("GatewayRequestId: " + requestId + "requestStatus: " + requestStatus);
+    Query query1 = new Query(Criteria.where("gatewayRequestId").is(requestId));
+    RequestLog existingRecord = mongoTemplate.findOne(query1, RequestLog.class);
+    log.info(existingRecord.toString());
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.STATUS, requestStatus);
