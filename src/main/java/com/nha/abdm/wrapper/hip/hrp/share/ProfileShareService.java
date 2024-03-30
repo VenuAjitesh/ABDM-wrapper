@@ -50,16 +50,12 @@ public class ProfileShareService implements ProfileShareInterface {
   }
 
   @Override
-  public void shareProfile(ProfileShare profileShare) {
+  public void shareProfile(ProfileShare profileShare, String hipId) {
     String token = tokenNumberGenerator.generateTokenNumber();
     log.info("Making post request to HIP-profile/share with token : " + token);
     ResponseEntity<ProfileAcknowledgement> profileAcknowledgement =
         hipClient.shareProfile(
-            ShareProfileRequest.builder()
-                .token(token)
-                .hipId(profileShare.getProfile().getHipCode())
-                .profile(profileShare)
-                .build());
+            ShareProfileRequest.builder().token(token).hipId(hipId).profile(profileShare).build());
     ProfileAcknowledgement acknowledgement = profileAcknowledgement.getBody();
     if (acknowledgement != null && acknowledgement.getStatus().equals("SUCCESS")) {
       ProfileOnShare profileOnShare =

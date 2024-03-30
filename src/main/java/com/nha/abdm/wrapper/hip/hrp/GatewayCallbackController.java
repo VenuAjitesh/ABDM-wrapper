@@ -266,9 +266,9 @@ public class GatewayCallbackController {
 
   @PostMapping({"/v1.0/patients/profile/share"})
   public ResponseEntity<GatewayCallbackResponse> profileShare(
-      @RequestBody ProfileShare profileShare) {
+      @RequestHeader("X-HIP-ID") String hipId, @RequestBody ProfileShare profileShare) {
     if (profileShare != null) {
-      profileShareInterface.shareProfile(profileShare);
+      profileShareInterface.shareProfile(profileShare, hipId);
     } else {
       log.debug("Invalid profile share request");
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
+import com.nha.abdm.wrapper.common.responses.NestedErrorResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.HIPPatient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Exceptions;
 
 @Service
@@ -120,6 +122,14 @@ public class HipLinkService implements HipLinkInterface {
           .clientRequestId(linkRecordsRequest.getRequestId())
           .code(response.getStatusCode().value())
           .build();
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      return FacadeResponse.builder()
+          .clientRequestId(linkRecordsRequest.getRequestId())
+          .error(error)
+          .httpStatusCode(HttpStatus.BAD_REQUEST)
+          .build();
     } catch (Exception ex) {
       String error =
           "Exception while Initiating HIP auth: "
@@ -187,13 +197,18 @@ public class HipLinkService implements HipLinkInterface {
       log.info(linkConfirmAuthPath + " : confirmAuthDemographics: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
         requestLogService.updateStatus(
-            requestLog.getGatewayRequestId(), RequestStatus.AUTH_CONFIRM_ACCEPTED);
+            linkConfirmRequest.getRequestId(), RequestStatus.AUTH_CONFIRM_ACCEPTED);
       } else if (Objects.nonNull(response.getBody())) {
         requestLogService.updateError(
             requestLog.getGatewayRequestId(),
             response.getBody().getErrorResponse().getMessage(),
             RequestStatus.AUTH_CONFIRM_ERROR);
       }
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      requestLogService.updateError(
+          linkConfirmRequest.getRequestId(), error.getMessage(), RequestStatus.AUTH_CONFIRM_ERROR);
     } catch (Exception e) {
       String error =
           linkConfirmAuthPath
@@ -204,7 +219,7 @@ public class HipLinkService implements HipLinkInterface {
       log.error(error);
       requestLog.setError(error);
       requestLogService.updateError(
-          requestLog.getGatewayRequestId(), error, RequestStatus.AUTH_CONFIRM_ERROR);
+          linkConfirmRequest.getRequestId(), error, RequestStatus.AUTH_CONFIRM_ERROR);
     }
   }
 
@@ -267,11 +282,11 @@ public class HipLinkService implements HipLinkInterface {
       log.debug(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
         requestLogService.updateStatus(
-            requestLog.getGatewayRequestId(), RequestStatus.AUTH_CONFIRM_ACCEPTED);
+            linkConfirmRequest.getRequestId(), RequestStatus.AUTH_CONFIRM_ACCEPTED);
       } else if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
         requestLogService.updateError(
-            requestLog.getGatewayRequestId(),
+            linkConfirmRequest.getRequestId(),
             response.getBody().getErrorResponse().getMessage(),
             RequestStatus.AUTH_CONFIRM_ERROR);
       }
@@ -279,6 +294,16 @@ public class HipLinkService implements HipLinkInterface {
           .message(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode())
           .clientRequestId(verifyOTP.getRequestId())
           .error(Objects.nonNull(response.getBody()) ? response.getBody().getErrorResponse() : null)
+          .build();
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      requestLogService.updateError(
+          linkConfirmRequest.getRequestId(), error.getMessage(), RequestStatus.AUTH_CONFIRM_ERROR);
+      return FacadeResponse.builder()
+          .clientRequestId(verifyOTP.getRequestId())
+          .error(error)
+          .httpStatusCode(HttpStatus.BAD_REQUEST)
           .build();
     } catch (Exception e) {
       String error =
@@ -289,7 +314,7 @@ public class HipLinkService implements HipLinkInterface {
               + Exceptions.unwrap(e);
       log.error(error);
       requestLogService.updateError(
-          requestLog.getGatewayRequestId(), error, RequestStatus.AUTH_CONFIRM_ERROR);
+          linkConfirmRequest.getRequestId(), error, RequestStatus.AUTH_CONFIRM_ERROR);
       return FacadeResponse.builder()
           .clientRequestId(verifyOTP.getRequestId())
           .error(ErrorResponse.builder().message(error).build())
@@ -352,7 +377,7 @@ public class HipLinkService implements HipLinkInterface {
       log.debug(linkAddContextsPath + " : linkAddContexts: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
         requestLogService.updateStatus(
-            requestLog.getGatewayRequestId(), RequestStatus.ADD_CARE_CONTEXT_ACCEPTED);
+            linkAddCareContext.getRequestId(), RequestStatus.ADD_CARE_CONTEXT_ACCEPTED);
       } else if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
         requestLogService.updateError(
@@ -360,6 +385,14 @@ public class HipLinkService implements HipLinkInterface {
             response.getBody().getErrorResponse().getMessage(),
             RequestStatus.ADD_CARE_CONTEXT_ERROR);
       }
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      log.info(requestLog.toString());
+      requestLogService.updateError(
+          linkAddCareContext.getRequestId(),
+          error.getMessage(),
+          RequestStatus.ADD_CARE_CONTEXT_ERROR);
     } catch (Exception e) {
       String error =
           linkConfirmAuthPath
@@ -369,7 +402,7 @@ public class HipLinkService implements HipLinkInterface {
               + Exceptions.unwrap(e);
       log.error(error);
       requestLogService.updateError(
-          requestLog.getGatewayRequestId(), error, RequestStatus.ADD_CARE_CONTEXT_ERROR);
+          linkAddCareContext.getRequestId(), error, RequestStatus.ADD_CARE_CONTEXT_ERROR);
     }
   }
 }

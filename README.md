@@ -225,7 +225,7 @@ Adding of a patient in a particular facility
   ```
     {
       "token":"Wrapper generated token number for the user"
-      "hipId":"the HIP's counter code not the hip id"
+      "hipId":"the Facility id"
       "requestId": "499a5a4a-7dda-4f20-9b67-e24589627061",
       "timestamp": "1970-01-01T00:00:00.000Z",
       "intent": {
@@ -363,7 +363,7 @@ Follow the steps to link care contexts:
                 "requestId":"",
                 "status":"SUCCESS or FAILURE"
                 "error":{
-                    "code":"1000",
+                    "code":1000,
                     "message":"If the status if failed or occured any error"
                 }
                 "linkRefNumber":"Unique id for the otp request"
@@ -387,7 +387,7 @@ Follow the steps to link care contexts:
                 "requestId":"",
                 "status":"SUCCESS or FAILURE"
                 "error":{
-                    "code":"1000",
+                    "code":1000,
                     "message":"If the status if failed or occured any error"
                 }
                 "linkRefNumber":"Unique id for the otp request"
