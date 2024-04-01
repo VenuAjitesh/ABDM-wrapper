@@ -100,18 +100,20 @@ public class HipLinkService implements HipLinkInterface {
             .build();
 
     log.debug("LinkAuthInit : " + linkAuthInit.toString());
-
+    requestLogService.persistHipLinkRequest(linkRecordsRequest, RequestStatus.INITIATING, null);
     try {
       ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(linkAuthInitPath, linkAuthInit);
       log.debug(linkAuthInitPath + " : linkAuthInit: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
-        requestLogService.persistHipLinkRequest(
-            linkRecordsRequest, RequestStatus.AUTH_INIT_ACCEPTED, null);
+        requestLogService.updateStatus(
+            linkAuthInit.getRequestId(), RequestStatus.AUTH_INIT_ACCEPTED);
       } else if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
-        requestLogService.persistHipLinkRequest(
-            linkRecordsRequest, RequestStatus.AUTH_INIT_ERROR, null);
+        requestLogService.updateError(
+            linkAuthInit.getRequestId(),
+            response.getBody().getErrorResponse().getMessage(),
+            RequestStatus.AUTH_CONFIRM_ERROR);
         return FacadeResponse.builder()
             .error(response.getBody().getErrorResponse())
             .clientRequestId(linkRecordsRequest.getRequestId())
@@ -200,7 +202,7 @@ public class HipLinkService implements HipLinkInterface {
             linkConfirmRequest.getRequestId(), RequestStatus.AUTH_CONFIRM_ACCEPTED);
       } else if (Objects.nonNull(response.getBody())) {
         requestLogService.updateError(
-            requestLog.getGatewayRequestId(),
+            linkConfirmRequest.getRequestId(),
             response.getBody().getErrorResponse().getMessage(),
             RequestStatus.AUTH_CONFIRM_ERROR);
       }
@@ -381,7 +383,7 @@ public class HipLinkService implements HipLinkInterface {
       } else if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
         requestLogService.updateError(
-            requestLog.getGatewayRequestId(),
+            linkAddCareContext.getRequestId(),
             response.getBody().getErrorResponse().getMessage(),
             RequestStatus.ADD_CARE_CONTEXT_ERROR);
       }

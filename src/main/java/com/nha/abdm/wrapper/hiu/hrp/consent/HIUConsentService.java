@@ -67,12 +67,14 @@ public class HIUConsentService implements HIUConsentInterface {
 
   @Override
   public FacadeResponse initiateConsentRequest(InitConsentRequest initConsentRequest) {
+    requestLogService.saveRequest(
+        initConsentRequest.getRequestId(), RequestStatus.INITIATING, null);
     try {
       ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(consentInitPath, initConsentRequest);
       if (response.getStatusCode().is2xxSuccessful()) {
-        requestLogService.saveRequest(
-            initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ACCEPTED, null);
+        requestLogService.updateStatus(
+            initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ACCEPTED);
       } else {
         String error =
             (Objects.nonNull(response.getBody())
@@ -81,8 +83,8 @@ public class HIUConsentService implements HIUConsentInterface {
                 : "Error from gateway while initiating consent request: "
                     + initConsentRequest.toString();
         log.error(error);
-        requestLogService.saveRequest(
-            initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error);
+        requestLogService.updateError(
+            initConsentRequest.getRequestId(), error, RequestStatus.CONSENT_INIT_ERROR);
       }
       return FacadeResponse.builder()
           .clientRequestId(initConsentRequest.getRequestId())
@@ -92,8 +94,8 @@ public class HIUConsentService implements HIUConsentInterface {
     } catch (WebClientResponseException.BadRequest ex) {
       ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
-      requestLogService.saveRequest(
-          initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error.toString());
+      requestLogService.updateError(
+          initConsentRequest.getRequestId(), error.getMessage(), RequestStatus.CONSENT_INIT_ERROR);
       return FacadeResponse.builder()
           .clientRequestId(initConsentRequest.getRequestId())
           .error(error)

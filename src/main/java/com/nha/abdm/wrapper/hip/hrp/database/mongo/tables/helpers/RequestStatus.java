@@ -2,6 +2,7 @@
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers;
 
 public enum RequestStatus {
+  INITIATING("Request is being initiated"),
   AUTH_INIT_ACCEPTED("HIP Initiated link auth init request accepted by gateway"),
   AUTH_INIT_ERROR("Error thrown by Gateway for HIP Initiated link auth init"),
   AUTH_ON_INIT_ERROR("Error thrown by Gateway for HIP Initiated link auth on init"),
