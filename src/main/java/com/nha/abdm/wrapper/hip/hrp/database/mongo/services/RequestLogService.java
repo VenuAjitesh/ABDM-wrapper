@@ -328,9 +328,6 @@ public class RequestLogService<T> {
 
   public void updateStatus(String requestId, RequestStatus requestStatus) {
     log.info("GatewayRequestId: " + requestId + "requestStatus: " + requestStatus);
-    Query query1 = new Query(Criteria.where("gatewayRequestId").is(requestId));
-    RequestLog existingRecord = mongoTemplate.findOne(query1, RequestLog.class);
-    log.info(existingRecord.toString());
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.STATUS, requestStatus);
