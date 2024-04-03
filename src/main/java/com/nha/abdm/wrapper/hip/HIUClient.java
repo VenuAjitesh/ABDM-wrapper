@@ -5,12 +5,9 @@ import com.nha.abdm.wrapper.common.requests.HealthInformationPushRequest;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class HIUClient {
@@ -18,20 +15,23 @@ public class HIUClient {
 
   public ResponseEntity<GenericResponse> pushHealthInformation(
       String datPushURl, HealthInformationPushRequest healthInformationPushRequest) {
-    WebClient webClient =
-        WebClient.builder()
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
-
+    RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<GenericResponse> response =
-        webClient
-            .post()
-            .uri(datPushURl)
-            .body(BodyInserters.fromValue(healthInformationPushRequest))
-            .retrieve()
-            .toEntity(GenericResponse.class)
-            .block();
-    log.debug("correlation id: " + response.getHeaders());
+        restTemplate.postForEntity(datPushURl, healthInformationPushRequest, GenericResponse.class);
+    //    WebClient webClient =
+    //        WebClient.builder()
+    //            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    //            .build();
+    //
+    //    ResponseEntity<GenericResponse> response =
+    //        webClient
+    //            .post()
+    //            .uri(datPushURl)
+    //            .body(BodyInserters.fromValue(healthInformationPushRequest))
+    //            .retrieve()
+    //            .toEntity(GenericResponse.class)
+    //            .block();
+    //    log.debug("correlation id: " + response.getHeaders());
     return response;
   }
 }

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NestedErrorResponse {
+public class ErrorResponseWrapper {
   private ErrorResponse error;
 }

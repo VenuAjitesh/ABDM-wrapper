@@ -5,9 +5,9 @@ import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
-import com.nha.abdm.wrapper.common.responses.NestedErrorResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
@@ -92,7 +92,7 @@ public class HIUConsentService implements HIUConsentInterface {
           .build();
       // Catching BadRequest response from post request
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateError(
           initConsentRequest.getRequestId(), error.getMessage(), RequestStatus.CONSENT_INIT_ERROR);
@@ -162,7 +162,7 @@ public class HIUConsentService implements HIUConsentInterface {
           .build();
       // Catching BadRequest response from post request
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateError(
           requestLog.getGatewayRequestId(), error.getMessage(), RequestStatus.CONSENT_STATUS_ERROR);
@@ -204,7 +204,7 @@ public class HIUConsentService implements HIUConsentInterface {
       }
       // Catching BadRequest response from post request
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error on-notify {}: {}", ex.getStatusCode(), error);
     } catch (Exception ex) {
       String error =
@@ -240,7 +240,7 @@ public class HIUConsentService implements HIUConsentInterface {
       }
       // Catching BadRequest response from post request
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateStatus(
           requestLog.getGatewayRequestId(), RequestStatus.CONSENT_FETCH_ERROR);
