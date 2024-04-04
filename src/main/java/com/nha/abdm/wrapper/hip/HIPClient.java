@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
@@ -41,9 +42,15 @@ public class HIPClient {
   private WebClient webClient;
 
   public HIPClient(@Value("${hipBaseUrl}") final String baseUrl) {
+    final int size = 50 * 1024 * 1024;
+    final ExchangeStrategies strategies =
+        ExchangeStrategies.builder()
+            .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+            .build();
     webClient =
         WebClient.builder()
             .baseUrl(baseUrl)
+            .exchangeStrategies(strategies)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
   }

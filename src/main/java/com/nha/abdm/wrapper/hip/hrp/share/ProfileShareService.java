@@ -86,6 +86,7 @@ public class ProfileShareService implements ProfileShareInterface {
         patient.setPatientMobile(
             profileShare.getProfile().getPatient().getIdentifiers().get(0).getValue());
         patient.setEntity(hipId);
+        patient.setPatientReference(profileShare.getProfile().getPatient().getHealthId());
         patientService.upsertPatients(Collections.singletonList(patient));
         log.info("Saved patient details into wrapper db");
       }

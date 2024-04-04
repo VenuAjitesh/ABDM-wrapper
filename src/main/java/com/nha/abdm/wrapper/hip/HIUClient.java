@@ -34,7 +34,7 @@ public class HIUClient {
     //            .retrieve()
     //            .toEntity(GenericResponse.class)
     //            .block();
-    //    log.debug("correlation id: " + response.getHeaders());
+    log.debug("correlation id: " + response.getHeaders());
     return response;
   }
 }
