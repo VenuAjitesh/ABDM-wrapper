@@ -109,7 +109,7 @@ public class HIPClient {
         .block();
   }
 
-  public <T> ResponseEntity<ResponseOtp> fetchResponseFromHIPForOtp(String uri, T request) {
+  public <T> ResponseEntity<ResponseOtp> requestOtp(String uri, T request) {
     return webClient
         .post()
         .uri(uri)

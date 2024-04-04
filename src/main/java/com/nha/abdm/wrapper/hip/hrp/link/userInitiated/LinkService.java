@@ -7,10 +7,7 @@ import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.requests.RequestOtp;
-import com.nha.abdm.wrapper.common.responses.ErrorResponse;
-import com.nha.abdm.wrapper.common.responses.GenericResponse;
-import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
-import com.nha.abdm.wrapper.common.responses.ResponseOtp;
+import com.nha.abdm.wrapper.common.responses.*;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
@@ -29,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Exceptions;
 
 @Service
@@ -107,11 +105,10 @@ public class LinkService implements LinkInterface {
               .abhaAddress(initResponse.getPatient().getId())
               .patientReference(initResponse.getPatient().getReferenceNumber())
               .build();
-      ResponseEntity<ResponseOtp> hipResponse =
-          hipClient.fetchResponseFromHIPForOtp(this.requestOtp, requestOtp);
+      ResponseEntity<ResponseOtp> hipResponse = hipClient.requestOtp(this.requestOtp, requestOtp);
       log.info(this.requestOtp + " : requestOtp: " + hipResponse.getStatusCode());
 
-      if (Objects.requireNonNull(hipResponse.getBody()).getError() == null) {
+      if (Objects.requireNonNull(hipResponse.getBody()).getStatus().equalsIgnoreCase("SUCCESS")) {
         onInitRequest.getLink().setReferenceNumber(hipResponse.getBody().getLinkRefNumber());
         ResponseEntity<GenericResponse> responseEntity =
             requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
@@ -124,6 +121,9 @@ public class LinkService implements LinkInterface {
             requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
         log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
       }
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
     } catch (Exception e) {
       log.info(onInitLinkPath + " : OnInitCall -> Error : " + Arrays.toString(e.getStackTrace()));
     }
@@ -218,6 +218,9 @@ public class LinkService implements LinkInterface {
           requestManager.fetchResponseFromGateway(onConfirmLinkPath, onConfirmRequest);
       log.info(onConfirmLinkPath + " : onConfirmCall: " + responseEntity.getStatusCode());
       patientService.updateCareContextStatus(abhaAddress, careContexts);
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
     } catch (Exception e) {
       log.error(onConfirmLinkPath + " : OnConfirmCall -> Error :" + Exceptions.unwrap(e));
     }

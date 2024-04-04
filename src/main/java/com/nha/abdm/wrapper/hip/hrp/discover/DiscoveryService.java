@@ -6,6 +6,7 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
@@ -27,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 public class DiscoveryService implements DiscoveryInterface {
@@ -277,6 +279,9 @@ public class DiscoveryService implements DiscoveryInterface {
           requestManager.fetchResponseFromGateway(onDiscoverPath, onDiscoverRequest);
       log.info(onDiscoverPath + " : onDiscoverCall: " + responseEntity.getStatusCode());
       requestLogService.setDiscoverResponse(discoverRequest);
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
     } catch (Exception e) {
       log.info("Error: " + e);
     }
@@ -309,6 +314,9 @@ public class DiscoveryService implements DiscoveryInterface {
               + " Discover: requestId : "
               + discoverRequest.getRequestId()
               + ": Patient not found");
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
     } catch (Exception e) {
       log.error(e);
     }

@@ -6,6 +6,8 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.models.RespRequest;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Exceptions;
 
 @Service
@@ -105,6 +108,11 @@ public class ConsentService implements ConsentInterface {
           requestLogService.dataTransferNotify(
               hipNotifyRequest, RequestStatus.HIP_ON_NOTIFY_ERROR, hipOnNotifyRequest);
         }
+      } catch (WebClientResponseException.BadRequest ex) {
+        ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+        log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+        requestLogService.dataTransferNotify(
+            hipNotifyRequest, RequestStatus.HIP_ON_NOTIFY_ERROR, hipOnNotifyRequest);
       } catch (Exception ex) {
         String error =
             "Exception while Initiating consentOnNotify onNotify: "

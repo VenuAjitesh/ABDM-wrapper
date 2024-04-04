@@ -6,9 +6,9 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
-import com.nha.abdm.wrapper.common.responses.NestedErrorResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.HIPPatient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -125,7 +125,7 @@ public class HipLinkService implements HipLinkInterface {
           .code(response.getStatusCode().value())
           .build();
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       return FacadeResponse.builder()
           .clientRequestId(linkRecordsRequest.getRequestId())
@@ -207,7 +207,7 @@ public class HipLinkService implements HipLinkInterface {
             RequestStatus.AUTH_CONFIRM_ERROR);
       }
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateError(
           linkConfirmRequest.getRequestId(), error.getMessage(), RequestStatus.AUTH_CONFIRM_ERROR);
@@ -298,7 +298,7 @@ public class HipLinkService implements HipLinkInterface {
           .error(Objects.nonNull(response.getBody()) ? response.getBody().getErrorResponse() : null)
           .build();
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       requestLogService.updateError(
           linkConfirmRequest.getRequestId(), error.getMessage(), RequestStatus.AUTH_CONFIRM_ERROR);
@@ -388,7 +388,7 @@ public class HipLinkService implements HipLinkInterface {
             RequestStatus.ADD_CARE_CONTEXT_ERROR);
       }
     } catch (WebClientResponseException.BadRequest ex) {
-      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
       log.info(requestLog.toString());
       requestLogService.updateError(
