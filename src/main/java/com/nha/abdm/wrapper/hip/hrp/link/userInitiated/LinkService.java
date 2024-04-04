@@ -153,12 +153,14 @@ public class LinkService implements LinkInterface {
     String abhaAddress = requestLogService.getPatientId(linkRefNumber);
     String patientReference = requestLogService.getPatientReference(linkRefNumber);
     Patient patientWithAbha = patientRepo.findByAbhaAddress(abhaAddress);
-    Patient patientWithPatientRef = patientRepo.findByPatientReference(patientReference);
+    // Commenting patientReference because of redundant query since we have the same
+    // patientReference in requestLogs
+    //    Patient patientWithPatientRef = patientRepo.findByPatientReference(patientReference);
 
     if (patientWithAbha != null) {
       display = patientWithAbha.getPatientDisplay();
-    } else if (patientWithPatientRef != null) {
-      display = patientWithPatientRef.getPatientDisplay();
+    } else if (patientReference != null) {
+      display = patientReference;
     }
     log.info("onConfirm Abha address is: " + abhaAddress);
     if (abhaAddress == null) {
