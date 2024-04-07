@@ -163,7 +163,9 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           .build();
     }
   }
-
+  // Implementing the status check because, if the status is revoked after /fetch-records,
+  // The HIU can still fetch the records from wrapper using requestId.
+  // So returning the bundle only when the status is GRANTED.
   @Override
   public HealthInformationResponse getHealthInformation(String requestId)
       throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
@@ -172,20 +174,35 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
     if (Objects.isNull(requestLog)) {
       throw new IllegalDataStateException("Request no found for request id: " + requestId);
     }
-    Map<String, Object> responseDetails = requestLog.getResponseDetails();
-    if (Objects.isNull(responseDetails)
-        || Objects.isNull(responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION))) {
-      return HealthInformationResponse.builder().status(requestLog.getStatus()).build();
+    String abhaAddress =
+        consentPatientService.findMappingByConsentId(requestLog.getConsentId()).getAbhaAddress();
+    String consentStatus = null;
+    if (abhaAddress != null) {
+      consentStatus =
+          patientService.getConsentDetails(abhaAddress, requestLog.getConsentId()).getStatus();
     }
-    HealthInformationPushRequest healthInformationPushRequest =
-        (HealthInformationPushRequest)
-            responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION);
-    List<HealthInformationBundle> decryptedHealthInformationEntries =
-        getDecryptedHealthInformation(healthInformationPushRequest);
-    return HealthInformationResponse.builder()
-        .httpStatusCode(HttpStatus.OK)
-        .decryptedHealthInformationEntries(decryptedHealthInformationEntries)
-        .build();
+    if (abhaAddress != null && consentStatus != null && consentStatus.equalsIgnoreCase("GRANTED")) {
+
+      Map<String, Object> responseDetails = requestLog.getResponseDetails();
+      if (Objects.isNull(responseDetails)
+          || Objects.isNull(responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION))) {
+        return HealthInformationResponse.builder().status(requestLog.getStatus()).build();
+      }
+      HealthInformationPushRequest healthInformationPushRequest =
+          (HealthInformationPushRequest)
+              responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION);
+      List<HealthInformationBundle> decryptedHealthInformationEntries =
+          getDecryptedHealthInformation(healthInformationPushRequest);
+      return HealthInformationResponse.builder()
+          .httpStatusCode(HttpStatus.OK)
+          .decryptedHealthInformationEntries(decryptedHealthInformationEntries)
+          .build();
+    } else {
+      return HealthInformationResponse.builder()
+          .status(requestLog.getStatus())
+          .error("Consent status : " + consentStatus)
+          .build();
+    }
   }
 
   private HIUGatewayHealthInformationRequest getHiuGatewayHealthInformationRequest(

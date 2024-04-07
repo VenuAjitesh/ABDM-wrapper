@@ -114,16 +114,35 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
         && Objects.nonNull(notifyHIURequest.getNotification())
         && Objects.isNull(notifyHIURequest.getError())) {
       // Get corresponding gateway request for the given consent request id.
-      if (!notifyHIURequest.getNotification().getStatus().equals("GRANTED")) {
+      if (!notifyHIURequest.getNotification().getStatus().equalsIgnoreCase("GRANTED")) {
         List<ConsentArtefact> consentArtefacts =
             notifyHIURequest.getNotification().getConsentArtefacts();
-        for (ConsentArtefact consentArtefact : consentArtefacts) {
-          patientService.updatePatientConsent(
-              consentPatientService
-                  .findMappingByConsentId(consentArtefact.getId())
-                  .getAbhaAddress(),
-              consentArtefact.getId(),
-              notifyHIURequest.getNotification().getStatus());
+        if (notifyHIURequest.getNotification().getStatus().equalsIgnoreCase("DENIED")) {
+          String gatewayRequestId =
+              consentRequestService.getGatewayRequestId(
+                  notifyHIURequest.getNotification().getConsentRequestId());
+          requestLogService.updateConsentResponse(
+              gatewayRequestId,
+              FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE,
+              RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
+              notifyHIURequest.getNotification());
+        } else {
+          for (ConsentArtefact consentArtefact : consentArtefacts) {
+            patientService.updatePatientConsent(
+                consentPatientService
+                    .findMappingByConsentId(consentArtefact.getId())
+                    .getAbhaAddress(),
+                consentArtefact.getId(),
+                notifyHIURequest.getNotification().getStatus());
+          }
+          String gatewayRequestId =
+              consentRequestService.getGatewayRequestId(
+                  notifyHIURequest.getNotification().getConsentRequestId());
+          requestLogService.updateConsentResponse(
+              gatewayRequestId,
+              FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE,
+              RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
+              notifyHIURequest.getNotification());
         }
         OnNotifyRequest onNotifyRequest =
             OnNotifyRequest.builder()
