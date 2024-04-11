@@ -560,6 +560,67 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
      curl --location 'http://localhost:8083/v1/test-wrapper/consent-status`
      ```
 * Make sure that consent has been `GRANTED`
+    - The response of the /consent-status/<clientRequestId> 
+  ```
+  {
+    "status": "CONSENT_FETCH_ACCEPTED",
+    "error": null,
+    "httpStatusCode": "OK",
+    "consent": [
+        {
+            "status": "GRANTED",
+            "dateRange": {
+                "from": "2023-02-16T11:43:18.548Z",
+                "to": "2024-03-15T11:43:18.548Z"
+            },
+            "dataEraseAt": "2024-04-12T11:48:18.548Z",
+            "consentArtefacts": [
+                {
+                    "id": "567b26a1-3bf3-4665-b05a-1dc435de899f",
+                    "hipId": "NIT-N-Ajitesh",
+                    "careContextReference": [
+                        "fbb4b52f-2523-4ebd-adeb-ecb9efe8d107"
+                    ]
+                },
+                {
+                    "id": "c2743781-6fc8-4cc2-a8f7-f06f0040802c",
+                    "hipId": "Demo_Ajitesh_HIP",
+                    "careContextReference": [
+                        "visit-venu-11/02/2024"
+                    ]
+                }
+            ]
+        },
+        {
+            "status": "REVOKED",
+            "dateRange": {
+                "from": "2023-02-16T11:43:18.548Z",
+                "to": "2024-03-15T11:43:18.548Z"
+            },
+            "dataEraseAt": "2024-04-12T11:48:18.548Z",
+            "consentArtefacts": [
+                {
+                    "id": "423d6677-bebe-421b-ae28-e3ef4c6bb63b",
+                    "hipId": "Predator_HIP",
+                    "careContextReference": [
+                        "visit-venu-06/02/2024",
+                        "visit-venu-1-06/02/2024"
+                    ]
+                }
+            ]
+        },
+        {
+            "status": "EXPIRED",
+            "dateRange": {
+                "from": "2023-02-16T11:43:18.548Z",
+                "to": "2024-03-15T11:43:18.548Z"
+            },
+            "dataEraseAt": "2024-04-12T11:48:18.548Z",
+            "consentArtefacts": []
+        }
+    ]
+  }
+  ```
 
 ### Expose Endpoint to share health information bundle
 - Integrators need to write an api  which exposes an endpoint `/v1/health-information` to provide health information for a given care context.
