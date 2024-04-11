@@ -52,24 +52,34 @@ public class ProfileShareService implements ProfileShareInterface {
     this.requestLogService = requestLogService;
     this.patientService = patientService;
   }
-
+  // With the use of hashMap checking the cache token has already been generated
+  // If there already is an entry passing the same token number again instead of generating a new
+  // token
   @Override
   public void shareProfile(ProfileShare profileShare, String hipId) {
-    String token = tokenNumberGenerator.generateTokenNumber();
-    log.info("Making post request to HIP-profile/share with token : " + token);
-    ResponseEntity<ProfileAcknowledgement> profileAcknowledgement =
-        hipClient.shareProfile(
-            ShareProfileRequest.builder().token(token).hipId(hipId).profile(profileShare).build());
-    ProfileAcknowledgement acknowledgement = profileAcknowledgement.getBody();
-    if (acknowledgement != null && acknowledgement.getStatus().equals("SUCCESS")) {
-      ProfileOnShare profileOnShare =
-          ProfileOnShare.builder()
-              .requestId(UUID.randomUUID().toString())
-              .resp(new RespRequest(profileShare.getRequestId()))
-              .timestamp(Utils.getCurrentTimeStamp())
-              .acknowledgement(acknowledgement)
+    String existingToken = tokenNumberGenerator.checkTokenStatus(profileShare, hipId);
+    String token = null;
+    ProfileAcknowledgement acknowledgement = null;
+    if (existingToken != null) {
+      token = existingToken;
+      acknowledgement =
+          ProfileAcknowledgement.builder()
+              .healthId(profileShare.getProfile().getPatient().getHealthId())
+              .status("SUCCESS")
+              .tokenNumber(token)
               .build();
-      log.info("onShare : " + profileOnShare.toString());
+    } else {
+      token = tokenNumberGenerator.generateTokenNumber(profileShare, hipId);
+      log.info("Making post request to HIP-profile/share with token : " + token);
+      ResponseEntity<ProfileAcknowledgement> profileAcknowledgement =
+          hipClient.shareProfile(
+              ShareProfileRequest.builder()
+                  .token(token)
+                  .hipId(hipId)
+                  .profile(profileShare)
+                  .build());
+      acknowledgement = profileAcknowledgement.getBody();
+
       if (patientRepo.findByAbhaAddress(profileShare.getProfile().getPatient().getHealthId())
           == null) {
         Patient patient = new Patient();
@@ -90,10 +100,40 @@ public class ProfileShareService implements ProfileShareInterface {
         patientService.upsertPatients(Collections.singletonList(patient));
         log.info("Saved patient details into wrapper db");
       }
+    }
+    ProfileOnShare profileOnShare = null;
+    if (acknowledgement != null && acknowledgement.getStatus().equals("SUCCESS")) {
+      profileOnShare =
+          ProfileOnShare.builder()
+              .requestId(UUID.randomUUID().toString())
+              .resp(new RespRequest(profileShare.getRequestId()))
+              .timestamp(Utils.getCurrentTimeStamp())
+              .acknowledgement(acknowledgement)
+              .build();
+      log.info("onShare : " + profileOnShare.toString());
       try {
         ResponseEntity<GenericResponse> responseEntity =
             requestManager.fetchResponseFromGateway(profileOnSharePath, profileOnShare);
         log.info(profileOnSharePath + " : onShare: " + responseEntity.getStatusCode());
+      } catch (WebClientResponseException.BadRequest ex) {
+        ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+        log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      } catch (Exception e) {
+        log.info("Error: " + e);
+      }
+    } else {
+      profileOnShare =
+          ProfileOnShare.builder()
+              .requestId(UUID.randomUUID().toString())
+              .resp(new RespRequest(profileShare.getRequestId()))
+              .timestamp(Utils.getCurrentTimeStamp())
+              .error(ErrorResponse.builder().code(1000).message("FAILURE at HIP").build())
+              .build();
+      log.info("onShareError : " + profileOnShare.toString());
+      try {
+        ResponseEntity<GenericResponse> responseEntity =
+            requestManager.fetchResponseFromGateway(profileOnSharePath, profileOnShare);
+        log.info(profileOnSharePath + " : onShareError: " + responseEntity.getStatusCode());
       } catch (WebClientResponseException.BadRequest ex) {
         ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
         log.error("HTTP error {}: {}", ex.getStatusCode(), error);
