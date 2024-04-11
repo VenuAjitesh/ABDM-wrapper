@@ -135,14 +135,6 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
                 consentArtefact.getId(),
                 notifyHIURequest.getNotification().getStatus());
           }
-          String gatewayRequestId =
-              consentRequestService.getGatewayRequestId(
-                  notifyHIURequest.getNotification().getConsentRequestId());
-          requestLogService.updateConsentResponse(
-              gatewayRequestId,
-              FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE,
-              RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
-              notifyHIURequest.getNotification());
         }
         OnNotifyRequest onNotifyRequest =
             OnNotifyRequest.builder()
