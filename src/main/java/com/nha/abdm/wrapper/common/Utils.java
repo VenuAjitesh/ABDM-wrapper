@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.common;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,12 @@ import org.springframework.stereotype.Component;
 public class Utils {
   public static String getCurrentTimeStamp() {
     return DateTimeFormatter.ISO_INSTANT.format(Instant.now());
+  }
+
+  public static Boolean checkExpiry(String inputDate) {
+    Instant instant = Instant.parse(inputDate);
+    LocalDateTime expiryTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+    return !LocalDateTime.now().isBefore(expiryTime);
   }
 
   public static String getSmsExpiry() {
