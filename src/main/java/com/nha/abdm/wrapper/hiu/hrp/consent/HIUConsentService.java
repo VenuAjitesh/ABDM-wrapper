@@ -4,23 +4,27 @@ package com.nha.abdm.wrapper.hiu.hrp.consent;
 import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.*;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.ConsentArtefact;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.ConsentStatus;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.Notification;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentStatusResponse;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,17 +56,23 @@ public class HIUConsentService implements HIUConsentInterface {
   private final RequestLogService requestLogService;
   private final LogsRepo logsRepo;
   private final PatientRepo patientRepo;
+  private final PatientService patientService;
+  private final ConsentPatientService consentPatientService;
 
   @Autowired
   public HIUConsentService(
       RequestManager requestManager,
       RequestLogService requestLogService,
       LogsRepo logsRepo,
-      PatientRepo patientRepo) {
+      PatientRepo patientRepo,
+      PatientService patientService,
+      ConsentPatientService consentPatientService) {
     this.requestManager = requestManager;
     this.requestLogService = requestLogService;
     this.logsRepo = logsRepo;
     this.patientRepo = patientRepo;
+    this.patientService = patientService;
+    this.consentPatientService = consentPatientService;
   }
 
   @Override
@@ -167,7 +177,7 @@ public class HIUConsentService implements HIUConsentInterface {
       requestLogService.updateError(
           requestLog.getGatewayRequestId(), error.getMessage(), RequestStatus.CONSENT_STATUS_ERROR);
       return ConsentStatusResponse.builder()
-          .error(error.getMessage())
+          .error(ErrorResponse.builder().code(1000).message(error.getMessage()).build())
           .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
           .build();
     } catch (Exception ex) {
@@ -180,7 +190,7 @@ public class HIUConsentService implements HIUConsentInterface {
       requestLogService.updateError(
           requestLog.getGatewayRequestId(), error, RequestStatus.CONSENT_STATUS_ERROR);
       return ConsentStatusResponse.builder()
-          .error(error)
+          .error(ErrorResponse.builder().code(1000).message(error).build())
           .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
           .build();
     }
@@ -264,27 +274,164 @@ public class HIUConsentService implements HIUConsentInterface {
     }
   }
 
-  private ConsentStatusResponse consentOnNotifyResponse(RequestLog requestLog) {
+  private ConsentStatusResponse consentOnNotifyResponse(RequestLog requestLog)
+      throws IllegalDataStateException {
+    if (Objects.nonNull(requestLog) && requestLog.getError() != null) {
+      return ConsentStatusResponse.builder()
+          .status(requestLog.getStatus())
+          .error(ErrorResponse.builder().code(1000).message(requestLog.getError()).build())
+          .httpStatusCode(HttpStatus.OK)
+          .build();
+    }
     Notification notification =
         (Notification)
             requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE);
-    if (requestLog.getError() != null) {
+    if (Objects.nonNull(notification) && notification.getStatus().equalsIgnoreCase("DENIED")) {
       return ConsentStatusResponse.builder()
           .status(requestLog.getStatus())
-          .error(requestLog.getError())
           .httpStatusCode(HttpStatus.OK)
+          .consent(
+              Collections.singletonList(
+                  ConsentStatus.builder().status(notification.getStatus()).build()))
           .build();
+    }
+    if (Objects.nonNull(notification)) {
+      String abhaAddress =
+          consentPatientService
+              .findMappingByConsentId(notification.getConsentArtefacts().get(0).getId())
+              .getAbhaAddress();
+      if (abhaAddress != null) {
+        return ConsentStatusResponse.builder()
+            .status(requestLog.getStatus())
+            .httpStatusCode(HttpStatus.OK)
+            .consent(makeConsentArtifactList(abhaAddress, notification))
+            .build();
+      }
     }
     return ConsentStatusResponse.builder()
         .status(requestLog.getStatus())
         .httpStatusCode(HttpStatus.OK)
-        .consent(
-            ConsentStatus.builder()
-                .id(notification.getConsentRequestId())
-                .status(notification.getStatus())
-                .consentArtefacts(notification.getConsentArtefacts())
-                .build())
+        .error(ErrorResponse.builder().code(1000).message("Consents not found").build())
         .build();
+  }
+  // Displaying the hip details and the careContexts associated with consentId
+  // Fetching the consents from request-logs,
+  // Getting the abhaAddress using consentPatient repo
+  // Using the abhaAddress fetching the consent from patient repo
+  // Sorting them according to the consent status
+  // In patient repo the consent status is updates like revoke and expired
+  // In request-logs first granted consents are un disturbed for tracking when revoked and expired.
+  // TODO
+
+  private List<ConsentStatus> makeConsentArtifactList(String abhaAddress, Notification notification)
+      throws IllegalDataStateException {
+    List<Consent> consentList =
+        notification.getConsentArtefacts().stream()
+            .map(
+                item -> {
+                  try {
+                    return patientService.getConsentDetails(abhaAddress, item.getId());
+                  } catch (IllegalDataStateException e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .toList();
+    List<ConsentArtefact> grantedList = new ArrayList<>();
+    List<ConsentArtefact> revokedList = new ArrayList<>();
+    List<ConsentArtefact> expiredList = new ArrayList<>();
+    Consent consentForDateRange = null;
+    for (Consent consent : consentList) {
+      if (consent == null) {
+        continue;
+      }
+      if (consentForDateRange == null) {
+        consentForDateRange = consent;
+      }
+      List<String> careContextsReferenceList =
+          consent.getConsentDetail().getCareContexts().stream()
+              .map(ConsentCareContexts::getCareContextReference)
+              .collect(Collectors.toList());
+
+      ConsentArtefact consentArtefact =
+          ConsentArtefact.builder()
+              .id(consent.getConsentDetail().getConsentId())
+              .hipId(consent.getConsentDetail().getHip().getId())
+              .careContextReference(careContextsReferenceList)
+              .build();
+
+      switch (consent.getStatus()) {
+        case "GRANTED":
+          if (Utils.checkExpiry(
+              consentForDateRange.getConsentDetail().getPermission().getDataEraseAt())) {
+            expiredList.add(consentArtefact);
+            patientService.updatePatientConsent(
+                abhaAddress, consent.getConsentDetail().getConsentId(), "EXPIRED");
+            log.info(
+                "Updating consent status: EXPIRY for :"
+                    + abhaAddress
+                    + " consentId: "
+                    + consent.getConsentDetail().getConsentId());
+          } else {
+            grantedList.add(consentArtefact);
+          }
+          break;
+        case "REVOKED":
+          revokedList.add(consentArtefact);
+          break;
+        case "EXPIRED":
+          expiredList.add(consentArtefact);
+          break;
+      }
+    }
+    return buildConsentStatusList(grantedList, revokedList, expiredList, consentForDateRange);
+  }
+
+  private List<ConsentStatus> buildConsentStatusList(
+      List<ConsentArtefact> grantedList,
+      List<ConsentArtefact> revokedList,
+      List<ConsentArtefact> expiredList,
+      Consent consentForDateRange) {
+    List<ConsentStatus> consentStatusList = new ArrayList<>();
+    consentStatusList.add(
+        ConsentStatus.builder()
+            .status("GRANTED")
+            .dateRange(
+                consentForDateRange != null
+                    ? consentForDateRange.getConsentDetail().getPermission().getDateRange()
+                    : null)
+            .dataEraseAt(
+                consentForDateRange != null
+                    ? consentForDateRange.getConsentDetail().getPermission().getDataEraseAt()
+                    : null)
+            .consentArtefacts(grantedList)
+            .build());
+    consentStatusList.add(
+        ConsentStatus.builder()
+            .status("REVOKED")
+            .dateRange(
+                consentForDateRange != null
+                    ? consentForDateRange.getConsentDetail().getPermission().getDateRange()
+                    : null)
+            .dataEraseAt(
+                consentForDateRange != null
+                    ? consentForDateRange.getConsentDetail().getPermission().getDataEraseAt()
+                    : null)
+            .consentArtefacts(revokedList)
+            .build());
+    consentStatusList.add(
+        ConsentStatus.builder()
+            .status("EXPIRED")
+            .dateRange(
+                consentForDateRange != null
+                    ? consentForDateRange.getConsentDetail().getPermission().getDateRange()
+                    : null)
+            .dataEraseAt(
+                consentForDateRange != null
+                    ? consentForDateRange.getConsentDetail().getPermission().getDataEraseAt()
+                    : null)
+            .consentArtefacts(expiredList)
+            .build());
+    return consentStatusList;
   }
 
   private ConsentStatusResponse consentOnStatusResponse(RequestLog requestLog) {
@@ -294,7 +441,7 @@ public class HIUConsentService implements HIUConsentInterface {
     return ConsentStatusResponse.builder()
         .status(requestLog.getStatus())
         .httpStatusCode(HttpStatus.OK)
-        .consent(consentStatus)
+        .consent(Collections.singletonList(consentStatus))
         .build();
   }
 
@@ -315,7 +462,7 @@ public class HIUConsentService implements HIUConsentInterface {
       if (requestLog.getError() != null) {
         return ConsentStatusResponse.builder()
             .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
-            .error(requestLog.getError())
+            .error(ErrorResponse.builder().message(requestLog.getError()).code(1000).build())
             .httpStatusCode(HttpStatus.OK)
             .build();
       }
@@ -334,7 +481,7 @@ public class HIUConsentService implements HIUConsentInterface {
       requestLogService.updateError(
           requestLog.getGatewayRequestId(), error, RequestStatus.CONSENT_STATUS_ERROR);
       return ConsentStatusResponse.builder()
-          .error(error)
+          .error(ErrorResponse.builder().code(1000).message(error).build())
           .httpStatusCode(response.getStatusCode())
           .build();
     }
