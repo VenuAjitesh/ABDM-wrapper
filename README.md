@@ -271,8 +271,35 @@ Adding of a patient in a particular facility
     "tokenNumber":"token generated from wrapper which you get from /v1/profile/share"
   }
   ```
-  
+### DeepLinking SMS notify
+- When there are records present at facility and the patient doesn't have a abhaAddress, this SMS request will trigger the ABDM to send an SMS to patient.
+- That message consists of a link which redirects to install an ABHA app and create a abhaAddress.
+- It's up to the patient to link the careContexts, the patient can use user-initiatedLinking to link those existing records. 
+    * `POST` Request to `/v1/sms/notify`
+    ```
+    {
+        "requestId": "{{$guid}}",
+        "timestamp": "{{$isoTimestamp}}",
+        "notification": {
+            "phoneNo": "92932245554",
+            "hip": {
+                "name": "Max Health",
+                "id": "Predator_HIP"
+           }
+        }
+    }
+   ```
+  * Response
+  ```
+  {
+    "clientRequestId": "cfde0a5f-ee14-43ff-96db-998772277435",
+    "code": 0,
+    "httpStatusCode": "ACCEPTED",
+    "message": "DeepLinking request has been accepted by gateway"
+  }
 
+  ```
+  
 ### Discovery and User Initiated Linking
 Follow the steps to link care contexts:
 - When a discover request will land on HIP wrapper, Wrapper will follow this workflow:
@@ -371,27 +398,27 @@ Follow the steps to link care contexts:
         - When the patient enters the otp, the wrapper makes a request to the facility to verify the otp, using the linkRefNumber and token.
         * `POST` Request `/v1/verify/otp`
         * Request:
-        ```
-        {
-          "loginHint":"Discovery OTP request"
-          "requestId":""
-          "authCode":"The OTP"
-          "linkRefNumber":"The same unique id while making a request for OTP"
-        }
-        ```
+          ```
+            {
+                "loginHint":"Discovery OTP request"
+                 "requestId":""
+                 "authCode":"The OTP"
+                 "linkRefNumber":"The same unique id while making a request for OTP"
+            }
+          ```
         - When the otp gets validated the facility should respond back with
         * Response:
-        ```
-        {
-              "requestId":"",
-              "status":"SUCCESS or FAILURE"
-              "error":{
-                  "code":1000,
-                  "message":"If the status if failed or occured any error"
-              }
-              "linkRefNumber":"Unique id for the otp request"
-          }
-        ```
+          ```
+           {
+               "requestId":"",
+               "status":"SUCCESS or FAILURE"
+               "error":{
+                   "code":1000,
+                   "message":"If the status if failed or occured any error"
+               }
+               "linkRefNumber":"Unique id for the otp request"
+           }
+          ```
 
     * After confirmation, a message will be displayed  saying **"Successfully Linked"**.
 
@@ -408,6 +435,15 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
           "requesterId":"Predator_HIP",
           "abhaAddress":"ajiteshx@sbx",
           "authMode":"DEMOGRAPHICS",
+          "hiTypes": [
+             "DiagnosticReport",
+             "DischargeSummary",
+             "HealthDocumentRecord",
+             "ImmunizationRecord",
+             "OPConsultation",
+             "Prescription",
+             "WellnessRecord"
+          ],
           "patient": {
             "careContexts": [
               {
@@ -436,6 +472,14 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
         ```
         curl --location http://localhost:8081/v1/test-wrapper/link-status
         ```
+     - The Response will be
+         ```
+            {
+                 "requestId": "cbf6cd81-88ae-44e8-9ce5-e8c1e5e3b247",
+                 "status": "Care Context(s) were linked",
+                 "error": null
+            }
+         ```
 - Auth mode as `MOBILE_OTP`.
     * Again, this can be done in different ways:
         - Using Postman. Fire a POST request to wrapper which looks like the following:
@@ -447,6 +491,15 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
             "requesterId":"Predator_HIP",
             "abhaAddress":"ajiteshx@sbx",
             "authMode":"MOBILE_OTP",
+            "hiTypes": [
+                "DiagnosticReport",
+                "DischargeSummary",
+                "HealthDocumentRecord",
+                "ImmunizationRecord",
+                "OPConsultation",
+                "Prescription",
+                "WellnessRecord"
+            ],
             "patient": {
               "careContexts": [
                 {
@@ -493,6 +546,14 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
         - If you used Sample HIP, then you can fire a request from postman to get link request status:
           ```
           curl --location http://localhost:8081/v1/test-wrapper/link-status
+          ```
+        - The Response will be
+          ```
+             {
+                  "requestId": "cbf6cd81-88ae-44e8-9ce5-e8c1e5e3b247",
+                  "status": "Care Context(s) were linked",
+                  "error": null
+             }
           ```
 
 ### Consent Creation
@@ -694,6 +755,20 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
    - Or, use [Reference HIU UI](https://github.com/NHA-ABDM/ABDM-wrapper/blob/master/sample-hiu-ui/sample-hiu.html)
      - You would have search patient using their abha address and listed consents and requested for any consent's health information in above step.
      - Hit the second button in Actions column against the consent id to display health information.
+   - The Response of  `/health-information/status/<clientRequestId>`
+      ```
+      {
+         "status": "ENCRYPTED_HEALTH_INFORMATION_RECEIVED",
+         "error": null,
+         "httpStatusCode": "OK",
+         "decryptedHealthInformationEntries": [
+            {
+                "careContextReference": "visit-venu-1-06/02/2024",
+                "bundleContent": "{\"identifier\":{\"system\":\"http://hip.in\",\"value\":\"1ad6c4a6-b049-11ee-9c45-0050568837bb\"},\"entry\":[{\"resource\":{\"date\":\"2024-01-04T15:36:45+05:30\",\"custodian\":{\"reference\":\"Organization/66\",\"display\":\"Demo "}
+            }
+        ]
+     }
+     ```
 ## Helper Applications
 This repository offers few helper sample applications: 
 - **Sample HIP**

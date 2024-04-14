@@ -47,10 +47,15 @@ public class TokenNumberGenerator {
     return String.format("%04d", tokenNumber);
   }
 
-  // Using the ConcurrentHashMap we are storing the hipId, hipCounterCode, and abhaAddress as key
-  // and token number and timestamp as value
-  // When ever we find the exact key checking the timestamp with a token validity of 30 mins
-  // if the token is not expired returning the same token or else generating a new token.//TODO
+  /**
+   * Using the ConcurrentHashMap we are storing the hipId, hipCounterCode, and abhaAddress as key
+   * and token number and timestamp as value When ever we find the exact key checking the timestamp
+   * with a token validity of 30 mins if the token is not expired returning the same token or else
+   * generating a new token.//TODO
+   *
+   * @param profileShare basic patient demographic details.
+   * @param hipId facilityId
+   */
   public String checkTokenStatus(ProfileShare profileShare, String hipId) {
     String abhaAddress = profileShare.getProfile().getPatient().getHealthId();
     String hipCounterCode = profileShare.getProfile().getHipCode();

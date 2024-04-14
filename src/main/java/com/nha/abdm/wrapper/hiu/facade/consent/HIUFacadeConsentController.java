@@ -24,6 +24,13 @@ public class HIUFacadeConsentController {
     this.hiuConsentInterface = hiuConsentInterface;
   }
 
+  /**
+   * Initiating the consent request to ABDM.
+   *
+   * @param initConsentRequest has abhaAddress and consent dateRange and basic requirement for
+   *     consent.
+   * @return status of request from ABDM.
+   */
   @PostMapping({"/consent-init"})
   public ResponseEntity<FacadeResponse> initiateConsentRequest(
       @RequestBody InitConsentRequest initConsentRequest) {
@@ -31,6 +38,12 @@ public class HIUFacadeConsentController {
     return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());
   }
 
+  /**
+   * Getting the status of consent from hiu/status and consent/status api
+   *
+   * @param clientRequestId
+   * @return list of consent artifacts with dateRange,expiry and hip details.
+   */
   @GetMapping({"/consent-status/{requestId}"})
   public ResponseEntity<ConsentStatusResponse> consentRequestStatus(
       @PathVariable("requestId") String clientRequestId) throws IllegalDataStateException {

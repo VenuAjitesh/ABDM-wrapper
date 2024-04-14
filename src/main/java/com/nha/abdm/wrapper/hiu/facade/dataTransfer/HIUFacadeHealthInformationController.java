@@ -28,6 +28,12 @@ public class HIUFacadeHealthInformationController {
 
   @Autowired private HIUFacadeHealthInformationInterface hiuFacadeHealthInformationInterface;
 
+  /**
+   * Initiating the fetch records from HIP
+   *
+   * @param hiuClientHealthInformationRequest has consentId
+   * @return status of request from ABDM
+   */
   @PostMapping({"/fetch-records"})
   public ResponseEntity<FacadeResponse> healthInformation(
       @RequestBody HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
@@ -38,6 +44,12 @@ public class HIUFacadeHealthInformationController {
     return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());
   }
 
+  /**
+   * Displaying the decrypted FHIR bundles from HIP
+   *
+   * @param requestId
+   * @return HealthInformationResponse has careContexts and their FHIR bundles
+   */
   @GetMapping({"/status/{requestId}"})
   public ResponseEntity<HealthInformationResponse> getHealthInformationRequestStatus(
       @PathVariable("requestId") String requestId)
