@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.models;
+package com.nha.abdm.wrapper.hip.hrp.link.deepLinking.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Acknowledgement {
-  private String status;
+public class HIPDetails {
+  private String name;
+  private String id;
 }

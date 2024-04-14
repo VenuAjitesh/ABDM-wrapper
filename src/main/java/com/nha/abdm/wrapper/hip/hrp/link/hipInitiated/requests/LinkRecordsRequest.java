@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests;
 
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.helpers.PatientWithCareContexts;
 import java.io.Serializable;
+import java.util.List;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
@@ -16,5 +17,6 @@ import org.springframework.stereotype.Component;
   private String requesterId;
   private String abhaAddress;
   private String authMode;
+  private List<String> hiTypes;
   private PatientWithCareContexts patient;
 }

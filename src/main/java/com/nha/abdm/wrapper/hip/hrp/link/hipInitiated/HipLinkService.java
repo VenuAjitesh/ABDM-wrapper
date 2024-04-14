@@ -4,6 +4,7 @@ package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated;
 import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
@@ -19,13 +20,12 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.OnDiscoverPatient;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAddCareContext;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAuthInit;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirmRequest;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.*;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.helpers.*;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentCareContexts;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentHIP;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,6 +57,9 @@ public class HipLinkService implements HipLinkInterface {
 
   @Value("${linkAddContextsPath}")
   public String linkAddContextsPath;
+
+  @Value("${linkContextNotifyPath}")
+  public String linkContextNotifyPath;
 
   @Autowired
   public HipLinkService(HIPClient hipClient, RequestManager requestManager) {
@@ -387,6 +390,13 @@ public class HipLinkService implements HipLinkInterface {
             response.getBody().getErrorResponse().getMessage(),
             RequestStatus.ADD_CARE_CONTEXT_ERROR);
       }
+      // When the linkAddContexts is done we have to notify the ABDM gateway that these careContexts
+      // are linked
+      // With particular abhaAddress and what are the HiTypes present in that careContext.
+      for (CareContext careContext : linkRecordsRequest.getPatient().getCareContexts()) {
+        hipContextNotify(
+            linkRecordsRequest, careContext.getReferenceNumber(), patient.getPatientReference());
+      }
     } catch (WebClientResponseException.BadRequest ex) {
       ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
@@ -405,6 +415,58 @@ public class HipLinkService implements HipLinkInterface {
       log.error(error);
       requestLogService.updateError(
           linkAddCareContext.getRequestId(), error, RequestStatus.ADD_CARE_CONTEXT_ERROR);
+    }
+  }
+
+  /**
+   * Notifying ABDM gateway that these careContexts with HiTypes were linked with abhaAddress.
+   *
+   * @param linkRecordsRequest
+   * @param careContextReference
+   * @param patientReference
+   */
+  public void hipContextNotify(
+      LinkRecordsRequest linkRecordsRequest, String careContextReference, String patientReference) {
+    if (Objects.isNull(linkRecordsRequest)
+        || careContextReference == null
+        || patientReference == null) {
+      log.error("hipContextNotify failed because careContexts are null");
+      return;
+    }
+    PatientNotification patientNotification =
+        PatientNotification.builder()
+            .patient(PatientId.builder().id(linkRecordsRequest.getAbhaAddress()).build())
+            .hip(ConsentHIP.builder().id(linkRecordsRequest.getRequesterId()).build())
+            .hiTypes(linkRecordsRequest.getHiTypes())
+            .date(Utils.getCurrentTimeStamp())
+            .careContexts(
+                ConsentCareContexts.builder()
+                    .careContextReference(careContextReference)
+                    .patientReference(patientReference)
+                    .build())
+            .build();
+    LinkContextNotify linkContextNotify =
+        LinkContextNotify.builder()
+            .requestId(UUID.randomUUID().toString())
+            .timestamp(Utils.getCurrentTimeStamp())
+            .notification(patientNotification)
+            .build();
+    log.debug(linkContextNotifyPath + " : " + linkContextNotify.toString());
+    try {
+      ResponseEntity<GenericResponse> response =
+          requestManager.fetchResponseFromGateway(linkContextNotifyPath, linkContextNotify);
+      log.debug(linkContextNotifyPath + " : linkContextNotify: " + response.getStatusCode());
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+    } catch (Exception e) {
+      String error =
+          linkContextNotifyPath
+              + " : hipAddCareContext: Error while performing add care contexts: "
+              + e.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(e);
+      log.error(error);
     }
   }
 }

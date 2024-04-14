@@ -14,6 +14,9 @@ public enum RequestStatus {
   AUTH_ON_ADD_CARE_CONTEXT_ERROR(
       "Error thrown by Gateway for HIP Initiated link auth on add care context"),
   CARE_CONTEXT_LINKED("Care Context(s) were linked"),
+  DEEP_LINKING_SMS_INITIATED("DeepLinking request has been accepted by gateway"),
+  DEEP_LINKING_SMS_ERROR("Error thrown by Gateway for DeepLinking SMS request"),
+
   USER_INIT_REQUEST_RECEIVED_BY_WRAPPER(
       "User initiated link request received by wrapper from gateway"),
   CONSENT_INIT_ACCEPTED("Consent init request accepted by gateway"),
