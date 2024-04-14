@@ -194,12 +194,14 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
       List<HealthInformationBundle> decryptedHealthInformationEntries =
           getDecryptedHealthInformation(healthInformationPushRequest);
       return HealthInformationResponse.builder()
+          .status(requestLog.getStatus())
           .httpStatusCode(HttpStatus.OK)
           .decryptedHealthInformationEntries(decryptedHealthInformationEntries)
           .build();
     } else {
       return HealthInformationResponse.builder()
           .status(requestLog.getStatus())
+          .httpStatusCode(HttpStatus.OK)
           .error("Consent status : " + consentStatus)
           .build();
     }
