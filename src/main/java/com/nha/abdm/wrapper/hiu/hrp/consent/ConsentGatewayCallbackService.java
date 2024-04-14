@@ -3,7 +3,7 @@ package com.nha.abdm.wrapper.hiu.hrp.consent;
 
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
-import com.nha.abdm.wrapper.common.models.Acknowledgement;
+import com.nha.abdm.wrapper.common.models.ConsentAcknowledgement;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
@@ -141,7 +141,8 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
                 .requestId(UUID.randomUUID().toString())
                 .timestamp(Utils.getCurrentTimeStamp())
                 .acknowledgment(
-                    Collections.singletonList((Acknowledgement.builder().status("OK").build())))
+                    Collections.singletonList(
+                        (ConsentAcknowledgement.builder().status("OK").build())))
                 .resp(RespRequest.builder().requestId(notifyHIURequest.getRequestId()).build())
                 .build();
         hiuConsentInterface.hiuOnNotify(onNotifyRequest);
@@ -158,12 +159,15 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
 
       RequestLog requestLog = logsRepo.findByGatewayRequestId(gatewayRequestId);
 
-      List<Acknowledgement> acknowledgements = new ArrayList<>();
+      List<ConsentAcknowledgement> consentAcknowledgements = new ArrayList<>();
       String status = notifyHIURequest.getNotification().getStatus();
       for (ConsentArtefact consentArtefact :
           notifyHIURequest.getNotification().getConsentArtefacts()) {
-        acknowledgements.add(
-            Acknowledgement.builder().status(status).consentId(consentArtefact.getId()).build());
+        consentAcknowledgements.add(
+            ConsentAcknowledgement.builder()
+                .status(status)
+                .consentId(consentArtefact.getId())
+                .build());
         FetchConsentRequest fetchConsentRequest =
             FetchConsentRequest.builder()
                 .consentId(consentArtefact.getId())
@@ -176,7 +180,7 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
           OnNotifyRequest.builder()
               .requestId(UUID.randomUUID().toString())
               .timestamp(Utils.getCurrentTimeStamp())
-              .acknowledgment(acknowledgements)
+              .acknowledgment(consentAcknowledgements)
               .resp(RespRequest.builder().requestId(notifyHIURequest.getRequestId()).build())
               .build();
       hiuConsentInterface.hiuOnNotify(onNotifyRequest);

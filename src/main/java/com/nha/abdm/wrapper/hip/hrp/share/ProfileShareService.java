@@ -52,9 +52,13 @@ public class ProfileShareService implements ProfileShareInterface {
     this.requestLogService = requestLogService;
     this.patientService = patientService;
   }
-  // With the use of hashMap checking the cache token has already been generated
-  // If there already is an entry passing the same token number again instead of generating a new
-  // token
+
+  /**
+   * With the use of hashMap checking the cache token has already been generated If there already is
+   * an entry passing the same token number again instead of generating a new token
+   *
+   * @param profileShare has the basic demographic details for registering the patient in facility.
+   */
   @Override
   public void shareProfile(ProfileShare profileShare, String hipId) {
     String existingToken = tokenNumberGenerator.checkTokenStatus(profileShare, hipId);
