@@ -9,6 +9,7 @@ import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
+import com.nha.abdm.wrapper.hip.hrp.link.deepLinking.requests.DeepLinkingRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,9 +33,15 @@ public class HIPFacadeLinkController {
    * @return acknowledgement of status.
    */
   @GetMapping({"/link-status/{requestId}"})
-  public RequestStatusResponse fetchCareContextStatus(@PathVariable("requestId") String requestId)
-      throws IllegalDataStateException {
-    return workflowManager.getCareContextRequestStatus(requestId);
+  public ResponseEntity<RequestStatusResponse> fetchCareContextStatus(
+      @PathVariable("requestId") String requestId) throws IllegalDataStateException {
+    RequestStatusResponse requestStatusResponse =
+        workflowManager.getCareContextRequestStatus(requestId);
+    if (Objects.isNull(requestStatusResponse.getError())) {
+      return new ResponseEntity<>(requestStatusResponse, HttpStatus.ACCEPTED);
+    } else {
+      return new ResponseEntity<>(requestStatusResponse, HttpStatus.BAD_REQUEST);
+    }
   }
   /**
    * <B>Facade</B> POST method to facade for linking careContexts i.e. hipInitiatedLinking.
@@ -42,8 +50,14 @@ public class HIPFacadeLinkController {
    * @return acknowledgement of status.
    */
   @PostMapping({"/link-carecontexts"})
-  public FacadeResponse linkRecords(@RequestBody LinkRecordsRequest linkRecordsRequest) {
-    return workflowManager.initiateHipAuthInit(linkRecordsRequest);
+  public ResponseEntity<FacadeResponse> linkRecords(
+      @RequestBody LinkRecordsRequest linkRecordsRequest) {
+    FacadeResponse facadeResponse = workflowManager.initiateHipAuthInit(linkRecordsRequest);
+    if (Objects.isNull(facadeResponse.getError())) {
+      return new ResponseEntity<>(facadeResponse, HttpStatus.ACCEPTED);
+    } else {
+      return new ResponseEntity<>(facadeResponse, HttpStatus.BAD_REQUEST);
+    }
   }
 
   /**
@@ -52,19 +66,22 @@ public class HIPFacadeLinkController {
    * @param verifyOTP Response has OTP and clientRequestId.
    */
   @PostMapping({"/verify-otp"})
-  public FacadeResponse verifyOtp(@RequestBody VerifyOTP verifyOTP)
+  public ResponseEntity<FacadeResponse> verifyOtp(@RequestBody VerifyOTP verifyOTP)
       throws IllegalDataStateException {
     log.debug(verifyOTP.toString());
     if (Objects.equals(verifyOTP.getLoginHint(), "hipLinking")) {
-      return workflowManager.confirmAuthOtp(verifyOTP);
+      FacadeResponse facadeResponse = workflowManager.confirmAuthOtp(verifyOTP);
+      return new ResponseEntity<>(facadeResponse, HttpStatus.ACCEPTED);
     }
-    return FacadeResponse.builder()
-        .error(
-            ErrorResponse.builder()
-                .message("Unknown Login Hint")
-                .code(HttpStatus.BAD_REQUEST.value())
-                .build())
-        .build();
+    return new ResponseEntity<>(
+        FacadeResponse.builder()
+            .error(
+                ErrorResponse.builder()
+                    .message("Unknown Login Hint")
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .build())
+            .build(),
+        HttpStatus.BAD_REQUEST);
   }
 
   /**
@@ -74,8 +91,28 @@ public class HIPFacadeLinkController {
    * @return acknowledgement of storing patient.
    */
   @PutMapping({"/add-patients"})
-  public FacadeResponse addPatients(@RequestBody List<Patient> patients) {
-    return workflowManager.addPatients(patients);
+  public ResponseEntity<FacadeResponse> addPatients(@RequestBody List<Patient> patients) {
+
+    FacadeResponse facadeResponse = workflowManager.addPatients(patients);
+    if (Objects.isNull(facadeResponse.getError())) {
+      return new ResponseEntity<>(facadeResponse, HttpStatus.ACCEPTED);
+    } else {
+      return new ResponseEntity<>(facadeResponse, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  /**
+   * This API is used for sending a request for ABDM to send a sms to the patient Telling the
+   * patient that there are records present at facility link them with user-initiatedLinking.
+   *
+   * @param deepLinkingRequest has the hipId and patient mobile number for sending sms.
+   * @return the success or failure of the request to ABDM gateway.
+   */
+  @PostMapping({"/sms/notify"})
+  public ResponseEntity<FacadeResponse> deepLinking(
+      @RequestBody DeepLinkingRequest deepLinkingRequest) {
+    FacadeResponse facadeResponse = workflowManager.sendDeepLinkingSms(deepLinkingRequest);
+    return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());
   }
 
   /**

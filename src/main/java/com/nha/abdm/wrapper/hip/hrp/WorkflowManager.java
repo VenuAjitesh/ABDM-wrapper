@@ -15,6 +15,8 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.discover.DiscoveryInterface;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
+import com.nha.abdm.wrapper.hip.hrp.link.deepLinking.DeepLinkingInterface;
+import com.nha.abdm.wrapper.hip.hrp.link.deepLinking.requests.DeepLinkingRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.HipLinkInterface;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
@@ -48,6 +50,7 @@ public class WorkflowManager {
   @Autowired HealthInformationInterface healthInformationInterface;
   @Autowired RequestLogService requestLogService;
   @Autowired ProfileShareInterface profileShareInterface;
+  @Autowired DeepLinkingInterface deepLinkingInterface;
 
   /**
    * userInitiated linking
@@ -196,8 +199,28 @@ public class WorkflowManager {
     healthInformationInterface.healthInformation(hipHealthInformationRequest);
   }
 
+  /**
+   * profileShare
+   *
+   * <p>Routing the profileShare request to shareInterface for generating the token number and
+   * sharing with ABDM
+   *
+   * @param profileShare request body which has demographic details.
+   */
   public void profileShare(ProfileShare profileShare, String hipId) {
     log.debug(profileShare.toString());
     profileShareInterface.shareProfile(profileShare, hipId);
+  }
+
+  /**
+   * DeepLinking
+   *
+   * <p>Sending the sms to patient via ABDM saying that there are some records present at facility.
+   *
+   * @param deepLinkingRequest request body which has hipId and patient mobile number.
+   */
+  public FacadeResponse sendDeepLinkingSms(DeepLinkingRequest deepLinkingRequest) {
+    log.debug(deepLinkingRequest.toString());
+    return deepLinkingInterface.sendDeepLinkingSms(deepLinkingRequest);
   }
 }

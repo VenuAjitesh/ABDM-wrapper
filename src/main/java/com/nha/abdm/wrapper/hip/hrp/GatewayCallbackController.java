@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.hip.hrp;
 
 import com.nha.abdm.wrapper.common.GatewayConstants;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.models.StatusResponse;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.ConsentService;
@@ -268,11 +269,25 @@ public class GatewayCallbackController {
   public ResponseEntity<GatewayCallbackResponse> profileShare(
       @RequestHeader("X-HIP-ID") String hipId, @RequestBody ProfileShare profileShare) {
     if (profileShare != null) {
-      profileShareInterface.shareProfile(profileShare, hipId);
+      workflowManager.profileShare(profileShare, hipId);
     } else {
       log.debug("Invalid profile share request");
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @PostMapping({"/v0.5/links/context/on-notify"})
+  public ResponseEntity<GatewayCallbackResponse> contextOnNotify(
+      @RequestBody StatusResponse statusResponse) {
+    log.info(statusResponse);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @PostMapping({"/v0.5/patients/status/on-notify"})
+  public ResponseEntity<GatewayCallbackResponse> deepLinkingOnNotify(
+      @RequestBody StatusResponse statusResponse) {
+    log.info(statusResponse);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 }
