@@ -98,7 +98,7 @@ public class HealthInformationService implements HealthInformationInterface {
             .build();
     // Lookup in consent patient table is good enough as we are saving mapping when we are saving
     // consent in patient table.
-    ConsentPatient consentPatient = consentPatientService.findMappingByConsentId(consentId);
+    ConsentPatient consentPatient = consentPatientService.findMappingByConsentId(consentId, "HIP");
     String gatewayRequestId = UUID.randomUUID().toString();
     if (Objects.nonNull(consentPatient)) {
       onHealthInformationRequest =

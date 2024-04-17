@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class RequestOtp {
   private String abhaAddress;
   private String patientReference;
+
 }

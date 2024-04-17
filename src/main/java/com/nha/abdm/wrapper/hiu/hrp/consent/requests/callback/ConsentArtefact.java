@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ConsentArtefact {
   private String id;
+  private String lastUpdated;
   private String hipId;
   private List<String> careContextReference;
 }

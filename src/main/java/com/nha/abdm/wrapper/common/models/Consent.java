@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Consent {
   private String status;
+  private String timestamp;
   private ConsentDetail consentDetail;
   private String signature;
 }

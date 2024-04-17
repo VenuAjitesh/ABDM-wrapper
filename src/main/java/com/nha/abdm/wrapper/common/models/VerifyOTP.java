@@ -15,4 +15,5 @@ public class VerifyOTP {
   private String requestId;
   private String authCode;
   private String linkRefNumber;
+
 }

@@ -69,7 +69,7 @@ public class SessionManager {
    * The accessToken expires at 20 minutes post creating, using this scheduler refreshing the
    * accessToken every 18 minutes to avoid Unauthorized error.
    */
-  @Scheduled(initialDelay = 18 * 60 * 1000, fixedRate = 18 * 60 * 1000)
+  @Scheduled(initialDelay = 15 * 60 * 1000, fixedRate = 15 * 60 * 1000)
   private void startSession() throws Throwable {
 
     CreateSessionRequest createSessionRequest =
