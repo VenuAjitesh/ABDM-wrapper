@@ -18,5 +18,4 @@ public class StatusResponse {
   private RespRequest resp;
   private String status;
   private Acknowledgement acknowledgement;
-
 }
