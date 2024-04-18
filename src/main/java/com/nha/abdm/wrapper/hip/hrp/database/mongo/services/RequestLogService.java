@@ -372,6 +372,25 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
+  public <T> void updateConsentRequest(
+      String requestId, String identifier, RequestStatus requestStatus, T consentDetails)
+      throws IllegalDataStateException {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
+    if (requestLog == null) {
+      throw new IllegalDataStateException("Request not found for request id: " + requestId);
+    }
+    Map<String, Object> map = requestLog.getRequestDetails();
+    if (map == null) {
+      map = new HashMap<>();
+    }
+    map.put(identifier, consentDetails);
+    Update update = new Update();
+    update.set(FieldIdentifiers.REQUEST_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, requestStatus);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
   public void dataTransferNotify(
       HIPNotifyRequest hipNotifyRequest,
       RequestStatus requestStatus,

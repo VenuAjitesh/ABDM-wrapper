@@ -68,6 +68,7 @@ public class ConsentService implements ConsentInterface {
           RespRequest.builder().requestId(hipNotifyRequest.getRequestId()).build();
       Consent consent =
           Consent.builder()
+              .timestamp(hipNotifyRequest.getTimestamp())
               .status(hipNotification.getStatus())
               .consentDetail(hipNotification.getConsentDetail())
               .signature(hipNotification.getSignature())

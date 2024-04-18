@@ -36,8 +36,13 @@ public class ConsentPatientService {
         updateOptions);
   }
 
-  public ConsentPatient findMappingByConsentId(String consentId) {
-    Query query = new Query(Criteria.where(FieldIdentifiers.CONSENT_ID).is(consentId));
+  public ConsentPatient findMappingByConsentId(String consentId, String entityType) {
+    Query query =
+        new Query(
+            Criteria.where(FieldIdentifiers.CONSENT_ID)
+                .is(consentId)
+                .and(FieldIdentifiers.ENTITY_TYPE)
+                .is(entityType));
     return mongoTemplate.findOne(query, ConsentPatient.class);
   }
 }

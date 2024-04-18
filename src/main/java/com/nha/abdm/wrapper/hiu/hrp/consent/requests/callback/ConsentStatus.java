@@ -2,7 +2,6 @@
 package com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.DateRange;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +21,5 @@ public class ConsentStatus {
   @JsonIgnore private String id;
 
   private String status;
-  private DateRange dateRange;
-  private String dataEraseAt;
   private List<ConsentArtefact> consentArtefacts;
 }

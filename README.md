@@ -180,7 +180,7 @@ We need to first add patient's details into wrapper's database. There are differ
       "patientReference":"govada2704",
       "gender":"M",
       "dateOfBirth":"YYYY-MM-DD",
-      "display": "Govada Venu Ajitesh",
+      "patientDisplay": "Govada Venu Ajitesh",
       "patientMobile":"Patient mobile"
     }]'
    ```
@@ -627,59 +627,121 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
     "status": "CONSENT_FETCH_ACCEPTED",
     "error": null,
     "httpStatusCode": "OK",
-    "consent": [
-        {
-            "status": "GRANTED",
-            "dateRange": {
-                "from": "2023-02-16T11:43:18.548Z",
-                "to": "2024-03-15T11:43:18.548Z"
+    "initConsentRequest": { //Initiated consent details
+        "requestId": "1657430f-8639-419d-bdbc-e6ab361c311a",
+        "timestamp": "2024-04-17T17:53:34.441Z",
+        "consent": {
+            "purpose": {
+                "text": "string",
+                "code": "CAREMGT",
+                "refUri": null
             },
-            "dataEraseAt": "2024-04-12T11:48:18.548Z",
-            "consentArtefacts": [
-                {
-                    "id": "567b26a1-3bf3-4665-b05a-1dc435de899f",
-                    "hipId": "NIT-N-Ajitesh",
-                    "careContextReference": [
-                        "fbb4b52f-2523-4ebd-adeb-ecb9efe8d107"
-                    ]
+            "patient": {
+                "id": "g_ajitesh2001@sbx"
+            },
+            "hip": null,
+            "careContexts": null,
+            "hiu": {
+                "id": "Demo_Ajitesh_HIP"
+            },
+            "requester": {
+                "name": "Dr. Venu AJitesh",
+                "identifier": {
+                    "type": "REGNO",
+                    "value": "MH1001",
+                    "system": "https://www.mciindia.org"
+                }
+            },
+            "hiTypes": [
+                "DiagnosticReport",
+                "DischargeSummary",
+                "HealthDocumentRecord",
+                "ImmunizationRecord",
+                "OPConsultation",
+                "Prescription",
+                "WellnessRecord"
+            ],
+            "permission": {
+                "accessMode": "VIEW",
+                "dateRange": {
+                    "from": "2023-02-16T12:45:18.548Z",
+                    "to": "2024-03-15T11:43:18.548Z"
                 },
-                {
-                    "id": "c2743781-6fc8-4cc2-a8f7-f06f0040802c",
-                    "hipId": "Demo_Ajitesh_HIP",
-                    "careContextReference": [
-                        "visit-venu-11/02/2024"
-                    ]
+                "dataEraseAt": "2024-04-18T16:25:54.941Z",
+                "frequency": {
+                    "unit": "HOUR",
+                    "value": 1,
+                    "repeats": 0
                 }
-            ]
-        },
-        {
-            "status": "REVOKED",
-            "dateRange": {
-                "from": "2023-02-16T11:43:18.548Z",
-                "to": "2024-03-15T11:43:18.548Z"
-            },
-            "dataEraseAt": "2024-04-12T11:48:18.548Z",
-            "consentArtefacts": [
-                {
-                    "id": "423d6677-bebe-421b-ae28-e3ef4c6bb63b",
-                    "hipId": "Predator_HIP",
-                    "careContextReference": [
-                        "visit-venu-06/02/2024",
-                        "visit-venu-1-06/02/2024"
-                    ]
-                }
-            ]
-        },
-        {
-            "status": "EXPIRED",
-            "dateRange": {
-                "from": "2023-02-16T11:43:18.548Z",
-                "to": "2024-03-15T11:43:18.548Z"
-            },
-            "dataEraseAt": "2024-04-12T11:48:18.548Z",
-            "consentArtefacts": []
+            }
         }
-    ]
+    },
+    "consentDetails": { // GRANTED consent details
+        "dateRange": {
+            "from": "2023-02-16T12:45:18.548Z",
+            "to": "2024-03-15T11:43:18.548Z"
+        },
+        "dataEraseAt": "2024-04-18T16:25:54.941Z",
+        "hiTypes": [
+            "DiagnosticReport",
+            "DischargeSummary",
+            "HealthDocumentRecord",
+            "ImmunizationRecord",
+            "OPConsultation",
+            "Prescription",
+            "WellnessRecord"
+        ],
+        "consent": [ // If the consent is EXPIRED it will be in shown in EXPIRED entry.
+            {
+                "status": "REVOKED",
+                "consentArtefacts": [
+                    {
+                        "id": "b480ac3b-c5a7-4ff4-9cc2-366ae94f2a99",
+                        "lastUpdated": "2024-04-17T17:55:09.652Z",
+                        "hipId": "Predator_HIP",
+                        "careContextReference": [
+                            "visit-venu-12/02/2024",
+                            "f233b018-c4e8-4ae3-b5f9-33cbbb0a892c",
+                            "visit-ajitesh2001 3/04/2024"
+                        ]
+                    }
+                ]
+            },
+            {
+                "status": "GRANTED",
+                "consentArtefacts": [
+                    {
+                        "id": "b3395b53-b44c-4670-a65f-fca2802cedc8",
+                        "lastUpdated": "2024-04-17T17:53:51.044Z",
+                        "hipId": "Predator_HIP",
+                        "careContextReference": [
+                            "visit-venu-12/02/2024",
+                            "f233b018-c4e8-4ae3-b5f9-33cbbb0a892c",
+                            "visit-ajitesh2001 3/04/2024"
+                        ]
+                    },
+                    {
+                        "id": "7e1ea746-b25c-4087-b2c3-8fd08ab66c58",
+                        "lastUpdated": "2024-04-17T17:53:51.077Z",
+                        "hipId": "Predator_HIP",
+                        "careContextReference": [
+                            "visit-venu-12/02/2024",
+                            "f233b018-c4e8-4ae3-b5f9-33cbbb0a892c",
+                            "visit-ajitesh2001 3/04/2024"
+                        ]
+                    },
+                    {
+                        "id": "ae437aff-bbc0-42fa-8588-2745712b0167",
+                        "lastUpdated": "2024-04-17T17:53:51.090Z",
+                        "hipId": "NIT-N-Ajitesh",
+                        "careContextReference": [
+                            "visit-ajitesh2001 1/04/2024"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
   }
   ```
 
@@ -697,6 +759,7 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
    }
    ```
 - The api should return a response object:
+- If there are multiple HiTypes within a single careContext, add the next hiType FHIR bundle as different entry in the array with same careContextReference.
   ```
   {
      "healthInformationBundle": [

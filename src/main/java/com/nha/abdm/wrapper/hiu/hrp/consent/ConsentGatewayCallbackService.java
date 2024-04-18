@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.hiu.hrp.consent;
 
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.models.ConsentAcknowledgement;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -125,15 +126,16 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
               gatewayRequestId,
               FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE,
               RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
-              notifyHIURequest.getNotification());
+              notifyHIURequest);
         } else {
           for (ConsentArtefact consentArtefact : consentArtefacts) {
             patientService.updatePatientConsent(
                 consentPatientService
-                    .findMappingByConsentId(consentArtefact.getId())
+                    .findMappingByConsentId(consentArtefact.getId(), "HIU")
                     .getAbhaAddress(),
                 consentArtefact.getId(),
-                notifyHIURequest.getNotification().getStatus());
+                notifyHIURequest.getNotification().getStatus(),
+                notifyHIURequest.getTimestamp());
           }
         }
         OnNotifyRequest onNotifyRequest =
@@ -155,7 +157,7 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
           gatewayRequestId,
           FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE,
           RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
-          notifyHIURequest.getNotification());
+          notifyHIURequest);
 
       RequestLog requestLog = logsRepo.findByGatewayRequestId(gatewayRequestId);
 
@@ -211,7 +213,13 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
         && Objects.nonNull(onFetchRequest.getConsent())
         && Objects.nonNull(onFetchRequest.getConsent().getConsentDetail())) {
       String patientId = onFetchRequest.getConsent().getConsentDetail().getPatient().getId();
-      patientService.addConsent(patientId, onFetchRequest.getConsent());
+      Consent consent =
+          Consent.builder()
+              .timestamp(onFetchRequest.getTimestamp())
+              .consentDetail(onFetchRequest.getConsent().getConsentDetail())
+              .status(onFetchRequest.getConsent().getStatus())
+              .build();
+      patientService.addConsent(patientId, consent);
       consentPatientService.saveConsentPatientMapping(
           onFetchRequest.getConsent().getConsentDetail().getConsentId(), patientId, "HIU");
     } else {

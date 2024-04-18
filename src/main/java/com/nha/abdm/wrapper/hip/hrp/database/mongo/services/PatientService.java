@@ -1,14 +1,9 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 
-import static com.mongodb.client.model.Updates.set;
-
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
@@ -130,6 +125,7 @@ public class PatientService {
   }
 
   public void addConsent(String abhaAddress, Consent consent) throws IllegalDataStateException {
+    log.info("Consent : " + consent.toString());
     Patient patient = patientRepo.findByAbhaAddress(abhaAddress);
     if (patient == null) {
       throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
@@ -252,13 +248,17 @@ public class PatientService {
     return patientRepo.findByAbhaAddress(abhaAddress);
   }
 
-  public void updatePatientConsent(String abhaAddress, String consentId, String consentStatus) {
+  public void updatePatientConsent(
+      String abhaAddress, String consentId, String consentStatus, String lastUpdated) {
     MongoCollection<Document> collection = mongoTemplate.getCollection("patients");
     Bson filter =
         Filters.and(
             Filters.eq(FieldIdentifiers.ABHA_ADDRESS, abhaAddress),
             Filters.eq("consents.consentDetail.consentId", consentId));
-    Bson update = set("consents.$.status", consentStatus);
+    Bson update =
+        Updates.combine(
+            Updates.set("consents.$.status", consentStatus),
+            Updates.set("consents.$.timestamp", lastUpdated));
     UpdateResult result = collection.updateOne(filter, update);
     log.debug("consent update result: ", result);
   }

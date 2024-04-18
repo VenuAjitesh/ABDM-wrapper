@@ -16,7 +16,7 @@ public class Utils {
   public static Boolean checkExpiry(String inputDate) {
     Instant instant = Instant.parse(inputDate);
     LocalDateTime expiryTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
-    return !LocalDateTime.now().isBefore(expiryTime);
+    return LocalDateTime.now().isAfter(expiryTime);
   }
 
   public static String getSmsExpiry() {

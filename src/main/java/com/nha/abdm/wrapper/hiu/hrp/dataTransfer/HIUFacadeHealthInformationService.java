@@ -98,7 +98,8 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
     // Fetching dateRange from consent present in db.
     Consent consentDetails =
         patientService.getConsentDetails(
-            consentPatientService.findMappingByConsentId(consentId).getAbhaAddress(), consentId);
+            consentPatientService.findMappingByConsentId(consentId, "HIU").getAbhaAddress(),
+            consentId);
     if (Objects.isNull(consentDetails)) {
       return FacadeResponse.builder()
           .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
@@ -175,7 +176,9 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
       throw new IllegalDataStateException("Request no found for request id: " + requestId);
     }
     String abhaAddress =
-        consentPatientService.findMappingByConsentId(requestLog.getConsentId()).getAbhaAddress();
+        consentPatientService
+            .findMappingByConsentId(requestLog.getConsentId(), "HIU")
+            .getAbhaAddress();
     String consentStatus = null;
     if (abhaAddress != null) {
       consentStatus =
