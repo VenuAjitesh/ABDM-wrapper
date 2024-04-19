@@ -191,16 +191,25 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           || Objects.isNull(responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION))) {
         return HealthInformationResponse.builder().status(requestLog.getStatus()).build();
       }
-      List<HealthInformationPushRequest> healthInformationPushRequest =
-          (List<HealthInformationPushRequest>)
-              responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION);
-      List<HealthInformationBundle> decryptedHealthInformationEntries =
-          getDecryptedHealthInformation(healthInformationPushRequest);
-      return HealthInformationResponse.builder()
-          .status(requestLog.getStatus())
-          .httpStatusCode(HttpStatus.OK)
-          .decryptedHealthInformationEntries(decryptedHealthInformationEntries)
-          .build();
+      try {
+        List<HealthInformationPushRequest> healthInformationPushRequest =
+            (List<HealthInformationPushRequest>)
+                responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION);
+        List<HealthInformationBundle> decryptedHealthInformationEntries =
+            getDecryptedHealthInformation(healthInformationPushRequest);
+        return HealthInformationResponse.builder()
+            .status(requestLog.getStatus())
+            .httpStatusCode(HttpStatus.OK)
+            .decryptedHealthInformationEntries(decryptedHealthInformationEntries)
+            .build();
+      } catch (Exception e) {
+        log.error(e.getMessage());
+        return HealthInformationResponse.builder()
+            .status(RequestStatus.DECRYPTION_ERROR)
+            .httpStatusCode(HttpStatus.UNPROCESSABLE_ENTITY)
+            .error("Unable to decrypt the data sent by HIP")
+            .build();
+      }
     } else {
       return HealthInformationResponse.builder()
           .status(requestLog.getStatus())
@@ -269,19 +278,27 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
       String hiuNonce = consentCipherMapping.getNonce();
       List<HealthInformationEntry> healthInformationEntries =
           healthInformationPushRequest.getEntries();
-
       for (HealthInformationEntry healthInformationEntry : healthInformationEntries) {
-        decryptedHealthInformationEntries.add(
-            HealthInformationBundle.builder()
-                .bundleContent(
-                    decryptionManager.decryptedHealthInformation(
-                        hipNonce,
-                        hiuNonce,
-                        hiuPrivateKey,
-                        hipPublicKey,
-                        healthInformationEntry.getContent()))
-                .careContextReference(healthInformationEntry.getCareContextReference())
-                .build());
+        try {
+          decryptedHealthInformationEntries.add(
+              HealthInformationBundle.builder()
+                  .bundleContent(
+                      decryptionManager.decryptedHealthInformation(
+                          hipNonce,
+                          hiuNonce,
+                          hiuPrivateKey,
+                          hipPublicKey,
+                          healthInformationEntry.getContent()))
+                  .careContextReference(healthInformationEntry.getCareContextReference())
+                  .build());
+        } catch (Exception e) {
+          log.error(e.getMessage());
+          decryptedHealthInformationEntries.add(
+              HealthInformationBundle.builder()
+                  .bundleContent("ERROR: " + e.getMessage())
+                  .careContextReference(healthInformationEntry.getCareContextReference())
+                  .build());
+        }
       }
     }
     return decryptedHealthInformationEntries;

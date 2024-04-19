@@ -46,7 +46,8 @@ public enum RequestStatus {
   HEALTH_INFORMATION_ON_REQUEST_ERROR("Error thrown by Gateway for onRequest done by HIP"),
   ENCRYPTED_HEALTH_INFORMATION_RECEIVED("Encrypted Health Information received by HIU from HIP"),
   ENCRYPTED_HEALTH_INFORMATION_ERROR(
-      "Error while receiving encrypted Health Information by HIU from HIP");
+      "Error while receiving encrypted Health Information by HIU from HIP"),
+  DECRYPTION_ERROR("Unable to decrypt the data sent by HIP");
 
   private String value;
 
