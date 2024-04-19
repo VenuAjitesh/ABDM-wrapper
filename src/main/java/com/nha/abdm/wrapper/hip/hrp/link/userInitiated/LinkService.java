@@ -210,7 +210,6 @@ public class LinkService implements LinkInterface {
           OnConfirmRequest.builder()
               .requestId(UUID.randomUUID().toString())
               .timestamp(Utils.getCurrentTimeStamp())
-              .patient(onConfirmPatient)
               .error(ErrorResponse.builder().code(1000).message("Incorrect Otp").build())
               .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
               .build();
