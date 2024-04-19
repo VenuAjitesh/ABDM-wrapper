@@ -215,7 +215,8 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
       String patientId = onFetchRequest.getConsent().getConsentDetail().getPatient().getId();
       Consent consent =
           Consent.builder()
-              .timestamp(onFetchRequest.getTimestamp())
+              .lastUpdatedOn(onFetchRequest.getTimestamp())
+              .lastUpdatedOn(onFetchRequest.getTimestamp())
               .consentDetail(onFetchRequest.getConsent().getConsentDetail())
               .status(onFetchRequest.getConsent().getStatus())
               .build();

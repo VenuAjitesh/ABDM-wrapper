@@ -397,6 +397,7 @@ public class HIUConsentService implements HIUConsentInterface {
     Consent consentForDateRange = consentList.get(0);
     return FacadeConsentDetails.builder()
         .consent(consentStatusList)
+        .grantedOn(consentForDateRange.getGrantedOn())
         .hiTypes(consentForDateRange.getConsentDetail().getHiTypes())
         .dataEraseAt(consentForDateRange.getConsentDetail().getPermission().getDataEraseAt())
         .dateRange(consentForDateRange.getConsentDetail().getPermission().getDateRange())
@@ -406,7 +407,7 @@ public class HIUConsentService implements HIUConsentInterface {
   private ConsentArtefact createConsentArtefact(Consent consent) {
     return ConsentArtefact.builder()
         .id(consent.getConsentDetail().getConsentId())
-        .lastUpdated(consent.getTimestamp())
+        .lastUpdated(consent.getLastUpdatedOn())
         .hipId(consent.getConsentDetail().getHip().getId())
         .careContextReference(
             consent.getConsentDetail().getCareContexts().stream()
