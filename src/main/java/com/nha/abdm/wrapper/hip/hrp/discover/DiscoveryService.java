@@ -212,12 +212,12 @@ public class DiscoveryService implements DiscoveryInterface {
     if (Objects.isNull(hipPatient)) {
       ErrorResponse errorResponse = new ErrorResponse();
       errorResponse.setCode(1000);
-      errorResponse.setMessage("HIP -> Patient not found in HIP");
+      errorResponse.setMessage("Patient not found in HIP");
       onDiscoverNoPatientRequest(discoverRequest, errorResponse);
     } else if (CollectionUtils.isEmpty(hipPatient.getCareContexts())) {
       ErrorResponse errorResponse = new ErrorResponse();
       errorResponse.setCode(1000);
-      errorResponse.setMessage("HIP -> Care Contexts not found for patient: " + abhaAddress);
+      errorResponse.setMessage("Care Contexts not found for patient");
       onDiscoverNoPatientRequest(discoverRequest, errorResponse);
     } else {
       List<CareContext> careContexts = hipPatient.getCareContexts();
@@ -233,6 +233,13 @@ public class DiscoveryService implements DiscoveryInterface {
             careContexts.stream()
                 .filter(x -> !linkedCareContextsSet.contains(x.getReferenceNumber()))
                 .collect(Collectors.toList());
+      }
+      if (unlinkedCareContexts.isEmpty()) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setCode(1000);
+        errorResponse.setMessage("Care Contexts not found for patient");
+        onDiscoverNoPatientRequest(discoverRequest, errorResponse);
+        return;
       }
       onDiscoverRequest(
           discoverRequest,
