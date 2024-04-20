@@ -258,7 +258,7 @@ public class PatientService {
     Bson update =
         Updates.combine(
             Updates.set("consents.$.status", consentStatus),
-            Updates.set("consents.$.timestamp", lastUpdated));
+            Updates.set("consents.$.lastUpdatedOn", lastUpdated));
     UpdateResult result = collection.updateOne(filter, update);
     log.debug("consent update result: ", result);
   }

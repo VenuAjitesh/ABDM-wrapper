@@ -23,10 +23,7 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareCon
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -463,11 +460,19 @@ public class RequestLogService<T> {
                   .build())
           .build();
     }
-    Map<String, Object> map = requestLog.getRequestDetails();
+    Map<String, Object> map = requestLog.getResponseDetails();
     if (map == null) {
       map = new HashMap<>();
     }
-    map.put(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION, healthInformationPushRequest);
+    List<HealthInformationPushRequest> healthInformationPushRequests = new ArrayList<>();
+    Object existingObject = map.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION);
+    if (existingObject != null) {
+      List<HealthInformationPushRequest> existingList =
+          (List<HealthInformationPushRequest>) existingObject;
+      healthInformationPushRequests.addAll(existingList);
+    }
+    healthInformationPushRequests.add(healthInformationPushRequest);
+    map.put(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION, healthInformationPushRequests);
     Update update = new Update();
     update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
     update.set(FieldIdentifiers.STATUS, requestStatus);
