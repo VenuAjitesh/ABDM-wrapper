@@ -3,7 +3,9 @@ package com.nha.abdm.wrapper.common.requests;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.ApplicationConfig;
-import java.text.MessageFormat;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +14,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.Exceptions;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.ProxyProvider;
+import reactor.util.retry.Retry;
+
+import java.text.MessageFormat;
+import java.time.Duration;
 
 @Component
 public class SessionManager {
@@ -40,6 +50,12 @@ public class SessionManager {
 
   @Value("${proxyPort}")
   private int proxyPort;
+
+  @Value("${connectionTimeout}")
+  private int connectionTimeout;
+
+  @Value("${responseTimeout}")
+  private int responseTimeout;
 
   private static final Logger log = LogManager.getLogger(SessionManager.class);
 
@@ -69,7 +85,11 @@ public class SessionManager {
    * The accessToken expires at 20 minutes post creating, using this scheduler refreshing the
    * accessToken every 18 minutes to avoid Unauthorized error.
    */
-  @Scheduled(initialDelay = 15 * 60 * 1000, fixedRate = 15 * 60 * 1000)
+  @Scheduled(initialDelay = 10 * 60 * 1000, fixedRate = 10 * 60 * 1000)
+  @Retryable(
+      value = {WebClientRequestException.class, ReadTimeoutException.class},
+      maxAttempts = 5,
+      backoff = @Backoff(delay = 1000, multiplier = 2))
   private void startSession() throws Throwable {
 
     CreateSessionRequest createSessionRequest =
@@ -100,33 +120,49 @@ public class SessionManager {
   }
 
   private ResponseEntity<ObjectNode> getSessionResponse(CreateSessionRequest createSessionRequest) {
-    WebClient webClient;
-    if (useProxySettings) {
-      webClient =
-          WebClient.builder()
-              .baseUrl(gatewayBaseUrl)
-              .clientConnector(new ReactorClientHttpConnector(getHttpClient()))
-              .build();
-    } else {
-      webClient = WebClient.builder().baseUrl(gatewayBaseUrl).build();
-    }
+    WebClient webClient =
+        WebClient.builder()
+            .baseUrl(gatewayBaseUrl)
+            .clientConnector(new ReactorClientHttpConnector(getHttpClient(useProxySettings)))
+            .build();
+
     return webClient
         .post()
         .uri(createSessionPath)
         .body(BodyInserters.fromValue(createSessionRequest))
         .retrieve()
         .toEntity(ObjectNode.class)
+        .retryWhen(
+            Retry.backoff(5, Duration.ofSeconds(5))
+                .filter(
+                    throwable ->
+                        throwable instanceof HttpServerErrorException
+                            || throwable instanceof WebClientRequestException
+                                && throwable.getCause() instanceof TimeoutException))
         .block();
   }
 
-  public HttpClient getHttpClient() {
-    HttpClient httpClient =
-        HttpClient.create()
-            .tcpConfiguration(
-                tcpClient ->
-                    tcpClient.proxy(
-                        proxy ->
-                            proxy.type(ProxyProvider.Proxy.HTTP).host(proxyHost).port(proxyPort)));
+  public HttpClient getHttpClient(boolean useProxySettings) {
+    HttpClient httpClient;
+    if (useProxySettings) {
+      httpClient =
+          HttpClient.create()
+              .responseTimeout(Duration.ofSeconds(responseTimeout))
+              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+              .tcpConfiguration(
+                  tcpClient ->
+                      tcpClient.proxy(
+                          proxy ->
+                              proxy
+                                  .type(ProxyProvider.Proxy.HTTP)
+                                  .host(proxyHost)
+                                  .port(proxyPort)));
+    } else {
+      httpClient =
+          HttpClient.create()
+              .responseTimeout(Duration.ofSeconds(responseTimeout))
+              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout);
+    }
     return httpClient;
   }
 }
