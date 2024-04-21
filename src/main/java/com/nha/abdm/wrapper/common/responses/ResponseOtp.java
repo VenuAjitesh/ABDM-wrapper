@@ -14,4 +14,5 @@ public class ResponseOtp {
   private String status;
   private ErrorResponse error;
   private String linkRefNumber;
+
 }

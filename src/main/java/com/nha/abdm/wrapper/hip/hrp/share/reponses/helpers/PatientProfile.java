@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class PatientProfile {
   private String hipCode;
   private PatientDetails patient;
+
 }

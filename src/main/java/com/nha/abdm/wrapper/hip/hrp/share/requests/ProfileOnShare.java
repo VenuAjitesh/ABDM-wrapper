@@ -19,4 +19,5 @@ public class ProfileOnShare {
   private ProfileAcknowledgement acknowledgement;
   private ErrorResponse error;
   private RespRequest resp;
+
 }

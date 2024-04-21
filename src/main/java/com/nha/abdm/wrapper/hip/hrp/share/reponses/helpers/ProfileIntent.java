@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProfileIntent {
   private String type;
+
 }

@@ -51,8 +51,16 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * RequestStatusResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-17T23:12:00.102495700+05:30[Asia/Calcutta]")
 public class RequestStatusResponse {
+  public static final String SERIALIZED_NAME_LINK_REF_NUMBER = "linkRefNumber";
+  @SerializedName(SERIALIZED_NAME_LINK_REF_NUMBER)
+  private String linkRefNumber;
+
+  public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
+  @SerializedName(SERIALIZED_NAME_REQUEST_ID)
+  private String requestId;
+
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
   private String status;
@@ -63,6 +71,48 @@ public class RequestStatusResponse {
 
   public RequestStatusResponse() {
   }
+
+  public RequestStatusResponse linkRefNumber(String linkRefNumber) {
+
+    this.linkRefNumber = linkRefNumber;
+    return this;
+  }
+
+   /**
+   * Get linkRefNumber
+   * @return linkRefNumber
+  **/
+  @javax.annotation.Nullable
+  public String getLinkRefNumber() {
+    return linkRefNumber;
+  }
+
+
+  public void setLinkRefNumber(String linkRefNumber) {
+    this.linkRefNumber = linkRefNumber;
+  }
+
+
+  public RequestStatusResponse requestId(String requestId) {
+
+    this.requestId = requestId;
+    return this;
+  }
+
+   /**
+   * Get requestId
+   * @return requestId
+  **/
+  @javax.annotation.Nullable
+  public String getRequestId() {
+    return requestId;
+  }
+
+
+  public void setRequestId(String requestId) {
+    this.requestId = requestId;
+  }
+
 
   public RequestStatusResponse status(String status) {
     
@@ -116,19 +166,23 @@ public class RequestStatusResponse {
       return false;
     }
     RequestStatusResponse requestStatusResponse = (RequestStatusResponse) o;
-    return Objects.equals(this.status, requestStatusResponse.status) &&
+    return Objects.equals(this.linkRefNumber, requestStatusResponse.linkRefNumber) &&
+        Objects.equals(this.requestId, requestStatusResponse.requestId) &&
+        Objects.equals(this.status, requestStatusResponse.status) &&
         Objects.equals(this.error, requestStatusResponse.error);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, error);
+    return Objects.hash(linkRefNumber, requestId, status, error);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class RequestStatusResponse {\n");
+    sb.append("    linkRefNumber: ").append(toIndentedString(linkRefNumber)).append("\n");
+    sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("}");
@@ -153,6 +207,8 @@ public class RequestStatusResponse {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
+    openapiFields.add("linkRefNumber");
+    openapiFields.add("requestId");
     openapiFields.add("status");
     openapiFields.add("error");
 
@@ -179,6 +235,12 @@ public class RequestStatusResponse {
         if (!RequestStatusResponse.openapiFields.contains(entry.getKey())) {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `RequestStatusResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
+      }
+      if ((jsonObj.get("linkRefNumber") != null && !jsonObj.get("linkRefNumber").isJsonNull()) && !jsonObj.get("linkRefNumber").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `linkRefNumber` to be a primitive type in the JSON string but got `%s`", jsonObj.get("linkRefNumber").toString()));
+      }
+      if ((jsonObj.get("requestId") != null && !jsonObj.get("requestId").isJsonNull()) && !jsonObj.get("requestId").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `requestId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("requestId").toString()));
       }
       if ((jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) && !jsonObj.get("status").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `status` to be a primitive type in the JSON string but got `%s`", jsonObj.get("status").toString()));

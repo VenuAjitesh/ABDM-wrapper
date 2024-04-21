@@ -15,4 +15,5 @@ public class PatientAddress {
   private String district;
   private String state;
   private String pincode;
+
 }
