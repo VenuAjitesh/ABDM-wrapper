@@ -313,6 +313,18 @@ paths:
                   type: string
                   enum: [DEMOGRAPHICS, MOBILE_OTP, AADHAAR_OTP]
                   example: DEMOGRAPHICS
+                hiTypes:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - DiagnosticReport
+                      - DischargeSummary
+                      - HealthDocumentRecord
+                      - ImmunizationRecord
+                      - OPConsultation
+                      - Prescription
+                      - WellnessRecord
                 patient:
                   $ref: '#/components/schemas/PatientWithCareContext'
       responses:

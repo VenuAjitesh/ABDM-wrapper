@@ -830,6 +830,18 @@ components:
           - AADHAAR_OTP
           example: DEMOGRAPHICS
           type: string
+        hiTypes:
+          items:
+            enum:
+            - DiagnosticReport
+            - DischargeSummary
+            - HealthDocumentRecord
+            - ImmunizationRecord
+            - OPConsultation
+            - Prescription
+            - WellnessRecord
+            type: string
+          type: array
         patient:
           $ref: '#/components/schemas/PatientWithCareContext'
       type: object

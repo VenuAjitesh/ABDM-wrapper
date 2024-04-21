@@ -94,6 +94,3 @@ src/main/java/com/nha/abdm/wrapper/client/model/SmsNotifyNotification.java
 src/main/java/com/nha/abdm/wrapper/client/model/SmsNotifyNotificationHip.java
 src/main/java/com/nha/abdm/wrapper/client/model/VerifyOTPRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/VerifyOtpPostRequest.java
-src/test/java/com/nha/abdm/wrapper/client/model/SmsNotifyNotificationHipTest.java
-src/test/java/com/nha/abdm/wrapper/client/model/SmsNotifyNotificationTest.java
-src/test/java/com/nha/abdm/wrapper/client/model/SmsNotifyTest.java
