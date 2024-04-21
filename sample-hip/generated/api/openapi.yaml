@@ -400,7 +400,7 @@ components:
         linkRefNumber: linkRefNumber
         requestId: requestId
         error:
-          code: code
+          code: 6
           message: message
         status: status
       properties:
@@ -419,7 +419,7 @@ components:
         clientRequestId: clientRequestId
         message: message
         error:
-          code: code
+          code: 6
           message: message
       properties:
         clientRequestId:
@@ -433,11 +433,11 @@ components:
       type: object
     ErrorResponse:
       example:
-        code: code
+        code: 6
         message: message
       properties:
         code:
-          type: string
+          type: integer
         message:
           type: string
       type: object
