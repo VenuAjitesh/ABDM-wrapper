@@ -26,22 +26,14 @@ public class RequestManager {
       @Value("${useProxySettings}") final boolean useProxySettings,
       SessionManager sessionManager) {
     this.sessionManager = sessionManager;
-    if (useProxySettings) {
-      webClient =
-          WebClient.builder()
-              .baseUrl(gatewayBaseUrl)
-              .clientConnector(new ReactorClientHttpConnector(sessionManager.getHttpClient()))
-              .defaultHeaders(
-                  httpHeaders -> httpHeaders.addAll(sessionManager.setGatewayRequestHeaders()))
-              .build();
-    } else {
-      webClient =
-          WebClient.builder()
-              .baseUrl(gatewayBaseUrl)
-              .defaultHeaders(
-                  httpHeaders -> httpHeaders.addAll(sessionManager.setGatewayRequestHeaders()))
-              .build();
-    }
+    webClient =
+        WebClient.builder()
+            .baseUrl(gatewayBaseUrl)
+            .clientConnector(
+                new ReactorClientHttpConnector(sessionManager.getHttpClient(useProxySettings)))
+            .defaultHeaders(
+                httpHeaders -> httpHeaders.addAll(sessionManager.setGatewayRequestHeaders()))
+            .build();
   }
 
   // Initializing headers every time to avoid setting the old headers/session token and getting
