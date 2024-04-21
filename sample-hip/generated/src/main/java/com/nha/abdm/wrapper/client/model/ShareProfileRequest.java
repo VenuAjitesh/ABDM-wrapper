@@ -51,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ShareProfileRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-17T23:12:00.102495700+05:30[Asia/Calcutta]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-21T21:09:58.015918700+05:30[Asia/Calcutta]")
 public class ShareProfileRequest {
   public static final String SERIALIZED_NAME_TOKEN = "token";
   @SerializedName(SERIALIZED_NAME_TOKEN)

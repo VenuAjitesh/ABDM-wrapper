@@ -38,6 +38,32 @@ paths:
       - patients
       x-content-type: application/json
       x-accepts: application/json
+  /sms/notify:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsNotify'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacadeResponse'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Sending sms to patient via ABDM
+      tags:
+      - patients
+      x-content-type: application/json
+      x-accepts: application/json
   /patient-discover:
     post:
       description: |
@@ -128,6 +154,86 @@ paths:
       summary: Gets Care Contexts of the given patient id
       tags:
       - patients
+      x-content-type: application/json
+      x-accepts: application/json
+  /share/profile:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareProfileRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileAcknowledgement'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Sharing patient details with a facility via scan and share
+      tags:
+      - patients
+      x-content-type: application/json
+      x-accepts: application/json
+  /verify/otp:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_verify_otp_post_request'
+        description: Verifies OTP
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatusResponse'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: The Verification of otp in discovery flow
+      tags:
+      - discovery
+      x-content-type: application/json
+      x-accepts: application/json
+  /request/otp:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_request_otp_post_request'
+        description: requesting for OTP
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatusResponse'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: The Initiating of otp in discovery flow
+      tags:
+      - discovery
       x-content-type: application/json
       x-accepts: application/json
   /verify-otp:
@@ -291,11 +397,17 @@ components:
       type: object
     RequestStatusResponse:
       example:
+        linkRefNumber: linkRefNumber
+        requestId: requestId
         error:
-          code: 6
+          code: code
           message: message
         status: status
       properties:
+        linkRefNumber:
+          type: string
+        requestId:
+          type: string
         status:
           type: string
         error:
@@ -307,7 +419,7 @@ components:
         clientRequestId: clientRequestId
         message: message
         error:
-          code: 6
+          code: code
           message: message
       properties:
         clientRequestId:
@@ -321,12 +433,260 @@ components:
       type: object
     ErrorResponse:
       example:
-        code: 6
+        code: code
         message: message
       properties:
         code:
-          type: integer
+          type: string
         message:
+          type: string
+      type: object
+    SmsNotify:
+      example:
+        notification:
+          phoneNo: phoneNo
+          hip:
+            name: name
+            id: id
+        requestId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        timestamp: 2000-01-23T04:56:07.000+00:00
+      properties:
+        requestId:
+          format: uuid
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+        notification:
+          $ref: '#/components/schemas/SmsNotify_notification'
+      type: object
+    ShareProfileRequest:
+      example:
+        hipId: hipId
+        profile:
+          requestId: requestId
+          profile:
+            hipCode: hipCode
+            patient:
+              address:
+                pincode: pincode
+                line: line
+                district: district
+                state: state
+              gender: gender
+              dayOfBirth: dayOfBirth
+              identifiers:
+              - type: type
+                value: value
+              - type: type
+                value: value
+              name: name
+              healthId: healthId
+              healthIdNumber: healthIdNumber
+              monthOfBirth: monthOfBirth
+              yearOfBirth: yearOfBirth
+          location:
+            latitude: latitude
+            longitude: longitude
+          intent:
+            type: type
+          timestamp: timestamp
+        token: token
+      properties:
+        token:
+          description: The token associated with the profile share
+          type: string
+        hipId:
+          description: The facility associated with the profile share
+          type: string
+        profile:
+          $ref: '#/components/schemas/ProfileShare'
+      type: object
+    ProfileAcknowledgement:
+      example:
+        tokenNumber: tokenNumber
+        healthId: healthId
+        status: status
+      properties:
+        status:
+          description: The status of the profile acknowledgement
+          type: string
+        healthId:
+          description: The health ID associated with the acknowledgement
+          type: string
+        tokenNumber:
+          description: The token number associated with the acknowledgement
+          type: string
+      type: object
+    ProfileShare:
+      example:
+        requestId: requestId
+        profile:
+          hipCode: hipCode
+          patient:
+            address:
+              pincode: pincode
+              line: line
+              district: district
+              state: state
+            gender: gender
+            dayOfBirth: dayOfBirth
+            identifiers:
+            - type: type
+              value: value
+            - type: type
+              value: value
+            name: name
+            healthId: healthId
+            healthIdNumber: healthIdNumber
+            monthOfBirth: monthOfBirth
+            yearOfBirth: yearOfBirth
+        location:
+          latitude: latitude
+          longitude: longitude
+        intent:
+          type: type
+        timestamp: timestamp
+      properties:
+        requestId:
+          description: The request ID associated with the profile share
+          type: string
+        timestamp:
+          description: The timestamp of the profile share
+          type: string
+        intent:
+          $ref: '#/components/schemas/ProfileIntent'
+        location:
+          $ref: '#/components/schemas/ProfileLocation'
+        profile:
+          $ref: '#/components/schemas/PatientProfile'
+      type: object
+    ProfileIntent:
+      example:
+        type: type
+      properties:
+        type:
+          description: The type of profile intent
+          type: string
+      type: object
+    ProfileLocation:
+      example:
+        latitude: latitude
+        longitude: longitude
+      properties:
+        latitude:
+          description: The latitude of the profile location
+          type: string
+        longitude:
+          description: The longitude of the profile location
+          type: string
+      type: object
+    PatientProfile:
+      example:
+        hipCode: hipCode
+        patient:
+          address:
+            pincode: pincode
+            line: line
+            district: district
+            state: state
+          gender: gender
+          dayOfBirth: dayOfBirth
+          identifiers:
+          - type: type
+            value: value
+          - type: type
+            value: value
+          name: name
+          healthId: healthId
+          healthIdNumber: healthIdNumber
+          monthOfBirth: monthOfBirth
+          yearOfBirth: yearOfBirth
+      properties:
+        hipCode:
+          description: The HIP code associated with the patient profile
+          type: string
+        patient:
+          $ref: '#/components/schemas/PatientDetails'
+      type: object
+    PatientDetails:
+      example:
+        address:
+          pincode: pincode
+          line: line
+          district: district
+          state: state
+        gender: gender
+        dayOfBirth: dayOfBirth
+        identifiers:
+        - type: type
+          value: value
+        - type: type
+          value: value
+        name: name
+        healthId: healthId
+        healthIdNumber: healthIdNumber
+        monthOfBirth: monthOfBirth
+        yearOfBirth: yearOfBirth
+      properties:
+        healthId:
+          description: The health ID of the patient
+          type: string
+        healthIdNumber:
+          description: The health ID number of the patient
+          type: string
+        name:
+          description: The name of the patient
+          type: string
+        gender:
+          description: The gender of the patient
+          type: string
+        address:
+          $ref: '#/components/schemas/PatientAddress'
+        yearOfBirth:
+          description: The year of birth of the patient
+          type: string
+        dayOfBirth:
+          description: The day of birth of the patient
+          type: string
+        monthOfBirth:
+          description: The month of birth of the patient
+          type: string
+        identifiers:
+          items:
+            $ref: '#/components/schemas/PatientVerifiedIdentifiers'
+          type: array
+      type: object
+    PatientAddress:
+      example:
+        pincode: pincode
+        line: line
+        district: district
+        state: state
+      properties:
+        line:
+          description: The line of the patient address
+          type: string
+        district:
+          description: The district of the patient address
+          type: string
+        state:
+          description: The state of the patient address
+          type: string
+        pincode:
+          description: The pincode of the patient address
+          type: string
+      type: object
+    PatientVerifiedIdentifiers:
+      example:
+        type: type
+        value: value
+      properties:
+        value:
+          description: The value of the verified identifier
+          type: string
+        type:
+          description: The type of the verified identifier
           type: string
       type: object
     PatientDiscoveryRequest:
@@ -408,6 +768,41 @@ components:
       - NDHM_HEALTH_NUMBER
       - HEALTH_ID
       type: string
+    _verify_otp_post_request:
+      properties:
+        loginHint:
+          description: Hint for the type of authentication being performed
+          type: string
+        requestId:
+          description: Unique identifier for the request
+          type: string
+        authCode:
+          description: Authentication code to be verified
+          type: string
+        linkRefNumber:
+          description: Unique id corresponding to the OTP request
+          type: string
+      required:
+      - authCode
+      - linkRefNumber
+      - loginHint
+      type: object
+    _request_otp_post_request:
+      properties:
+        abhaAddress:
+          description: Hint for the abhaAddress of the patient
+          type: string
+        requestId:
+          description: Unique identifier for the request
+          type: string
+        patientReference:
+          description: patient reference for the particular facility
+          type: string
+      required:
+      - abhaAddress
+      - patientReference
+      - requestId
+      type: object
     verifyOTP_request:
       properties:
         loginHint:
@@ -437,6 +832,28 @@ components:
           type: string
         patient:
           $ref: '#/components/schemas/PatientWithCareContext'
+      type: object
+    SmsNotify_notification_hip:
+      example:
+        name: name
+        id: id
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+      type: object
+    SmsNotify_notification:
+      example:
+        phoneNo: phoneNo
+        hip:
+          name: name
+          id: id
+      properties:
+        phoneNo:
+          type: string
+        hip:
+          $ref: '#/components/schemas/SmsNotify_notification_hip'
       type: object
     PatientDiscoveryRequest_patient:
       example:

@@ -36,6 +36,30 @@ paths:
           description: Address not found
         '422':
           description: Validation exception
+  /sms/notify:
+    post:
+      tags:
+        - patients
+      summary: Sending sms to patient via ABDM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsNotify'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacadeResponse'
+        '400':
+          description: Invalid request body supplied
+        '404':
+          description: Address not found
+        '422':
+          description: Validation exception
   /patient-discover:
     post:
       tags:
@@ -410,6 +434,27 @@ components:
           type: string
         message:
           type: string
+    SmsNotify:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        notification:
+          type: object
+          properties:
+            phoneNo:
+              type: string
+            hip:
+              type: object
+              properties:
+                name:
+                  type: string
+                id:
+                  type: string
     ShareProfileRequest:
       type: object
       properties:

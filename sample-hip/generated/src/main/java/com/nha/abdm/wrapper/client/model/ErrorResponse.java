@@ -50,11 +50,11 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ErrorResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-21T21:09:58.015918700+05:30[Asia/Calcutta]")
 public class ErrorResponse {
   public static final String SERIALIZED_NAME_CODE = "code";
   @SerializedName(SERIALIZED_NAME_CODE)
-  private Integer code;
+  private String code;
 
   public static final String SERIALIZED_NAME_MESSAGE = "message";
   @SerializedName(SERIALIZED_NAME_MESSAGE)
@@ -63,7 +63,7 @@ public class ErrorResponse {
   public ErrorResponse() {
   }
 
-  public ErrorResponse code(Integer code) {
+  public ErrorResponse code(String code) {
     
     this.code = code;
     return this;
@@ -74,12 +74,12 @@ public class ErrorResponse {
    * @return code
   **/
   @javax.annotation.Nullable
-  public Integer getCode() {
+  public String getCode() {
     return code;
   }
 
 
-  public void setCode(Integer code) {
+  public void setCode(String code) {
     this.code = code;
   }
 
@@ -178,6 +178,9 @@ public class ErrorResponse {
         if (!ErrorResponse.openapiFields.contains(entry.getKey())) {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ErrorResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
+      }
+      if ((jsonObj.get("code") != null && !jsonObj.get("code").isJsonNull()) && !jsonObj.get("code").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `code` to be a primitive type in the JSON string but got `%s`", jsonObj.get("code").toString()));
       }
       if ((jsonObj.get("message") != null && !jsonObj.get("message").isJsonNull()) && !jsonObj.get("message").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `message` to be a primitive type in the JSON string but got `%s`", jsonObj.get("message").toString()));

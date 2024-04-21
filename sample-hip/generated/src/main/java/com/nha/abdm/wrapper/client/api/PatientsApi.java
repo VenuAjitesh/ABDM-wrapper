@@ -32,6 +32,9 @@ import com.nha.abdm.wrapper.client.model.ErrorResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.Patient;
 import com.nha.abdm.wrapper.client.model.PatientDiscoveryRequest;
+import com.nha.abdm.wrapper.client.model.ProfileAcknowledgement;
+import com.nha.abdm.wrapper.client.model.ShareProfileRequest;
+import com.nha.abdm.wrapper.client.model.SmsNotify;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -345,6 +348,276 @@ public class PatientsApi {
 
         okhttp3.Call localVarCall = patientDiscoverPostValidateBeforeCall(patientDiscoveryRequest, _callback);
         Type localVarReturnType = new TypeToken<Patient>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for shareProfilePost
+     * @param shareProfileRequest  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call shareProfilePostCall(ShareProfileRequest shareProfileRequest, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = shareProfileRequest;
+
+        // create path and map variables
+        String localVarPath = "/share/profile";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call shareProfilePostValidateBeforeCall(ShareProfileRequest shareProfileRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'shareProfileRequest' is set
+        if (shareProfileRequest == null) {
+            throw new ApiException("Missing the required parameter 'shareProfileRequest' when calling shareProfilePost(Async)");
+        }
+
+        return shareProfilePostCall(shareProfileRequest, _callback);
+
+    }
+
+    /**
+     * Sharing patient details with a facility via scan and share
+     * 
+     * @param shareProfileRequest  (required)
+     * @return ProfileAcknowledgement
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public ProfileAcknowledgement shareProfilePost(ShareProfileRequest shareProfileRequest) throws ApiException {
+        ApiResponse<ProfileAcknowledgement> localVarResp = shareProfilePostWithHttpInfo(shareProfileRequest);
+        return localVarResp.getData();
+    }
+
+    /**
+     * Sharing patient details with a facility via scan and share
+     * 
+     * @param shareProfileRequest  (required)
+     * @return ApiResponse&lt;ProfileAcknowledgement&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<ProfileAcknowledgement> shareProfilePostWithHttpInfo(ShareProfileRequest shareProfileRequest) throws ApiException {
+        okhttp3.Call localVarCall = shareProfilePostValidateBeforeCall(shareProfileRequest, null);
+        Type localVarReturnType = new TypeToken<ProfileAcknowledgement>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     * Sharing patient details with a facility via scan and share (asynchronously)
+     * 
+     * @param shareProfileRequest  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call shareProfilePostAsync(ShareProfileRequest shareProfileRequest, final ApiCallback<ProfileAcknowledgement> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = shareProfilePostValidateBeforeCall(shareProfileRequest, _callback);
+        Type localVarReturnType = new TypeToken<ProfileAcknowledgement>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for smsNotifyPost
+     * @param smsNotify  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call smsNotifyPostCall(SmsNotify smsNotify, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = smsNotify;
+
+        // create path and map variables
+        String localVarPath = "/sms/notify";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call smsNotifyPostValidateBeforeCall(SmsNotify smsNotify, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'smsNotify' is set
+        if (smsNotify == null) {
+            throw new ApiException("Missing the required parameter 'smsNotify' when calling smsNotifyPost(Async)");
+        }
+
+        return smsNotifyPostCall(smsNotify, _callback);
+
+    }
+
+    /**
+     * Sending sms to patient via ABDM
+     * 
+     * @param smsNotify  (required)
+     * @return FacadeResponse
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public FacadeResponse smsNotifyPost(SmsNotify smsNotify) throws ApiException {
+        ApiResponse<FacadeResponse> localVarResp = smsNotifyPostWithHttpInfo(smsNotify);
+        return localVarResp.getData();
+    }
+
+    /**
+     * Sending sms to patient via ABDM
+     * 
+     * @param smsNotify  (required)
+     * @return ApiResponse&lt;FacadeResponse&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<FacadeResponse> smsNotifyPostWithHttpInfo(SmsNotify smsNotify) throws ApiException {
+        okhttp3.Call localVarCall = smsNotifyPostValidateBeforeCall(smsNotify, null);
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     * Sending sms to patient via ABDM (asynchronously)
+     * 
+     * @param smsNotify  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call smsNotifyPostAsync(SmsNotify smsNotify, final ApiCallback<FacadeResponse> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = smsNotifyPostValidateBeforeCall(smsNotify, _callback);
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }

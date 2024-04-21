@@ -51,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * RequestStatusResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-17T23:12:00.102495700+05:30[Asia/Calcutta]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-21T21:09:58.015918700+05:30[Asia/Calcutta]")
 public class RequestStatusResponse {
   public static final String SERIALIZED_NAME_LINK_REF_NUMBER = "linkRefNumber";
   @SerializedName(SERIALIZED_NAME_LINK_REF_NUMBER)
@@ -73,7 +73,7 @@ public class RequestStatusResponse {
   }
 
   public RequestStatusResponse linkRefNumber(String linkRefNumber) {
-
+    
     this.linkRefNumber = linkRefNumber;
     return this;
   }
@@ -94,7 +94,7 @@ public class RequestStatusResponse {
 
 
   public RequestStatusResponse requestId(String requestId) {
-
+    
     this.requestId = requestId;
     return this;
   }

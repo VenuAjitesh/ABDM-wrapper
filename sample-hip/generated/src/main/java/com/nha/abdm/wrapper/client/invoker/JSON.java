@@ -100,11 +100,25 @@ public class JSON {
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Identifier.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.LinkCareContextsRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Patient.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientAddress.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientDetails.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientDiscoveryRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientDiscoveryRequestPatient.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientProfile.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientVerifiedIdentifiers.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientWithCareContext.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ProfileAcknowledgement.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ProfileIntent.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ProfileLocation.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ProfileShare.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.RequestOtpPostRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.RequestStatusResponse.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ShareProfileRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.SmsNotify.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.SmsNotifyNotification.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.SmsNotifyNotificationHip.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.VerifyOTPRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.VerifyOtpPostRequest.CustomTypeAdapterFactory());
         gson = gsonBuilder.create();
     }
 
