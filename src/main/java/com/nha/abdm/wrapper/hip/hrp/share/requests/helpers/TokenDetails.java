@@ -14,5 +14,4 @@ public class TokenDetails {
   private String abhaAddress;
   private String hipCounterCode;
   private String hipId;
-
 }

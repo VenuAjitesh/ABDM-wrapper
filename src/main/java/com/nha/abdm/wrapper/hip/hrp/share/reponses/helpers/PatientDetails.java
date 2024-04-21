@@ -22,5 +22,4 @@ public class PatientDetails {
   private String dayOfBirth;
   private String monthOfBirth;
   private List<PatientVerifiedIdentifiers> identifiers;
-
 }

@@ -19,5 +19,4 @@ public class ProfileShare {
   private ProfileIntent intent;
   private ProfileLocation location;
   private PatientProfile profile;
-
 }

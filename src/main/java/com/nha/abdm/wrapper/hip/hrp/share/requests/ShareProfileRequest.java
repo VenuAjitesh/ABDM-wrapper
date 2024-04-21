@@ -15,5 +15,4 @@ public class ShareProfileRequest {
   private String token;
   private String hipId;
   private ProfileShare profile;
-
 }

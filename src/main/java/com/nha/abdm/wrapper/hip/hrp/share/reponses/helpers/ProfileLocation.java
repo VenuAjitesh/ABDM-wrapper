@@ -13,5 +13,4 @@ import lombok.NoArgsConstructor;
 public class ProfileLocation {
   private String latitude;
   private String longitude;
-
 }

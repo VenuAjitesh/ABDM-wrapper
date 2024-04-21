@@ -14,5 +14,4 @@ public class ProfileAcknowledgement {
   private String status;
   private String healthId;
   private String tokenNumber;
-
 }

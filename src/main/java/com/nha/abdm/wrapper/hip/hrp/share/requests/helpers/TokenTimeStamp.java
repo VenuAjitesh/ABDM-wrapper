@@ -14,5 +14,4 @@ import lombok.NoArgsConstructor;
 public class TokenTimeStamp {
   private LocalDateTime timeStamp;
   private String token;
-
 }
