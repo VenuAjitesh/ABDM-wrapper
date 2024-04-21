@@ -8,7 +8,10 @@
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
 |**status** | **String** |  |  [optional] |
-|**consentArtefacts** | [**List&lt;IdRequest&gt;**](IdRequest.md) |  |  [optional] |
+|**error** | **String** |  |  [optional] |
+|**httpStatusCode** | **String** |  |  [optional] |
+|**initConsentRequest** | [**ConsentStatusInitConsentRequest**](ConsentStatusInitConsentRequest.md) |  |  [optional] |
+|**consentDetails** | [**ConsentStatusConsentDetails**](ConsentStatusConsentDetails.md) |  |  [optional] |
 
 
 

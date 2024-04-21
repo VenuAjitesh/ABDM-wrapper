@@ -2,7 +2,7 @@
 
 Swagger HIU Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-03-10T03:12:25.593569935Z[Etc/UTC]
+  - Build date: 2024-04-21T21:07:52.071456600+05:30[Asia/Calcutta]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -127,6 +127,10 @@ Class | Method | HTTP request | Description
  - [ConsentRequestIdentifier](docs/ConsentRequestIdentifier.md)
  - [ConsentRequester](docs/ConsentRequester.md)
  - [ConsentStatus](docs/ConsentStatus.md)
+ - [ConsentStatusConsentDetails](docs/ConsentStatusConsentDetails.md)
+ - [ConsentStatusConsentDetailsConsentInner](docs/ConsentStatusConsentDetailsConsentInner.md)
+ - [ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner](docs/ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner.md)
+ - [ConsentStatusInitConsentRequest](docs/ConsentStatusInitConsentRequest.md)
  - [ConsentStatusResponse](docs/ConsentStatusResponse.md)
  - [DateRange](docs/DateRange.md)
  - [ErrorResponse](docs/ErrorResponse.md)

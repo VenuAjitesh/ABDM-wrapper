@@ -20,10 +20,9 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.nha.abdm.wrapper.client.model.IdRequest;
+import com.nha.abdm.wrapper.client.model.ConsentStatusConsentDetails;
+import com.nha.abdm.wrapper.client.model.ConsentStatusInitConsentRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,15 +52,27 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentStatus
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-10T03:12:25.593569935Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-21T21:07:52.071456600+05:30[Asia/Calcutta]")
 public class ConsentStatus {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
   private String status;
 
-  public static final String SERIALIZED_NAME_CONSENT_ARTEFACTS = "consentArtefacts";
-  @SerializedName(SERIALIZED_NAME_CONSENT_ARTEFACTS)
-  private List<IdRequest> consentArtefacts;
+  public static final String SERIALIZED_NAME_ERROR = "error";
+  @SerializedName(SERIALIZED_NAME_ERROR)
+  private String error;
+
+  public static final String SERIALIZED_NAME_HTTP_STATUS_CODE = "httpStatusCode";
+  @SerializedName(SERIALIZED_NAME_HTTP_STATUS_CODE)
+  private String httpStatusCode;
+
+  public static final String SERIALIZED_NAME_INIT_CONSENT_REQUEST = "initConsentRequest";
+  @SerializedName(SERIALIZED_NAME_INIT_CONSENT_REQUEST)
+  private ConsentStatusInitConsentRequest initConsentRequest;
+
+  public static final String SERIALIZED_NAME_CONSENT_DETAILS = "consentDetails";
+  @SerializedName(SERIALIZED_NAME_CONSENT_DETAILS)
+  private ConsentStatusConsentDetails consentDetails;
 
   public ConsentStatus() {
   }
@@ -87,32 +98,87 @@ public class ConsentStatus {
   }
 
 
-  public ConsentStatus consentArtefacts(List<IdRequest> consentArtefacts) {
+  public ConsentStatus error(String error) {
     
-    this.consentArtefacts = consentArtefacts;
-    return this;
-  }
-
-  public ConsentStatus addConsentArtefactsItem(IdRequest consentArtefactsItem) {
-    if (this.consentArtefacts == null) {
-      this.consentArtefacts = new ArrayList<>();
-    }
-    this.consentArtefacts.add(consentArtefactsItem);
+    this.error = error;
     return this;
   }
 
    /**
-   * Get consentArtefacts
-   * @return consentArtefacts
+   * Get error
+   * @return error
   **/
   @javax.annotation.Nullable
-  public List<IdRequest> getConsentArtefacts() {
-    return consentArtefacts;
+  public String getError() {
+    return error;
   }
 
 
-  public void setConsentArtefacts(List<IdRequest> consentArtefacts) {
-    this.consentArtefacts = consentArtefacts;
+  public void setError(String error) {
+    this.error = error;
+  }
+
+
+  public ConsentStatus httpStatusCode(String httpStatusCode) {
+    
+    this.httpStatusCode = httpStatusCode;
+    return this;
+  }
+
+   /**
+   * Get httpStatusCode
+   * @return httpStatusCode
+  **/
+  @javax.annotation.Nullable
+  public String getHttpStatusCode() {
+    return httpStatusCode;
+  }
+
+
+  public void setHttpStatusCode(String httpStatusCode) {
+    this.httpStatusCode = httpStatusCode;
+  }
+
+
+  public ConsentStatus initConsentRequest(ConsentStatusInitConsentRequest initConsentRequest) {
+    
+    this.initConsentRequest = initConsentRequest;
+    return this;
+  }
+
+   /**
+   * Get initConsentRequest
+   * @return initConsentRequest
+  **/
+  @javax.annotation.Nullable
+  public ConsentStatusInitConsentRequest getInitConsentRequest() {
+    return initConsentRequest;
+  }
+
+
+  public void setInitConsentRequest(ConsentStatusInitConsentRequest initConsentRequest) {
+    this.initConsentRequest = initConsentRequest;
+  }
+
+
+  public ConsentStatus consentDetails(ConsentStatusConsentDetails consentDetails) {
+    
+    this.consentDetails = consentDetails;
+    return this;
+  }
+
+   /**
+   * Get consentDetails
+   * @return consentDetails
+  **/
+  @javax.annotation.Nullable
+  public ConsentStatusConsentDetails getConsentDetails() {
+    return consentDetails;
+  }
+
+
+  public void setConsentDetails(ConsentStatusConsentDetails consentDetails) {
+    this.consentDetails = consentDetails;
   }
 
 
@@ -127,12 +193,15 @@ public class ConsentStatus {
     }
     ConsentStatus consentStatus = (ConsentStatus) o;
     return Objects.equals(this.status, consentStatus.status) &&
-        Objects.equals(this.consentArtefacts, consentStatus.consentArtefacts);
+        Objects.equals(this.error, consentStatus.error) &&
+        Objects.equals(this.httpStatusCode, consentStatus.httpStatusCode) &&
+        Objects.equals(this.initConsentRequest, consentStatus.initConsentRequest) &&
+        Objects.equals(this.consentDetails, consentStatus.consentDetails);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, consentArtefacts);
+    return Objects.hash(status, error, httpStatusCode, initConsentRequest, consentDetails);
   }
 
   @Override
@@ -140,7 +209,10 @@ public class ConsentStatus {
     StringBuilder sb = new StringBuilder();
     sb.append("class ConsentStatus {\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
-    sb.append("    consentArtefacts: ").append(toIndentedString(consentArtefacts)).append("\n");
+    sb.append("    error: ").append(toIndentedString(error)).append("\n");
+    sb.append("    httpStatusCode: ").append(toIndentedString(httpStatusCode)).append("\n");
+    sb.append("    initConsentRequest: ").append(toIndentedString(initConsentRequest)).append("\n");
+    sb.append("    consentDetails: ").append(toIndentedString(consentDetails)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -164,7 +236,10 @@ public class ConsentStatus {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
     openapiFields.add("status");
-    openapiFields.add("consentArtefacts");
+    openapiFields.add("error");
+    openapiFields.add("httpStatusCode");
+    openapiFields.add("initConsentRequest");
+    openapiFields.add("consentDetails");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -193,19 +268,19 @@ public class ConsentStatus {
       if ((jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) && !jsonObj.get("status").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `status` to be a primitive type in the JSON string but got `%s`", jsonObj.get("status").toString()));
       }
-      if (jsonObj.get("consentArtefacts") != null && !jsonObj.get("consentArtefacts").isJsonNull()) {
-        JsonArray jsonArrayconsentArtefacts = jsonObj.getAsJsonArray("consentArtefacts");
-        if (jsonArrayconsentArtefacts != null) {
-          // ensure the json data is an array
-          if (!jsonObj.get("consentArtefacts").isJsonArray()) {
-            throw new IllegalArgumentException(String.format("Expected the field `consentArtefacts` to be an array in the JSON string but got `%s`", jsonObj.get("consentArtefacts").toString()));
-          }
-
-          // validate the optional field `consentArtefacts` (array)
-          for (int i = 0; i < jsonArrayconsentArtefacts.size(); i++) {
-            IdRequest.validateJsonObject(jsonArrayconsentArtefacts.get(i).getAsJsonObject());
-          };
-        }
+      if ((jsonObj.get("error") != null && !jsonObj.get("error").isJsonNull()) && !jsonObj.get("error").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `error` to be a primitive type in the JSON string but got `%s`", jsonObj.get("error").toString()));
+      }
+      if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));
+      }
+      // validate the optional field `initConsentRequest`
+      if (jsonObj.get("initConsentRequest") != null && !jsonObj.get("initConsentRequest").isJsonNull()) {
+        ConsentStatusInitConsentRequest.validateJsonObject(jsonObj.getAsJsonObject("initConsentRequest"));
+      }
+      // validate the optional field `consentDetails`
+      if (jsonObj.get("consentDetails") != null && !jsonObj.get("consentDetails").isJsonNull()) {
+        ConsentStatusConsentDetails.validateJsonObject(jsonObj.getAsJsonObject("consentDetails"));
       }
   }
 

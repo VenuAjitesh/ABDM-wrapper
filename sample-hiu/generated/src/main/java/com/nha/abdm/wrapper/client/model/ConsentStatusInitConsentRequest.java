@@ -49,10 +49,10 @@ import java.util.Set;
 import com.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
- * InitConsentRequest
+ * ConsentStatusInitConsentRequest
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-21T21:07:52.071456600+05:30[Asia/Calcutta]")
-public class InitConsentRequest {
+public class ConsentStatusInitConsentRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)
   private String requestId;
@@ -65,20 +65,20 @@ public class InitConsentRequest {
   @SerializedName(SERIALIZED_NAME_CONSENT)
   private ConsentRequest consent;
 
-  public InitConsentRequest() {
+  public ConsentStatusInitConsentRequest() {
   }
 
-  public InitConsentRequest requestId(String requestId) {
+  public ConsentStatusInitConsentRequest requestId(String requestId) {
     
     this.requestId = requestId;
     return this;
   }
 
    /**
-   * a nonce, unique for each HTTP request.
+   * Get requestId
    * @return requestId
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   public String getRequestId() {
     return requestId;
   }
@@ -89,7 +89,7 @@ public class InitConsentRequest {
   }
 
 
-  public InitConsentRequest timestamp(String timestamp) {
+  public ConsentStatusInitConsentRequest timestamp(String timestamp) {
     
     this.timestamp = timestamp;
     return this;
@@ -99,7 +99,7 @@ public class InitConsentRequest {
    * Get timestamp
    * @return timestamp
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   public String getTimestamp() {
     return timestamp;
   }
@@ -110,7 +110,7 @@ public class InitConsentRequest {
   }
 
 
-  public InitConsentRequest consent(ConsentRequest consent) {
+  public ConsentStatusInitConsentRequest consent(ConsentRequest consent) {
     
     this.consent = consent;
     return this;
@@ -140,10 +140,10 @@ public class InitConsentRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    InitConsentRequest initConsentRequest = (InitConsentRequest) o;
-    return Objects.equals(this.requestId, initConsentRequest.requestId) &&
-        Objects.equals(this.timestamp, initConsentRequest.timestamp) &&
-        Objects.equals(this.consent, initConsentRequest.consent);
+    ConsentStatusInitConsentRequest consentStatusInitConsentRequest = (ConsentStatusInitConsentRequest) o;
+    return Objects.equals(this.requestId, consentStatusInitConsentRequest.requestId) &&
+        Objects.equals(this.timestamp, consentStatusInitConsentRequest.timestamp) &&
+        Objects.equals(this.consent, consentStatusInitConsentRequest.consent);
   }
 
   @Override
@@ -154,7 +154,7 @@ public class InitConsentRequest {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class InitConsentRequest {\n");
+    sb.append("class ConsentStatusInitConsentRequest {\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    timestamp: ").append(toIndentedString(timestamp)).append("\n");
     sb.append("    consent: ").append(toIndentedString(consent)).append("\n");
@@ -186,41 +186,32 @@ public class InitConsentRequest {
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("requestId");
-    openapiRequiredFields.add("timestamp");
   }
 
  /**
   * Validates the JSON Object and throws an exception if issues found
   *
   * @param jsonObj JSON Object
-  * @throws IOException if the JSON Object is invalid with respect to InitConsentRequest
+  * @throws IOException if the JSON Object is invalid with respect to ConsentStatusInitConsentRequest
   */
   public static void validateJsonObject(JsonObject jsonObj) throws IOException {
       if (jsonObj == null) {
-        if (!InitConsentRequest.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in InitConsentRequest is not found in the empty JSON string", InitConsentRequest.openapiRequiredFields.toString()));
+        if (!ConsentStatusInitConsentRequest.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in ConsentStatusInitConsentRequest is not found in the empty JSON string", ConsentStatusInitConsentRequest.openapiRequiredFields.toString()));
         }
       }
 
       Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
       // check to see if the JSON string contains additional fields
       for (Entry<String, JsonElement> entry : entries) {
-        if (!InitConsentRequest.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `InitConsentRequest` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        if (!ConsentStatusInitConsentRequest.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConsentStatusInitConsentRequest` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-
-      // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : InitConsentRequest.openapiRequiredFields) {
-        if (jsonObj.get(requiredField) == null) {
-          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
-        }
-      }
-      if (!jsonObj.get("requestId").isJsonPrimitive()) {
+      if ((jsonObj.get("requestId") != null && !jsonObj.get("requestId").isJsonNull()) && !jsonObj.get("requestId").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `requestId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("requestId").toString()));
       }
-      if (!jsonObj.get("timestamp").isJsonPrimitive()) {
+      if ((jsonObj.get("timestamp") != null && !jsonObj.get("timestamp").isJsonNull()) && !jsonObj.get("timestamp").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `timestamp` to be a primitive type in the JSON string but got `%s`", jsonObj.get("timestamp").toString()));
       }
       // validate the optional field `consent`
@@ -233,22 +224,22 @@ public class InitConsentRequest {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!InitConsentRequest.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'InitConsentRequest' and its subtypes
+       if (!ConsentStatusInitConsentRequest.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'ConsentStatusInitConsentRequest' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<InitConsentRequest> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(InitConsentRequest.class));
+       final TypeAdapter<ConsentStatusInitConsentRequest> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(ConsentStatusInitConsentRequest.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<InitConsentRequest>() {
+       return (TypeAdapter<T>) new TypeAdapter<ConsentStatusInitConsentRequest>() {
            @Override
-           public void write(JsonWriter out, InitConsentRequest value) throws IOException {
+           public void write(JsonWriter out, ConsentStatusInitConsentRequest value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public InitConsentRequest read(JsonReader in) throws IOException {
+           public ConsentStatusInitConsentRequest read(JsonReader in) throws IOException {
              JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
              validateJsonObject(jsonObj);
              return thisAdapter.fromJsonTree(jsonObj);
@@ -259,18 +250,18 @@ public class InitConsentRequest {
   }
 
  /**
-  * Create an instance of InitConsentRequest given an JSON string
+  * Create an instance of ConsentStatusInitConsentRequest given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of InitConsentRequest
-  * @throws IOException if the JSON string is invalid with respect to InitConsentRequest
+  * @return An instance of ConsentStatusInitConsentRequest
+  * @throws IOException if the JSON string is invalid with respect to ConsentStatusInitConsentRequest
   */
-  public static InitConsentRequest fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, InitConsentRequest.class);
+  public static ConsentStatusInitConsentRequest fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, ConsentStatusInitConsentRequest.class);
   }
 
  /**
-  * Convert an instance of InitConsentRequest to an JSON string
+  * Convert an instance of ConsentStatusInitConsentRequest to an JSON string
   *
   * @return JSON string
   */

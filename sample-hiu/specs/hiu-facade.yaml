@@ -246,10 +246,54 @@ components:
       properties:
         status:
           type: string
-        consentArtefacts:
-          type: array
-          items:
-            $ref: '#/components/schemas/IdRequest'
+        error:
+          type: string
+        httpStatusCode:
+          type: string
+        initConsentRequest:
+          type: object
+          properties:
+            requestId:
+              type: string
+            timestamp:
+              type: string
+            consent:
+              $ref: '#/components/schemas/ConsentRequest'
+        consentDetails:
+          type: object
+          properties:
+            grantedOn:
+              type: string
+            dateRange:
+              $ref: '#/components/schemas/DateRange'
+            dataEraseAt:
+              type: string
+            hiTypes:
+              type: array
+              items:
+                type: string
+            consent:
+              type: array
+              items:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  consentArtefacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        lastUpdated:
+                          type: string
+                        hipId:
+                          type: string
+                        careContextReference:
+                          type: array
+                          items:
+                            type: string
     Permission:
       type: object
       properties:
