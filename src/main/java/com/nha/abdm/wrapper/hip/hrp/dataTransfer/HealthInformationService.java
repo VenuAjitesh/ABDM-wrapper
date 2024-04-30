@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.requests.*;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.HIUClient;
@@ -47,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Exceptions;
 
 @Service
@@ -155,6 +157,9 @@ public class HealthInformationService implements HealthInformationInterface {
         requestLogService.saveHealthInformationRequest(
             hipHealthInformationRequest, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_ERROR);
       }
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
     } catch (Exception ex) {
       String error =
           "An unknown error occurred while calling Gateway API: "
@@ -325,12 +330,24 @@ public class HealthInformationService implements HealthInformationInterface {
             .notification(healthInformationNotificationStatus)
             .build();
     log.info(healthInformationPushNotification.toString());
-    ResponseEntity<GenericResponse> response =
-        requestManager.fetchResponseFromGateway(
-            healthInformationPushNotificationPath, healthInformationPushNotification);
-    log.debug(
-        healthInformationPushNotificationPath
-            + " : healthInformationPushNotify: "
-            + response.getStatusCode());
+    try {
+      ResponseEntity<GenericResponse> response =
+          requestManager.fetchResponseFromGateway(
+              healthInformationPushNotificationPath, healthInformationPushNotification);
+      log.debug(
+          healthInformationPushNotificationPath
+              + " : healthInformationPushNotify: "
+              + response.getStatusCode());
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(ErrorResponseWrapper.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+    } catch (Exception ex) {
+      String error =
+          "An unknown error occurred while calling Gateway API: "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
+      log.debug(error);
+    }
   }
 }
