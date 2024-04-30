@@ -11,6 +11,10 @@ docs/ConsentRequest.md
 docs/ConsentRequestIdentifier.md
 docs/ConsentRequester.md
 docs/ConsentStatus.md
+docs/ConsentStatusConsentDetails.md
+docs/ConsentStatusConsentDetailsConsentInner.md
+docs/ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner.md
+docs/ConsentStatusInitConsentRequest.md
 docs/ConsentStatusResponse.md
 docs/DataTransferApi.md
 docs/DateRange.md
@@ -59,6 +63,10 @@ src/main/java/com/nha/abdm/wrapper/client/model/ConsentRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/ConsentRequestIdentifier.java
 src/main/java/com/nha/abdm/wrapper/client/model/ConsentRequester.java
 src/main/java/com/nha/abdm/wrapper/client/model/ConsentStatus.java
+src/main/java/com/nha/abdm/wrapper/client/model/ConsentStatusConsentDetails.java
+src/main/java/com/nha/abdm/wrapper/client/model/ConsentStatusConsentDetailsConsentInner.java
+src/main/java/com/nha/abdm/wrapper/client/model/ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner.java
+src/main/java/com/nha/abdm/wrapper/client/model/ConsentStatusInitConsentRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/ConsentStatusResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/DateRange.java
 src/main/java/com/nha/abdm/wrapper/client/model/ErrorResponse.java
@@ -72,4 +80,7 @@ src/main/java/com/nha/abdm/wrapper/client/model/IdRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/InitConsentRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/Permission.java
 src/main/java/com/nha/abdm/wrapper/client/model/Purpose.java
-src/test/java/com/nha/abdm/wrapper/client/model/HealthInformationBundleTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/ConsentStatusConsentDetailsConsentInnerConsentArtefactsInnerTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/ConsentStatusConsentDetailsConsentInnerTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/ConsentStatusConsentDetailsTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/ConsentStatusInitConsentRequestTest.java

@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "/v1")
@@ -40,6 +37,33 @@ public class PatientController {
         patient.setDateOfBirth("1986-10-13");
 
         return patient;
+    }
+    @PostMapping({"/profile/share"})
+    public ProfileAcknowledgement ProfileAcknowledgement(@RequestBody ShareProfileRequest shareProfileRequest){
+        ProfileAcknowledgement profileAcknowledgement=new ProfileAcknowledgement();
+        profileAcknowledgement.setStatus("SUCCESS");
+        profileAcknowledgement.setHealthId(shareProfileRequest.getProfile().getProfile().getPatient().getHealthId());
+        profileAcknowledgement.setTokenNumber(shareProfileRequest.getToken());
+        return profileAcknowledgement;
+    }
+    @PostMapping({"/request/otp"})
+    public RequestStatusResponse requestOtp(@RequestBody RequestOtpPostRequest requestOtpPostRequest){
+        RequestStatusResponse requestStatusResponse=new RequestStatusResponse();
+        requestStatusResponse.setLinkRefNumber(UUID.randomUUID().toString());
+        requestStatusResponse.setStatus("SUCCESS");
+        return requestStatusResponse;
+    }
+    @PostMapping({"/verify/otp"})
+    public RequestStatusResponse verifyOtp(@RequestBody VerifyOtpPostRequest verifyOTPRequest){
+        RequestStatusResponse requestStatusResponse=new RequestStatusResponse();
+        requestStatusResponse.setRequestId(verifyOTPRequest.getRequestId());
+        if(verifyOTPRequest.getAuthCode().equals("123456")){
+            requestStatusResponse.setStatus("SUCCESS");
+        }else{
+            requestStatusResponse.setStatus("FAILURE");
+            requestStatusResponse.setError(new ErrorResponse().code(1000).message("OTP Mismatch"));
+        }
+        return requestStatusResponse;
     }
 
     @PostMapping({"/patient-discover"})
@@ -89,7 +113,7 @@ public class PatientController {
         patient.setPatientDisplay("Atul");
         CareContext careContext1 = new CareContext();
         careContext1.setReferenceNumber(UUID.randomUUID().toString());
-        careContext1.setDisplay("care-context-display81");
+        careContext1.setDisplay("ABDM-WRAPPER-"+new Date());
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
 

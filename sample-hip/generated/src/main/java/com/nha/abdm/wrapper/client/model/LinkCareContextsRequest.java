@@ -22,6 +22,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.nha.abdm.wrapper.client.model.PatientWithCareContext;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -51,7 +53,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * LinkCareContextsRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-22T00:27:32.411905600+05:30[Asia/Calcutta]")
 public class LinkCareContextsRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)
@@ -117,6 +119,67 @@ public class LinkCareContextsRequest {
   public static final String SERIALIZED_NAME_AUTH_MODE = "authMode";
   @SerializedName(SERIALIZED_NAME_AUTH_MODE)
   private AuthModeEnum authMode;
+
+  /**
+   * Gets or Sets hiTypes
+   */
+  @JsonAdapter(HiTypesEnum.Adapter.class)
+  public enum HiTypesEnum {
+    DIAGNOSTICREPORT("DiagnosticReport"),
+    
+    DISCHARGESUMMARY("DischargeSummary"),
+    
+    HEALTHDOCUMENTRECORD("HealthDocumentRecord"),
+    
+    IMMUNIZATIONRECORD("ImmunizationRecord"),
+    
+    OPCONSULTATION("OPConsultation"),
+    
+    PRESCRIPTION("Prescription"),
+    
+    WELLNESSRECORD("WellnessRecord");
+
+    private String value;
+
+    HiTypesEnum(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static HiTypesEnum fromValue(String value) {
+      for (HiTypesEnum b : HiTypesEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    public static class Adapter extends TypeAdapter<HiTypesEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final HiTypesEnum enumeration) throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public HiTypesEnum read(final JsonReader jsonReader) throws IOException {
+        String value =  jsonReader.nextString();
+        return HiTypesEnum.fromValue(value);
+      }
+    }
+  }
+
+  public static final String SERIALIZED_NAME_HI_TYPES = "hiTypes";
+  @SerializedName(SERIALIZED_NAME_HI_TYPES)
+  private List<HiTypesEnum> hiTypes;
 
   public static final String SERIALIZED_NAME_PATIENT = "patient";
   @SerializedName(SERIALIZED_NAME_PATIENT)
@@ -209,6 +272,35 @@ public class LinkCareContextsRequest {
   }
 
 
+  public LinkCareContextsRequest hiTypes(List<HiTypesEnum> hiTypes) {
+    
+    this.hiTypes = hiTypes;
+    return this;
+  }
+
+  public LinkCareContextsRequest addHiTypesItem(HiTypesEnum hiTypesItem) {
+    if (this.hiTypes == null) {
+      this.hiTypes = new ArrayList<>();
+    }
+    this.hiTypes.add(hiTypesItem);
+    return this;
+  }
+
+   /**
+   * Get hiTypes
+   * @return hiTypes
+  **/
+  @javax.annotation.Nullable
+  public List<HiTypesEnum> getHiTypes() {
+    return hiTypes;
+  }
+
+
+  public void setHiTypes(List<HiTypesEnum> hiTypes) {
+    this.hiTypes = hiTypes;
+  }
+
+
   public LinkCareContextsRequest patient(PatientWithCareContext patient) {
     
     this.patient = patient;
@@ -244,12 +336,13 @@ public class LinkCareContextsRequest {
         Objects.equals(this.requesterId, linkCareContextsRequest.requesterId) &&
         Objects.equals(this.abhaAddress, linkCareContextsRequest.abhaAddress) &&
         Objects.equals(this.authMode, linkCareContextsRequest.authMode) &&
+        Objects.equals(this.hiTypes, linkCareContextsRequest.hiTypes) &&
         Objects.equals(this.patient, linkCareContextsRequest.patient);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, requesterId, abhaAddress, authMode, patient);
+    return Objects.hash(requestId, requesterId, abhaAddress, authMode, hiTypes, patient);
   }
 
   @Override
@@ -260,6 +353,7 @@ public class LinkCareContextsRequest {
     sb.append("    requesterId: ").append(toIndentedString(requesterId)).append("\n");
     sb.append("    abhaAddress: ").append(toIndentedString(abhaAddress)).append("\n");
     sb.append("    authMode: ").append(toIndentedString(authMode)).append("\n");
+    sb.append("    hiTypes: ").append(toIndentedString(hiTypes)).append("\n");
     sb.append("    patient: ").append(toIndentedString(patient)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -287,6 +381,7 @@ public class LinkCareContextsRequest {
     openapiFields.add("requesterId");
     openapiFields.add("abhaAddress");
     openapiFields.add("authMode");
+    openapiFields.add("hiTypes");
     openapiFields.add("patient");
 
     // a set of required properties/fields (JSON key names)
@@ -324,6 +419,10 @@ public class LinkCareContextsRequest {
       }
       if ((jsonObj.get("authMode") != null && !jsonObj.get("authMode").isJsonNull()) && !jsonObj.get("authMode").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `authMode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("authMode").toString()));
+      }
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("hiTypes") != null && !jsonObj.get("hiTypes").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `hiTypes` to be an array in the JSON string but got `%s`", jsonObj.get("hiTypes").toString()));
       }
       // validate the optional field `patient`
       if (jsonObj.get("patient") != null && !jsonObj.get("patient").isJsonNull()) {

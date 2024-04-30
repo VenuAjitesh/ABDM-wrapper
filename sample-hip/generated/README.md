@@ -2,7 +2,7 @@
 
 Swagger HIP Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-03-13T13:58:51.142146410Z[Etc/UTC]
+  - Build date: 2024-04-22T00:27:32.411905600+05:30[Asia/Calcutta]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -84,20 +84,20 @@ import com.nha.abdm.wrapper.client.invoker.ApiClient;
 import com.nha.abdm.wrapper.client.invoker.ApiException;
 import com.nha.abdm.wrapper.client.invoker.Configuration;
 import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.LinkApi;
+import com.nha.abdm.wrapper.client.api.DiscoveryApi;
 
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://localhost:8082/v1");
 
-    LinkApi apiInstance = new LinkApi(defaultClient);
-    LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest(); // LinkCareContextsRequest | Links Care Contexts
+    DiscoveryApi apiInstance = new DiscoveryApi(defaultClient);
+    RequestOtpPostRequest requestOtpPostRequest = new RequestOtpPostRequest(); // RequestOtpPostRequest | requesting for OTP
     try {
-      FacadeResponse result = apiInstance.linkCareContexts(linkCareContextsRequest);
+      RequestStatusResponse result = apiInstance.requestOtpPost(requestOtpPostRequest);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling LinkApi#linkCareContexts");
+      System.err.println("Exception when calling DiscoveryApi#requestOtpPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -114,11 +114,15 @@ All URIs are relative to *http://localhost:8082/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DiscoveryApi* | [**requestOtpPost**](docs/DiscoveryApi.md#requestOtpPost) | **POST** /request/otp | The Initiating of otp in discovery flow
+*DiscoveryApi* | [**verifyOtpPost**](docs/DiscoveryApi.md#verifyOtpPost) | **POST** /verify/otp | The Verification of otp in discovery flow
 *LinkApi* | [**linkCareContexts**](docs/LinkApi.md#linkCareContexts) | **POST** /link-carecontexts | Links care contexts for a given patient&#39;s abha address
 *LinkApi* | [**linkStatusRequestIdGet**](docs/LinkApi.md#linkStatusRequestIdGet) | **GET** /link-status/{requestId} | Get status of Link request.
 *LinkApi* | [**verifyOTP**](docs/LinkApi.md#verifyOTP) | **POST** /verify-otp | Verify OTP for link auth modes Mobile and Aadhaar
 *PatientsApi* | [**patientCareContextsPost**](docs/PatientsApi.md#patientCareContextsPost) | **POST** /patient-care-contexts | Gets Care Contexts of the given patient id
 *PatientsApi* | [**patientDiscoverPost**](docs/PatientsApi.md#patientDiscoverPost) | **POST** /patient-discover | Discover patient&#39;s accounts
+*PatientsApi* | [**shareProfilePost**](docs/PatientsApi.md#shareProfilePost) | **POST** /share/profile | Sharing patient details with a facility via scan and share
+*PatientsApi* | [**smsNotifyPost**](docs/PatientsApi.md#smsNotifyPost) | **POST** /sms/notify | Sending sms to patient via ABDM
 *PatientsApi* | [**upsertPatients**](docs/PatientsApi.md#upsertPatients) | **PUT** /add-patients | Insert or Update a list of patients
 
 
@@ -132,12 +136,26 @@ Class | Method | HTTP request | Description
  - [IdentifierType](docs/IdentifierType.md)
  - [LinkCareContextsRequest](docs/LinkCareContextsRequest.md)
  - [Patient](docs/Patient.md)
+ - [PatientAddress](docs/PatientAddress.md)
+ - [PatientDetails](docs/PatientDetails.md)
  - [PatientDiscoveryRequest](docs/PatientDiscoveryRequest.md)
  - [PatientDiscoveryRequestPatient](docs/PatientDiscoveryRequestPatient.md)
  - [PatientGender](docs/PatientGender.md)
+ - [PatientProfile](docs/PatientProfile.md)
+ - [PatientVerifiedIdentifiers](docs/PatientVerifiedIdentifiers.md)
  - [PatientWithCareContext](docs/PatientWithCareContext.md)
+ - [ProfileAcknowledgement](docs/ProfileAcknowledgement.md)
+ - [ProfileIntent](docs/ProfileIntent.md)
+ - [ProfileLocation](docs/ProfileLocation.md)
+ - [ProfileShare](docs/ProfileShare.md)
+ - [RequestOtpPostRequest](docs/RequestOtpPostRequest.md)
  - [RequestStatusResponse](docs/RequestStatusResponse.md)
+ - [ShareProfileRequest](docs/ShareProfileRequest.md)
+ - [SmsNotify](docs/SmsNotify.md)
+ - [SmsNotifyNotification](docs/SmsNotifyNotification.md)
+ - [SmsNotifyNotificationHip](docs/SmsNotifyNotificationHip.md)
  - [VerifyOTPRequest](docs/VerifyOTPRequest.md)
+ - [VerifyOtpPostRequest](docs/VerifyOtpPostRequest.md)
 
 
 <a id="documentation-for-authorization"></a>

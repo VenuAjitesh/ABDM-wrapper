@@ -50,7 +50,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * CareContextRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-22T00:27:32.411905600+05:30[Asia/Calcutta]")
 public class CareContextRequest {
   public static final String SERIALIZED_NAME_ABHA_ADDRESS = "abhaAddress";
   @SerializedName(SERIALIZED_NAME_ABHA_ADDRESS)
