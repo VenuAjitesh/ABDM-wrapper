@@ -284,7 +284,7 @@ public class GatewayCallbackController {
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
-  @PostMapping({"/v0.5/patients/status/on-notify"})
+  @PostMapping({"/v0.5/patients/sms/on-notify"})
   public ResponseEntity<GatewayCallbackResponse> deepLinkingOnNotify(
       @RequestBody StatusResponse statusResponse) {
     log.info(statusResponse);
