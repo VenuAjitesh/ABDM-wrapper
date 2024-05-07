@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FacadeConsentDetails {
+  private String deniedOn;
   private String grantedOn;
   private DateRange dateRange;
   private String dataEraseAt;
