@@ -68,18 +68,23 @@ public class EncryptionService {
     List<HealthInformationBundle> encryptedCareContextsList = new ArrayList<>();
     for (HealthInformationBundle healthInformationBundle :
         bundleResponse.getHealthInformationBundle()) {
-      log.debug(healthInformationBundle);
-      String encryptedData =
-          encrypt(
-              xorOfRandom,
-              senderKeys.getPrivateKey(),
-              receiverKeys.getPublicKey(),
-              healthInformationBundle.getBundleContent());
-      encryptedCareContextsList.add(
-          HealthInformationBundle.builder()
-              .careContextReference(healthInformationBundle.getCareContextReference())
-              .bundleContent(encryptedData)
-              .build());
+      try {
+        String encryptedData =
+            encrypt(
+                xorOfRandom,
+                senderKeys.getPrivateKey(),
+                receiverKeys.getPublicKey(),
+                healthInformationBundle.getBundleContent());
+        encryptedCareContextsList.add(
+            HealthInformationBundle.builder()
+                .careContextReference(healthInformationBundle.getCareContextReference())
+                .bundleContent(encryptedData)
+                .build());
+      } catch (Exception e) {
+        log.error(
+            "Error encrypting data for care context: "
+                + healthInformationBundle.getCareContextReference());
+      }
     }
     String keyToShare = getBase64String(getEncodedHIPPublicKey(getKey(senderKeys.getPublicKey())));
     return new EncryptionResponse(encryptedCareContextsList, keyToShare, senderKeys.getNonce());

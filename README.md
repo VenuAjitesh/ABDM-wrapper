@@ -677,7 +677,7 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
         }
     },
     "consentDetails": { // GRANTED consent details
-        "grantedOn": "2024-04-19T15:33:46.146Z",
+        "grantedOn": "2024-04-19T15:33:46.146Z", //deniedOn
         "dateRange": {
             "from": "2023-02-16T12:45:18.548Z",
             "to": "2024-03-15T11:43:18.548Z"
