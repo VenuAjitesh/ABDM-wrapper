@@ -303,7 +303,7 @@ public class HIUConsentService implements HIUConsentInterface {
                   : null)
           .consentDetails(
               FacadeConsentDetails.builder()
-                      .deniedOn(notifyHIURequest.getTimestamp())
+                  .deniedOn(notifyHIURequest.getTimestamp())
                   .consent(
                       Collections.singletonList(
                           ConsentStatus.builder().status(notification.getStatus()).build()))

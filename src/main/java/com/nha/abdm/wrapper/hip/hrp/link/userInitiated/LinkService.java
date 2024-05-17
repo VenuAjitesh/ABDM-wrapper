@@ -108,7 +108,8 @@ public class LinkService implements LinkInterface {
       ResponseEntity<ResponseOtp> hipResponse = hipClient.requestOtp(this.requestOtp, requestOtp);
       log.info(this.requestOtp + " : requestOtp: " + hipResponse.getStatusCode());
 
-      if (Objects.requireNonNull(hipResponse.getBody()).getStatus().equalsIgnoreCase("SUCCESS")) {
+      if (Objects.requireNonNull(hipResponse.getBody()).getStatus().equalsIgnoreCase("SUCCESS")
+          || Objects.isNull(hipResponse.getBody().getError())) {
         onInitRequest.getLink().setReferenceNumber(hipResponse.getBody().getLinkRefNumber());
         ResponseEntity<GenericResponse> responseEntity =
             requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
@@ -116,7 +117,13 @@ public class LinkService implements LinkInterface {
 
       } else {
         onInitRequest.setError(
-            ErrorResponse.builder().code(1000).message("Unable to send OTP").build());
+            ErrorResponse.builder()
+                .code(1000)
+                .message(
+                    Objects.nonNull(hipResponse.getBody().getError())
+                        ? hipResponse.getBody().getError().getMessage()
+                        : "Unable to send SMS")
+                .build());
         ResponseEntity<GenericResponse> responseEntity =
             requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
         log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
