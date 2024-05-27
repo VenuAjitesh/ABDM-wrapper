@@ -765,8 +765,8 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
   {
      "healthInformationBundle": [
         {
-           "careContextReference": "";
-           "bundleContent": "Stringified FHIR bundle";
+           "careContextReference": "",
+           "bundleContent": "Stringified FHIR bundle",
         }
      ]
   }

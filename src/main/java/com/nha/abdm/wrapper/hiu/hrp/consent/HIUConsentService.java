@@ -285,7 +285,7 @@ public class HIUConsentService implements HIUConsentInterface {
       return ConsentStatusResponse.builder()
           .status(requestLog.getStatus())
           .error(ErrorResponse.builder().code(1000).message(requestLog.getError()).build())
-          .httpStatusCode(HttpStatus.OK)
+          .httpStatusCode(HttpStatus.BAD_REQUEST)
           .build();
     }
     NotifyHIURequest notifyHIURequest =
@@ -328,7 +328,7 @@ public class HIUConsentService implements HIUConsentInterface {
     }
     return ConsentStatusResponse.builder()
         .status(requestLog.getStatus())
-        .httpStatusCode(HttpStatus.OK)
+        .httpStatusCode(HttpStatus.BAD_REQUEST)
         .error(ErrorResponse.builder().code(1000).message("Consents not found").build())
         .build();
   }

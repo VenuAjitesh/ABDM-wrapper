@@ -128,10 +128,10 @@ public class PatientController {
         log.debug("healthInformationBundleRequest" + healthInformationBundleRequest);
         String filePath = "src/main/resources/OP_Consultation_fhir_bundle.json";
         String bundle= new String(Files.readAllBytes(Paths.get(filePath)));
-        HealthInformationBundle healthInformationBundle=new HealthInformationBundle();
         HealthInformationResponse healthInformationResponse=new HealthInformationResponse();
         List<HealthInformationBundle> healthInformationBundles=new ArrayList<>();
         for(ConsentCareContexts careContexts:healthInformationBundleRequest.getCareContextsWithPatientReferences()){
+            HealthInformationBundle healthInformationBundle=new HealthInformationBundle();
             healthInformationBundle.setBundleContent(bundle);
             healthInformationBundle.setCareContextReference(careContexts.getCareContextReference());
             healthInformationBundles.add(healthInformationBundle);
