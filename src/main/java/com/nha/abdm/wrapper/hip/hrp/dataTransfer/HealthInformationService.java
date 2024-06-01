@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.requests.*;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponseV3;
 import com.nha.abdm.wrapper.common.responses.ErrorResponseWrapper;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
@@ -46,6 +47,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -204,23 +206,36 @@ public class HealthInformationService implements HealthInformationInterface {
       HealthInformationBundleResponse healthInformationBundleResponse, String consentId)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
           NoSuchProviderException, InvalidKeyException, IllegalDataStateException {
-    log.debug("HealthInformationBundle : " + healthInformationBundleResponse);
-    RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
+    try {
+      log.debug("HealthInformationBundle : " + healthInformationBundleResponse);
+      RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
-    HIPNotifyRequest hipNotifyRequest =
-        (HIPNotifyRequest) requestLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
+      HIPNotifyRequest hipNotifyRequest =
+              (HIPNotifyRequest) requestLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
 
-    HIPHealthInformationRequest hipHealthInformationRequest =
-        (HIPHealthInformationRequest)
-            requestLog.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
-    HealthInformationPushRequest healthInformationPushRequest =
-        fetchHealthInformationPushRequest(
-            hipNotifyRequest, hipHealthInformationRequest, healthInformationBundleResponse);
+      HIPHealthInformationRequest hipHealthInformationRequest =
+              (HIPHealthInformationRequest)
+                      requestLog.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
+      HealthInformationPushRequest healthInformationPushRequest =
+              fetchHealthInformationPushRequest(
+                      hipNotifyRequest, hipHealthInformationRequest, healthInformationBundleResponse);
 
-    log.debug("Health Information push request: " + healthInformationPushRequest);
-    log.info("initiating the dataTransfer to HIU");
-    return hiuClient.pushHealthInformation(
-        hipHealthInformationRequest.getHiRequest().getDataPushUrl(), healthInformationPushRequest);
+      log.debug("Health Information push request: " + healthInformationPushRequest);
+      log.info("initiating the dataTransfer to HIU");
+      return hiuClient.pushHealthInformation(
+              hipHealthInformationRequest.getHiRequest().getDataPushUrl(), healthInformationPushRequest);
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponseV3 error = ex.getResponseBodyAs(ErrorResponseV3.class);
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+    } catch (Exception ex) {
+      String error =
+              "An unknown error occurred while calling Gateway API: "
+                      + ex.getMessage()
+                      + " unwrapped exception: "
+                      + Exceptions.unwrap(ex);
+      log.debug(error);
+    }
+    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }
 
   private HealthInformationPushRequest fetchHealthInformationPushRequest(
