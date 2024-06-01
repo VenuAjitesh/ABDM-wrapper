@@ -74,16 +74,19 @@ public class MakeWellnessObservationResource {
       performerList.add(
           new Reference()
               .setReference("Practitioner/" + practitioner.getId())
-              .setDisplay(patientName.getText()));
+              .setDisplay(practitionerName.getText()));
     }
     observation.setPerformer(performerList);
-    if (Objects.nonNull(observationResource.getValueQuantity()))
+    if (Objects.nonNull(observationResource.getValueQuantity())) {
       observation.setValue(
           new Quantity()
               .setValue(observationResource.getValueQuantity().getValue())
               .setUnit(observationResource.getValueQuantity().getUnit()));
-    //    if (observation.getValueQuantity() != null || observationResource.getResult() != null)
-    //      observation.setValue(new CodeableConcept().setText(observationResource.getResult()));
+    }
+    if (Objects.nonNull(observation.getValueQuantity())
+        || observationResource.getResult() != null) {
+      observation.setValue(new CodeableConcept().setText(observationResource.getResult()));
+    }
     observation.setId(UUID.randomUUID().toString());
     return observation;
   }

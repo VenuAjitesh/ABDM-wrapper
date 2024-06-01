@@ -31,22 +31,19 @@ public class MakeDocumentResource {
     identifier.setValue(
         organization.getId() == null ? UUID.randomUUID().toString() : organization.getId());
 
-    Meta meta = new Meta();
-    meta.setVersionId("1");
-    meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentReference");
-
     Attachment attachment = new Attachment();
     attachment.setContentType(documentResource.getContentType());
     attachment.setData(documentResource.getData().getBytes());
     attachment.setTitle(documentResource.getType());
     attachment.setCreation(Utils.getCurrentTimeStamp());
-    attachment.setContentType(documentResource.getContentType());
     DocumentReference.DocumentReferenceContentComponent documentReferenceContentComponent =
         new DocumentReference.DocumentReferenceContentComponent().setAttachment(attachment);
     DocumentReference documentReference = new DocumentReference();
     documentReference.setId(UUID.randomUUID().toString());
-    documentReference.setMeta(meta);
+    documentReference.setMeta(
+        new Meta()
+            .setLastUpdated(Utils.getCurrentTimeStamp())
+            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentReference"));
     documentReference.addIdentifier(identifier);
     documentReference.addContent(documentReferenceContentComponent);
     documentReference.setStatus(Enumerations.DocumentReferenceStatus.CURRENT);

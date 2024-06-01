@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.common.helpers;
 
-import com.nha.abdm.fhir.mapper.exceptions.NotBlankFields;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-@NotBlankFields
 public class DocumentResource {
-  private String contentType;
-  private String type;
-  private String data;
+  @NotNull(message = "contentType is mandatory") private String contentType;
+
+  @NotNull(message = "type is mandatory") private String type;
+
+  @NotNull(message = "data is mandatory") private String data;
 }

@@ -17,11 +17,15 @@ public class MakeConditionResource {
     Condition condition = new Condition();
     condition.setId(UUID.randomUUID().toString());
     condition.setCode(new CodeableConcept().setText(conditionDetails));
+    condition.setMeta(
+        new Meta()
+            .setLastUpdated(Utils.getCurrentTimeStamp())
+            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"));
     condition.setSubject(
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    if (recordedDate != null) condition.setRecordedDate(Utils.getFormattedDateTime(recordedDate));
+    if (recordedDate != null) condition.setRecordedDate(Utils.getFormattedDate(recordedDate));
     if (dateRange != null) {
       condition.setOnset(
           new Period()

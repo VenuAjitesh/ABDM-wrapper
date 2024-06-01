@@ -32,10 +32,7 @@ public class MakeOrganisationResource {
     organization.setName(organisationResource.getFacilityName());
     organization.setMeta(meta);
     organization.addIdentifier(identifier);
-    organization.setId(
-        organisationResource.getFacilityId() == null
-            ? UUID.randomUUID().toString()
-            : organisationResource.getFacilityId());
+    organization.setId(UUID.randomUUID().toString());
     return organization;
   }
 }

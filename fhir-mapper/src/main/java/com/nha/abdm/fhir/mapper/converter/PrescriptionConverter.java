@@ -1,22 +1,24 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.converter;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
-import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.PrescriptionRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PrescriptionConverter {
+  private static final Logger log = LoggerFactory.getLogger(PrescriptionConverter.class);
   private final MakeOrganisationResource makeOrganisationResource;
 
   private final MakePatientResource makePatientResource;
@@ -47,36 +49,53 @@ public class PrescriptionConverter {
   public BundleResponse convertToPrescriptionBundle(PrescriptionRequest prescriptionRequest)
       throws ParseException {
     try {
-      FhirContext ctx = FhirContext.forR4();
       Organization organization =
-          makeOrganisationResource.getOrganization(prescriptionRequest.getOrganisation());
+          Objects.nonNull(prescriptionRequest.getOrganisation())
+              ? makeOrganisationResource.getOrganization(prescriptionRequest.getOrganisation())
+              : null;
       Patient patient = makePatientResource.getPatient(prescriptionRequest.getPatient());
-      List<Practitioner> practitionerList = new ArrayList<>();
-      for (PractitionerResource practitioner : prescriptionRequest.getPractitionerList()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitioner));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(prescriptionRequest.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       List<MedicationRequest> medicationRequestList = new ArrayList<>();
-      for (PrescriptionResource item : prescriptionRequest.getPrescription()) {
+      for (PrescriptionResource item : prescriptionRequest.getPrescriptions()) {
         medicationRequestList.add(
             makeMedicationRequestResource.getMedicationResource(
-                prescriptionRequest.getAuthoredOn(),
+                Utils.getFormattedDate(prescriptionRequest.getAuthoredOn()),
                 item,
                 organization,
-                practitionerList.get(0),
+                practitionerList,
                 patient));
       }
       Encounter encounter = null;
       if (prescriptionRequest.getEncounter() != null)
         encounter = makeEncounterResource.getEncounter(patient, prescriptionRequest.getEncounter());
       List<Binary> documentList = new ArrayList<>();
-      for (DocumentResource documentResource : prescriptionRequest.getDocumentList()) {
-        Binary binary = new Binary();
-        binary.setContent(documentResource.getData().getBytes());
-        binary.setContentType(documentResource.getContentType());
-        binary.setId(UUID.randomUUID().toString());
-        documentList.add(binary);
+      if (prescriptionRequest.getDocuments() != null) {
+        for (DocumentResource documentResource : prescriptionRequest.getDocuments()) {
+          Binary binary = new Binary();
+          binary.setMeta(
+              new Meta()
+                  .setLastUpdated(Utils.getCurrentTimeStamp())
+                  .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Binary"));
+          binary.setContent(documentResource.getData().getBytes());
+          binary.setContentType(documentResource.getContentType());
+          binary.setId(UUID.randomUUID().toString());
+          documentList.add(binary);
+        }
       }
-
       Composition composition =
           makeCompositionResource(
               patient,
@@ -109,10 +128,12 @@ public class PrescriptionConverter {
                 .setFullUrl("Practitioner/" + practitioner.getId())
                 .setResource(practitioner));
       }
-      entries.add(
-          new Bundle.BundleEntryComponent()
-              .setFullUrl("Organisation/" + organization.getId())
-              .setResource(organization));
+      if (Objects.nonNull(organization)) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Organisation/" + organization.getId())
+                .setResource(organization));
+      }
       if (Objects.nonNull(encounter)) {
         entries.add(
             new Bundle.BundleEntryComponent()

@@ -7,9 +7,8 @@ import com.nha.abdm.fhir.mapper.common.helpers.PatientResource;
 import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,24 +20,27 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class PrescriptionRequest {
-  @NotNull(message = "BundleType is mandatory and must not be empty, ex: prescription") private String bundleType;
+  @Pattern(regexp = "PrescriptionRecord")
+  @NotNull(message = "BundleType is mandatory and must not be empty : 'PrescriptionRecord'") private String bundleType;
 
   @NotNull(message = "careContextReference is mandatory and must not be empty") private String careContextReference;
 
   @Valid
   @NotNull(message = "Patient demographic details are mandatory and must not be empty") private PatientResource patient;
 
-  private Date authoredOn;
+  @Pattern(
+      regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",
+      message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSX")
+  @NotNull(message = "authoredOn is mandatory timestamp") private String authoredOn;
+
   private String encounter;
 
-  @Valid
-  @NotEmpty(message = "practitionerList is mandatory and must not be empty")
-  private List<PractitionerResource> practitionerList;
+  @Valid private List<PractitionerResource> practitioners;
 
   private OrganisationResource organisation;
 
   @Valid
-  @NotNull(message = "prescription is mandatory and must not be empty") private List<PrescriptionResource> prescription;
+  @NotNull(message = "prescription is mandatory and must not be empty") private List<PrescriptionResource> prescriptions;
 
-  private List<DocumentResource> documentList;
+  @Valid private List<DocumentResource> documents;
 }

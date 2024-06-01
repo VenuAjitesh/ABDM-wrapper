@@ -7,11 +7,11 @@ import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
-import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.OPConsultationRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Service;
 
@@ -66,20 +66,31 @@ public class OPConsultationConverter {
   public BundleResponse convertToOPConsultationBundle(OPConsultationRequest opConsultationRequest)
       throws ParseException {
     try {
-      List<Practitioner> practitionerList = new ArrayList<>();
       Organization organization =
           makeOrganisationResource.getOrganization(opConsultationRequest.getOrganisation());
       Patient patient = makePatientResource.getPatient(opConsultationRequest.getPatient());
-      for (PractitionerResource practitionerItem : opConsultationRequest.getPractitioner()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitionerItem));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(opConsultationRequest.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       Encounter encounter = makeEncounterResource.getEncounter(patient, "");
       List<Condition> chiefComplaintList =
           opConsultationRequest.getChiefComplaints() != null
               ? makeCheifComplaintsList(opConsultationRequest, patient)
               : new ArrayList<>();
       List<Observation> physicalObservationList =
-          opConsultationRequest.getPhysicalExamination() != null
+          opConsultationRequest.getPhysicalExaminations() != null
               ? makePhysicalObservations(opConsultationRequest, patient, practitionerList)
               : new ArrayList<>();
       List<AllergyIntolerance> allergieList =
@@ -87,15 +98,15 @@ public class OPConsultationConverter {
               ? makeAllergiesList(patient, practitionerList, opConsultationRequest)
               : new ArrayList<>();
       List<Condition> medicalHistoryList =
-          opConsultationRequest.getMedicalHistory() != null
+          opConsultationRequest.getMedicalHistories() != null
               ? makeMedicalHistoryList(opConsultationRequest, patient)
               : new ArrayList<>();
       List<FamilyMemberHistory> familyMemberHistoryList =
-          opConsultationRequest.getFamilyHistory() != null
+          opConsultationRequest.getFamilyHistories() != null
               ? makeFamilyMemberHistory(patient, opConsultationRequest)
               : new ArrayList<>();
       List<ServiceRequest> investigationAdviceList =
-          opConsultationRequest.getServiceRequest() != null
+          opConsultationRequest.getServiceRequests() != null
               ? makeInvestigationAdviceList(opConsultationRequest, patient, practitionerList)
               : new ArrayList<>();
       HashMap<Medication, MedicationRequest> medicationRequestMap = new HashMap<>();
@@ -103,22 +114,22 @@ public class OPConsultationConverter {
       for (PrescriptionResource prescriptionResource : opConsultationRequest.getMedications()) {
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
-                Utils.getFormattedDate(opConsultationRequest.getMedicationAuthoredOn()),
+                Utils.getFormattedDate(opConsultationRequest.getAuthoredOn()),
                 prescriptionResource,
                 organization,
-                practitionerList.get(0),
+                practitionerList,
                 patient));
       }
       List<Appointment> followupList =
-          opConsultationRequest.getFollowup() != null
+          opConsultationRequest.getFollowups() != null
               ? makeFollowupList(patient, opConsultationRequest)
               : new ArrayList<>();
       List<Procedure> procedureList =
-          opConsultationRequest.getProcedure() != null
+          opConsultationRequest.getProcedures() != null
               ? makeProcedureList(opConsultationRequest)
               : new ArrayList<>();
       List<ServiceRequest> referralList =
-          opConsultationRequest.getReferral() != null
+          opConsultationRequest.getReferrals() != null
               ? makeReferralList(opConsultationRequest, patient, practitionerList)
               : new ArrayList<>();
       List<Observation> otherObservationList =
@@ -126,8 +137,8 @@ public class OPConsultationConverter {
               ? makeOtherObservations(patient, practitionerList, opConsultationRequest)
               : new ArrayList<>();
       List<DocumentReference> documentReferenceList = new ArrayList<>();
-      if (Objects.nonNull(opConsultationRequest.getDocumentList())) {
-        for (DocumentResource documentResource : opConsultationRequest.getDocumentList()) {
+      if (Objects.nonNull(opConsultationRequest.getDocuments())) {
+        for (DocumentResource documentResource : opConsultationRequest.getDocuments()) {
           documentReferenceList.add(makeDocumentReference(patient, organization, documentResource));
         }
       }
@@ -349,7 +360,8 @@ public class OPConsultationConverter {
   private List<Observation> makeOtherObservations(
       Patient patient,
       List<Practitioner> practitionerList,
-      OPConsultationRequest opConsultationRequest) {
+      OPConsultationRequest opConsultationRequest)
+      throws ParseException {
     List<Observation> observationList = new ArrayList<>();
     for (ObservationResource item : opConsultationRequest.getOtherObservations()) {
       observationList.add(makeObservationResource.getObservation(patient, practitionerList, item));
@@ -360,9 +372,10 @@ public class OPConsultationConverter {
   private List<ServiceRequest> makeReferralList(
       OPConsultationRequest opConsultationRequest,
       Patient patient,
-      List<Practitioner> practitionerList) {
+      List<Practitioner> practitionerList)
+      throws ParseException {
     List<ServiceRequest> refferalList = new ArrayList<>();
-    for (ServiceRequestResource item : opConsultationRequest.getReferral()) {
+    for (ServiceRequestResource item : opConsultationRequest.getReferrals()) {
       refferalList.add(
           makeServiceRequestResource.getServiceRequest(patient, practitionerList, item));
     }
@@ -371,7 +384,7 @@ public class OPConsultationConverter {
 
   private List<Procedure> makeProcedureList(OPConsultationRequest opConsultationRequest) {
     List<Procedure> procedureList = new ArrayList<>();
-    for (ProcedureResource item : opConsultationRequest.getProcedure()) {
+    for (ProcedureResource item : opConsultationRequest.getProcedures()) {
       Procedure procedure = new Procedure();
       procedure.setId(UUID.randomUUID().toString());
       procedure.setStatus(Procedure.ProcedureStatus.INPROGRESS);
@@ -386,7 +399,7 @@ public class OPConsultationConverter {
   private List<Appointment> makeFollowupList(
       Patient patient, OPConsultationRequest opConsultationRequest) throws ParseException {
     List<Appointment> followupList = new ArrayList<>();
-    for (FollowupResource item : opConsultationRequest.getFollowup()) {
+    for (FollowupResource item : opConsultationRequest.getFollowups()) {
       Appointment appointment = new Appointment();
       appointment.setId(UUID.randomUUID().toString());
       appointment.setStatus(Appointment.AppointmentStatus.PROPOSED);
@@ -406,9 +419,10 @@ public class OPConsultationConverter {
   private List<ServiceRequest> makeInvestigationAdviceList(
       OPConsultationRequest opConsultationRequest,
       Patient patient,
-      List<Practitioner> practitionerList) {
+      List<Practitioner> practitionerList)
+      throws ParseException {
     List<ServiceRequest> investigationList = new ArrayList<>();
-    for (ServiceRequestResource item : opConsultationRequest.getServiceRequest()) {
+    for (ServiceRequestResource item : opConsultationRequest.getServiceRequests()) {
       investigationList.add(
           makeServiceRequestResource.getServiceRequest(patient, practitionerList, item));
     }
@@ -416,9 +430,9 @@ public class OPConsultationConverter {
   }
 
   private List<FamilyMemberHistory> makeFamilyMemberHistory(
-      Patient patient, OPConsultationRequest opConsultationRequest) {
+      Patient patient, OPConsultationRequest opConsultationRequest) throws ParseException {
     List<FamilyMemberHistory> familyMemberHistoryList = new ArrayList<>();
-    for (FamilyObservationResource item : opConsultationRequest.getFamilyHistory()) {
+    for (FamilyObservationResource item : opConsultationRequest.getFamilyHistories()) {
       familyMemberHistoryList.add(makeFamilyMemberResource.getFamilyHistory(patient, item));
     }
     return familyMemberHistoryList;
@@ -427,7 +441,7 @@ public class OPConsultationConverter {
   private List<Condition> makeMedicalHistoryList(
       OPConsultationRequest opConsultationRequest, Patient patient) throws ParseException {
     List<Condition> medicalHistoryList = new ArrayList<>();
-    for (ChiefComplaintResource item : opConsultationRequest.getMedicalHistory()) {
+    for (ChiefComplaintResource item : opConsultationRequest.getMedicalHistories()) {
       medicalHistoryList.add(
           makeConditionResource.getCondition(
               item.getComplaint(), patient, item.getRecordedDate(), item.getDateRange()));
@@ -438,11 +452,13 @@ public class OPConsultationConverter {
   private List<AllergyIntolerance> makeAllergiesList(
       Patient patient,
       List<Practitioner> practitionerList,
-      OPConsultationRequest opConsultationRequest) {
+      OPConsultationRequest opConsultationRequest)
+      throws ParseException {
     List<AllergyIntolerance> allergyIntoleranceList = new ArrayList<>();
     for (String item : opConsultationRequest.getAllergies()) {
       allergyIntoleranceList.add(
-          makeAllergyToleranceResource.getAllergy(patient, practitionerList, item));
+          makeAllergyToleranceResource.getAllergy(
+              patient, practitionerList, item, opConsultationRequest.getAuthoredOn()));
     }
     return allergyIntoleranceList;
   }
@@ -450,9 +466,10 @@ public class OPConsultationConverter {
   private List<Observation> makePhysicalObservations(
       OPConsultationRequest opConsultationRequest,
       Patient patient,
-      List<Practitioner> practitionerList) {
+      List<Practitioner> practitionerList)
+      throws ParseException {
     List<Observation> observationList = new ArrayList<>();
-    for (ObservationResource item : opConsultationRequest.getPhysicalExamination()) {
+    for (ObservationResource item : opConsultationRequest.getPhysicalExaminations()) {
       observationList.add(makeObservationResource.getObservation(patient, practitionerList, item));
     }
     return observationList;

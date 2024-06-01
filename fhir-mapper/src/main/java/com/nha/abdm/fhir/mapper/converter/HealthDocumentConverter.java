@@ -1,16 +1,15 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.converter;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
-import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.HealthDocumentRecord;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Service;
 
@@ -45,17 +44,26 @@ public class HealthDocumentConverter {
   public BundleResponse convertToHealthDocumentBundle(HealthDocumentRecord healthDocumentRecord)
       throws ParseException {
     try {
-
-      FhirContext ctx = FhirContext.forR4();
       Organization organization =
           makeOrganisationResource.getOrganization(healthDocumentRecord.getOrganisation());
       Patient patient = makePatientResource.getPatient(healthDocumentRecord.getPatient());
-      List<Practitioner> practitionerList = new ArrayList<>();
-      for (PractitionerResource practitioner : healthDocumentRecord.getPractitioner()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitioner));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(healthDocumentRecord.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       List<DocumentReference> documentReferenceList = new ArrayList<>();
-      for (DocumentResource documentResource : healthDocumentRecord.getDocument()) {
+      for (DocumentResource documentResource : healthDocumentRecord.getDocuments()) {
         documentReferenceList.add(
             makeDocumentResource.getDocument(
                 patient, organization, documentResource, docCode, docName));

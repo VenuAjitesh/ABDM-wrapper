@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import java.text.ParseException;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +29,15 @@ public class BundleController {
   @Autowired WellnessRecordConverter wellnessRecordConverter;
   FhirContext ctx = FhirContext.forR4();
 
+  /**
+   * @param immunizationRequest which has immunization details like vaccine and type of vaccine
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
   @PostMapping("/immunization")
   public Object createImmunizationBundle(
       @Validated @RequestBody ImmunizationRequest immunizationRequest) throws ParseException {
-    if (!immunizationRequest.getBundleType().equalsIgnoreCase("Immunization")) {
+    if (!immunizationRequest.getBundleType().equalsIgnoreCase("ImmunizationRecord")) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -43,7 +49,7 @@ public class BundleController {
                                   + "'"
                                   + immunizationRequest.getBundleType()
                                   + "'"
-                                  + " required: Immunization")
+                                  + " required: ImmunizationRecord")
                           .build())
                   .build());
     }
@@ -52,14 +58,19 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
+  /**
+   * @param prescriptionRequest which has prescription details like medicine and dosage
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
   @PostMapping("/prescription")
   public ResponseEntity<Object> createPrescriptionBundle(
       @Valid @RequestBody PrescriptionRequest prescriptionRequest) throws ParseException {
-    if (!prescriptionRequest.getBundleType().equalsIgnoreCase("prescription")) {
+    if (!prescriptionRequest.getBundleType().equalsIgnoreCase("PrescriptionRecord")) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -71,7 +82,7 @@ public class BundleController {
                                   + "'"
                                   + prescriptionRequest.getBundleType()
                                   + "'"
-                                  + " required: prescription")
+                                  + " required: PrescriptionRecord")
                           .build())
                   .build());
     }
@@ -80,15 +91,19 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
-
+  /**
+   * @param opConsultationRequest which has all basic details of the visit
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
   @PostMapping("/op-consultation")
   public ResponseEntity<Object> createOPConsultationBundle(
       @Valid @RequestBody OPConsultationRequest opConsultationRequest) throws ParseException {
     if (Objects.isNull(opConsultationRequest)
-        || !opConsultationRequest.getBundleType().equalsIgnoreCase("OPConsultation")) {
+        || !opConsultationRequest.getBundleType().equalsIgnoreCase("OPConsultRecord")) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -100,7 +115,7 @@ public class BundleController {
                                   + "'"
                                   + opConsultationRequest.getBundleType()
                                   + "'"
-                                  + " required: OPConsultation")
+                                  + " required: OPConsultRecord")
                           .build())
                   .build());
     }
@@ -109,10 +124,15 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
+  /**
+   * @param healthDocumentRecord which has document as an attachment
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
   @PostMapping("/health-document")
   public ResponseEntity<Object> createHealthDocumentBundle(
       @Valid @RequestBody HealthDocumentRecord healthDocumentRecord) throws ParseException {
@@ -138,15 +158,21 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
-  @PostMapping("/diagnostic-report")
+  /**
+   * @param diagnosticReportRequest which has diagnostic details like the result and type of
+   *     diagnosis
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
+  @PostMapping(value = "/diagnostic-report")
   public ResponseEntity<Object> createDiagnosticReportBundle(
-      @RequestBody DiagnosticReportRequest diagnosticReportRequest) throws ParseException {
+      @Valid @RequestBody DiagnosticReportRequest diagnosticReportRequest) throws ParseException {
     if (Objects.isNull(diagnosticReportRequest)
-        || !diagnosticReportRequest.getBundleType().equalsIgnoreCase("DiagnosticReport")) {
+        || !diagnosticReportRequest.getBundleType().equalsIgnoreCase("DiagnosticReportRecord")) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -158,7 +184,7 @@ public class BundleController {
                                   + "'"
                                   + diagnosticReportRequest.getBundleType()
                                   + "'"
-                                  + " required: DiagnosticReport")
+                                  + " required: DiagnosticReportRecord")
                           .build())
                   .build());
     }
@@ -167,15 +193,19 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()));
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
-
+  /**
+   * @param dischargeSummaryRequest which has discharge details like the findings and observations
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
   @PostMapping("/discharge-summary")
   public ResponseEntity<Object> createDischargeSummaryBundle(
       @Valid @RequestBody DischargeSummaryRequest dischargeSummaryRequest) throws ParseException {
     if (Objects.isNull(dischargeSummaryRequest)
-        || !dischargeSummaryRequest.getBundleType().equalsIgnoreCase("discharge-summary")) {
+        || !dischargeSummaryRequest.getBundleType().equalsIgnoreCase("DischargeSummaryRecord")) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -187,7 +217,7 @@ public class BundleController {
                                   + "'"
                                   + dischargeSummaryRequest.getBundleType()
                                   + "'"
-                                  + " required: discharge-summary")
+                                  + " required: DischargeSummaryRecord")
                           .build())
                   .build());
     }
@@ -196,15 +226,19 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
-
+  /**
+   * @param wellnessRecordRequest which has all the physical observations
+   * @return FHIR bundle if no error found
+   * @throws ParseException while parsing the string into date
+   */
   @PostMapping("/wellness-record")
   public ResponseEntity<Object> createWellnessBundle(
       @Valid @RequestBody WellnessRecordRequest wellnessRecordRequest) throws ParseException {
     if (Objects.isNull(wellnessRecordRequest)
-        || !wellnessRecordRequest.getBundleType().equalsIgnoreCase("wellness-record")) {
+        || !wellnessRecordRequest.getBundleType().equalsIgnoreCase("WellnessRecord")) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -216,7 +250,7 @@ public class BundleController {
                                   + "'"
                                   + wellnessRecordRequest.getBundleType()
                                   + "'"
-                                  + " required: wellness-record")
+                                  + " required: WellnessRecord")
                           .build())
                   .build());
     }
@@ -225,7 +259,7 @@ public class BundleController {
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
-    return ResponseEntity.ok()
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 }

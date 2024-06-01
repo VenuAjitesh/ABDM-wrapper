@@ -5,7 +5,6 @@ import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
-import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.WellnessRecordRequest;
 import java.text.ParseException;
 import java.util.*;
@@ -49,13 +48,24 @@ public class WellnessRecordConverter {
 
   public BundleResponse getWellnessBundle(WellnessRecordRequest wellnessRecordRequest) {
     try {
-      List<Practitioner> practitionerList = new ArrayList<>();
       Organization organization =
           makeOrganisationResource.getOrganization(wellnessRecordRequest.getOrganisation());
       Patient patient = makePatientResource.getPatient(wellnessRecordRequest.getPatient());
-      for (PractitionerResource practitionerItem : wellnessRecordRequest.getPractitioner()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitionerItem));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(wellnessRecordRequest.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       Encounter encounter = makeEncounterResource.getEncounter(patient, "");
       List<Observation> vitalSignsList =
           Optional.ofNullable(wellnessRecordRequest.getVitalSigns())
@@ -69,7 +79,7 @@ public class WellnessRecordConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<Observation> bodyMeasurementList =
-          Optional.ofNullable(wellnessRecordRequest.getBodyMeasurement())
+          Optional.ofNullable(wellnessRecordRequest.getBodyMeasurements())
               .map(
                   bodyMeasurements ->
                       bodyMeasurements.stream()
@@ -83,7 +93,7 @@ public class WellnessRecordConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<Observation> physicalActivityList =
-          Optional.ofNullable(wellnessRecordRequest.getPhysicalActivity())
+          Optional.ofNullable(wellnessRecordRequest.getPhysicalActivities())
               .map(
                   physicalActivities ->
                       physicalActivities.stream()
@@ -97,7 +107,7 @@ public class WellnessRecordConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<Observation> generalAssessmentList =
-          Optional.ofNullable(wellnessRecordRequest.getGeneralAssessment())
+          Optional.ofNullable(wellnessRecordRequest.getGeneralAssessments())
               .map(
                   generalAssessments ->
                       generalAssessments.stream()
@@ -111,7 +121,7 @@ public class WellnessRecordConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<Observation> womanHealthList =
-          Optional.ofNullable(wellnessRecordRequest.getWomanHealth())
+          Optional.ofNullable(wellnessRecordRequest.getWomanHealths())
               .map(
                   womanHealths ->
                       womanHealths.stream()
@@ -122,7 +132,7 @@ public class WellnessRecordConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<Observation> lifeStyleList =
-          Optional.ofNullable(wellnessRecordRequest.getLifeStyle())
+          Optional.ofNullable(wellnessRecordRequest.getLifeStyles())
               .map(
                   lifeStyles ->
                       lifeStyles.stream()
@@ -139,13 +149,18 @@ public class WellnessRecordConverter {
                   observationResources ->
                       observationResources.stream()
                           .map(
-                              otherObservation ->
-                                  makeObservationResource.getObservation(
-                                      patient, practitionerList, otherObservation))
+                              otherObservation -> {
+                                try {
+                                  return makeObservationResource.getObservation(
+                                      patient, practitionerList, otherObservation);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<DocumentReference> documentReferenceList =
-          Optional.ofNullable(wellnessRecordRequest.getDocumentList())
+          Optional.ofNullable(wellnessRecordRequest.getDocuments())
               .map(
                   documentResources ->
                       documentResources.stream()

@@ -6,7 +6,7 @@ plugins {
     id 'com.diffplug.spotless' version '6.12.0'
 }
 
-group = 'org.example'
+group = 'com.nha.abdm.fhir.wrapper'
 version = '1.0-SNAPSHOT'
 subprojects {
     spotless {
@@ -46,4 +46,19 @@ dependencies {
     implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.0'
 //    implementation group: 'org.ihtsdo.snomed.util', name: 'snomed-utilities', version: '1.2'
 
+}
+spotless {
+    java {
+        // Use the default importOrder configuration
+        importOrder()
+
+        removeUnusedImports()
+
+        // Choose one of these formatters.
+        googleJavaFormat()   // has its own section below
+
+        formatAnnotations()  // fixes formatting of type annotations, see below
+
+        licenseHeader '/* (C) $YEAR */' // or licenseHeaderFile
+    }
 }

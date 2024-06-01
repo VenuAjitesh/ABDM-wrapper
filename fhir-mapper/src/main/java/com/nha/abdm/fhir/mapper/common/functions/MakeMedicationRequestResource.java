@@ -4,10 +4,7 @@ package com.nha.abdm.fhir.mapper.common.functions;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +14,10 @@ public class MakeMedicationRequestResource {
       Date authoredOn,
       PrescriptionResource prescriptionResource,
       Organization organization,
-      Practitioner practitioner,
+      List<Practitioner> practitioners,
       Patient patient)
       throws ParseException {
     HumanName patientName = patient.getName().get(0);
-    HumanName practitionerName = practitioner.getName().get(0);
     MedicationRequest medicationRequest = new MedicationRequest();
     medicationRequest.setMeta(
         new Meta()
@@ -38,12 +34,14 @@ public class MakeMedicationRequestResource {
     if (prescriptionResource.getDosage() != null)
       medicationRequest.setDosageInstruction(
           Collections.singletonList(new Dosage().setText(prescriptionResource.getDosage())));
-    if (Objects.nonNull(practitioner))
+    if (!practitioners.isEmpty()) {
+      Practitioner practitioner = practitioners.get(0);
+      HumanName practitionerName = practitioner.getName().get(0);
       medicationRequest.setRequester(
           new Reference()
               .setReference("Practitioner/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));
-    medicationRequest.setAuthoredOn(Utils.getCurrentTimeStamp());
+    }
     medicationRequest.setSubject(
         new Reference()
             .setReference("Patient/" + patient.getId())
@@ -52,6 +50,7 @@ public class MakeMedicationRequestResource {
     medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.COMPLETED);
     medicationRequest.setIntent(MedicationRequest.MedicationRequestIntent.ORDER);
     medicationRequest.setId(UUID.randomUUID().toString());
+    medicationRequest.setAuthoredOn(authoredOn);
     return medicationRequest;
   }
 }

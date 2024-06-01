@@ -1,7 +1,9 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.common.functions;
 
+import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.requests.helpers.ObservationResource;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,9 +18,8 @@ public class MakeObservationResource {
   private static final Logger log = LoggerFactory.getLogger(MakeObservationResource.class);
 
   public Observation getObservation(
-      Patient patient,
-      List<Practitioner> practitionerList,
-      ObservationResource observationResource) {
+      Patient patient, List<Practitioner> practitionerList, ObservationResource observationResource)
+      throws ParseException {
     HumanName patientName = patient.getName().get(0);
     Observation observation = new Observation();
     observation.setStatus(Observation.ObservationStatus.FINAL);
@@ -36,18 +37,24 @@ public class MakeObservationResource {
       performerList.add(
           new Reference()
               .setReference("Practitioner/" + practitioner.getId())
-              .setDisplay(patientName.getText()));
+              .setDisplay(practitionerName.getText()));
     }
     observation.setPerformer(performerList);
-    if (Objects.nonNull(observationResource.getValueQuantity()))
+    if (Objects.nonNull(observationResource.getValueQuantity())) {
       observation.setValue(
           new Quantity()
               .setValue(observationResource.getValueQuantity().getValue())
               .setUnit(observationResource.getValueQuantity().getUnit()));
-    //    if (observation.getValueQuantity() != null || observationResource.getResult() != null)
-    //      observation.setValue(new CodeableConcept().setText(observationResource.getResult()));
+    }
+    if (Objects.nonNull(observation.getValueQuantity())
+        && observationResource.getResult() != null) {
+      observation.setValue(new CodeableConcept().setText(observationResource.getResult()));
+    }
     observation.setId(UUID.randomUUID().toString());
-    log.info(observationResource.toString());
+    observation.setMeta(
+        new Meta()
+            .setLastUpdated(Utils.getCurrentTimeStamp())
+            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Observation"));
     return observation;
   }
 }

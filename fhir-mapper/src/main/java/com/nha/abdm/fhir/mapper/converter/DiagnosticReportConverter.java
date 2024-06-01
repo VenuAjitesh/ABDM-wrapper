@@ -1,21 +1,17 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.converter;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
-import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.DiagnosticReportRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.DiagnosticResource;
 import com.nha.abdm.fhir.mapper.requests.helpers.ObservationResource;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Service;
 
@@ -57,30 +53,38 @@ public class DiagnosticReportConverter {
   public BundleResponse convertToDiagnosticBundle(DiagnosticReportRequest diagnosticReportRequest)
       throws ParseException {
     try {
-      FhirContext ctx = FhirContext.forR4();
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       Organization organization =
           makeOrganisationResource.getOrganization(diagnosticReportRequest.getOrganisation());
       Patient patient = makePatientResource.getPatient(diagnosticReportRequest.getPatient());
-      List<Practitioner> practitionerList = new ArrayList<>();
-      for (PractitionerResource practitioner : diagnosticReportRequest.getPractitioner()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitioner));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(diagnosticReportRequest.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       Encounter encounter =
           diagnosticReportRequest.getEncounter() != null
               ? makeEncounterResource.getEncounter(patient, diagnosticReportRequest.getEncounter())
               : null;
       List<DiagnosticReport> diagnosticReportList = new ArrayList<>();
+      List<Observation> diagnosticObservationList = new ArrayList<>();
       for (DiagnosticResource diagnosticResource : diagnosticReportRequest.getDiagnostics()) {
         List<Observation> observationList = new ArrayList<>();
         for (ObservationResource observationResource : diagnosticResource.getResult()) {
           Observation observation =
               makeObservationResource.getObservation(
                   patient, practitionerList, observationResource);
-          entries.add(
-              new Bundle.BundleEntryComponent()
-                  .setFullUrl("Observation/" + observation.getId())
-                  .setResource(observation));
+          diagnosticObservationList.add(observation);
         }
         diagnosticReportList.add(
             makeDiagnosticLabResource.getDiagnosticReport(
@@ -88,7 +92,7 @@ public class DiagnosticReportConverter {
       }
 
       List<DocumentReference> documentReferenceList = new ArrayList<>();
-      for (DocumentResource documentResource : diagnosticReportRequest.getDocument()) {
+      for (DocumentResource documentResource : diagnosticReportRequest.getDocuments()) {
         documentReferenceList.add(
             makeDocumentResource.getDocument(
                 patient, organization, documentResource, docCode, documentResource.getType()));
@@ -135,6 +139,12 @@ public class DiagnosticReportConverter {
                 .setFullUrl("DiagnosticReport/" + diagnosticReport.getId())
                 .setResource(diagnosticReport));
       }
+      for (Observation observation : diagnosticObservationList) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Observation/" + observation.getId())
+                .setResource(observation));
+      }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
             new Bundle.BundleEntryComponent()
@@ -169,12 +179,12 @@ public class DiagnosticReportConverter {
     Coding typeCoding = new Coding();
     typeCoding.setSystem("http://snomed.info/sct");
     typeCoding.setCode("721981007");
-    typeCoding.setDisplay("DiagnosticReport");
+    typeCoding.setDisplay("Diagnostic studies report");
     sectionCode.addCoding(typeCoding);
     composition.setType(sectionCode);
     composition.setTitle("Diagnostic Report-Lab");
     sectionComponent.setCode(
-        new CodeableConcept().addCoding(typeCoding).setText("DiagnosticReport"));
+        new CodeableConcept().addCoding(typeCoding).setText("Diagnostic studies report"));
     for (DiagnosticReport diagnosticReport : diagnosticReportList) {
       sectionComponent.addEntry(
           new Reference().setReference("DiagnosticReport/" + diagnosticReport.getId()));

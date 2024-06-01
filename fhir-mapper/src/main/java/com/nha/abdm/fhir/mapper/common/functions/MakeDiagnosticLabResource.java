@@ -1,8 +1,10 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.common.functions;
 
+import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.requests.helpers.DiagnosticResource;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -16,9 +18,15 @@ public class MakeDiagnosticLabResource {
       List<Practitioner> practitionerList,
       List<Observation> observationList,
       Encounter encounter,
-      DiagnosticResource diagnosticResource) {
+      DiagnosticResource diagnosticResource)
+      throws ParseException {
+    HumanName patientName = patient.getName().get(0);
     DiagnosticReport diagnosticReport = new DiagnosticReport();
     diagnosticReport.setId(UUID.randomUUID().toString());
+    diagnosticReport.setMeta(
+        new Meta()
+            .setLastUpdated(Utils.getCurrentTimeStamp())
+            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DiagnosticReportLab"));
     diagnosticReport.setStatus(DiagnosticReport.DiagnosticReportStatus.FINAL);
     diagnosticReport.setCode(
         new CodeableConcept()
@@ -28,7 +36,10 @@ public class MakeDiagnosticLabResource {
                     .setSystem("http://loinc.org")
                     .setCode("261665006")
                     .setDisplay(diagnosticResource.getServiceName())));
-    diagnosticReport.setSubject(new Reference().setReference("Patient/" + patient.getId()));
+    diagnosticReport.setSubject(
+        new Reference()
+            .setReference("Patient/" + patient.getId())
+            .setDisplay(patientName.getText()));
     if (Objects.nonNull(encounter))
       diagnosticReport.setEncounter(new Reference().setReference("Encounter/" + encounter.getId()));
     for (Practitioner practitioner : practitionerList) {

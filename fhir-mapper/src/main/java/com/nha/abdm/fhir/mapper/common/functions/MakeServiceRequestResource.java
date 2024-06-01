@@ -1,7 +1,9 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.common.functions;
 
+import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.requests.helpers.ServiceRequestResource;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,13 +15,19 @@ public class MakeServiceRequestResource {
   public ServiceRequest getServiceRequest(
       Patient patient,
       List<Practitioner> practitionerList,
-      ServiceRequestResource serviceRequestResource) {
+      ServiceRequestResource serviceRequestResource)
+      throws ParseException {
     HumanName patientName = patient.getName().get(0);
     ServiceRequest serviceRequest = new ServiceRequest();
     serviceRequest.setId(UUID.randomUUID().toString());
     serviceRequest.setStatus(
         ServiceRequest.ServiceRequestStatus.valueOf(serviceRequestResource.getStatus()));
     serviceRequest.setIntent(ServiceRequest.ServiceRequestIntent.PROPOSAL);
+    serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.ACTIVE);
+    serviceRequest.setMeta(
+        new Meta()
+            .setLastUpdated(Utils.getCurrentTimeStamp())
+            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/ServiceRequest"));
     serviceRequest.setCode(new CodeableConcept().setText(serviceRequestResource.getDetails()));
     serviceRequest.setSubject(
         new Reference()

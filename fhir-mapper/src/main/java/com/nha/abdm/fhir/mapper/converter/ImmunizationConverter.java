@@ -1,17 +1,14 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.converter;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.*;
 import com.nha.abdm.fhir.mapper.requests.ImmunizationRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.ImmunizationResource;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Service;
 
@@ -45,17 +42,27 @@ public class ImmunizationConverter {
       throws ParseException {
     try {
       Bundle bundle = new Bundle();
-      FhirContext context = FhirContext.forR4();
       Patient patient = makePatientResource.getPatient(immunizationRequest.getPatient());
-      List<Practitioner> practitionerList = new ArrayList<>();
-      for (PractitionerResource practitionerResource : immunizationRequest.getPractitionerList()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitionerResource));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(immunizationRequest.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       Organization organization =
           makeOrganisationResource.getOrganization(immunizationRequest.getOrganisation());
       List<Organization> manufactureList = new ArrayList<>();
       List<Immunization> immunizationList = new ArrayList<>();
-      for (ImmunizationResource immunizationResource : immunizationRequest.getImmunizationList()) {
+      for (ImmunizationResource immunizationResource : immunizationRequest.getImmunizations()) {
         Organization manufacturer =
             makeOrganisationResource.getOrganization(
                 OrganisationResource.builder()
@@ -68,8 +75,8 @@ public class ImmunizationConverter {
         manufactureList.add(manufacturer);
       }
       List<DocumentReference> documentList = new ArrayList<>();
-      if (immunizationRequest.getDocumentList() != null) {
-        for (DocumentResource documentResource : immunizationRequest.getDocumentList()) {
+      if (immunizationRequest.getDocuments() != null) {
+        for (DocumentResource documentResource : immunizationRequest.getDocuments()) {
           documentList.add(
               makeDocumentReference.getDocument(
                   patient, organization, documentResource, docCode, docName));

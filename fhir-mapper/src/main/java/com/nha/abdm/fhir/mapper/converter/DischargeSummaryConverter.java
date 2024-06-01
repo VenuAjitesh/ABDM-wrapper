@@ -7,11 +7,11 @@ import com.nha.abdm.fhir.mapper.common.functions.*;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
-import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.DischargeSummaryRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Service;
 
@@ -70,20 +70,31 @@ public class DischargeSummaryConverter {
       throws ParseException {
     try {
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
-      List<Practitioner> practitionerList = new ArrayList<>();
       Organization organization =
           makeOrganisationResource.getOrganization(dischargeSummaryRequest.getOrganisation());
       Patient patient = makePatientResource.getPatient(dischargeSummaryRequest.getPatient());
-      for (PractitionerResource practitionerItem : dischargeSummaryRequest.getPractitioner()) {
-        practitionerList.add(makePractitionerResource.getPractitioner(practitionerItem));
-      }
+      List<Practitioner> practitionerList =
+          Optional.ofNullable(dischargeSummaryRequest.getPractitioners())
+              .map(
+                  practitioners ->
+                      practitioners.stream()
+                          .map(
+                              practitioner -> {
+                                try {
+                                  return makePractitionerResource.getPractitioner(practitioner);
+                                } catch (ParseException e) {
+                                  throw new RuntimeException(e);
+                                }
+                              })
+                          .collect(Collectors.toList()))
+              .orElseGet(ArrayList::new);
       Encounter encounter = makeEncounterResource.getEncounter(patient, "");
       List<Condition> chiefComplaintList =
           dischargeSummaryRequest.getChiefComplaints() != null
               ? makeCheifComplaintsList(dischargeSummaryRequest, patient)
               : new ArrayList<>();
       List<Observation> physicalObservationList =
-          dischargeSummaryRequest.getPhysicalExamination() != null
+          dischargeSummaryRequest.getPhysicalExaminations() != null
               ? makePhysicalObservations(dischargeSummaryRequest, patient, practitionerList)
               : new ArrayList<>();
       List<AllergyIntolerance> allergieList =
@@ -91,21 +102,21 @@ public class DischargeSummaryConverter {
               ? makeAllergiesList(patient, practitionerList, dischargeSummaryRequest)
               : new ArrayList<>();
       List<Condition> medicalHistoryList =
-          dischargeSummaryRequest.getMedicalHistory() != null
+          dischargeSummaryRequest.getMedicalHistories() != null
               ? makeMedicalHistoryList(dischargeSummaryRequest, patient)
               : new ArrayList<>();
       List<FamilyMemberHistory> familyMemberHistoryList =
-          dischargeSummaryRequest.getFamilyHistory() != null
+          dischargeSummaryRequest.getFamilyHistories() != null
               ? makeFamilyMemberHistory(patient, dischargeSummaryRequest)
               : new ArrayList<>();
       List<MedicationRequest> medicationList = new ArrayList<>();
       for (PrescriptionResource prescriptionResource : dischargeSummaryRequest.getMedications()) {
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
-                Utils.getFormattedDate(dischargeSummaryRequest.getMedicationAuthoredOn()),
+                Utils.getFormattedDate(dischargeSummaryRequest.getAuthoredOn()),
                 prescriptionResource,
                 organization,
-                practitionerList.get(0),
+                practitionerList,
                 patient));
       }
       List<DiagnosticReport> diagnosticReportList = new ArrayList<>();
@@ -126,12 +137,12 @@ public class DischargeSummaryConverter {
       }
 
       List<Procedure> procedureList =
-          dischargeSummaryRequest.getProcedure() != null
+          dischargeSummaryRequest.getProcedures() != null
               ? makeProcedureList(dischargeSummaryRequest)
               : new ArrayList<>();
       List<DocumentReference> documentReferenceList = new ArrayList<>();
-      if (Objects.nonNull(dischargeSummaryRequest.getDocumentList())) {
-        for (DocumentResource documentResource : dischargeSummaryRequest.getDocumentList()) {
+      if (Objects.nonNull(dischargeSummaryRequest.getDocuments())) {
+        for (DocumentResource documentResource : dischargeSummaryRequest.getDocuments()) {
           documentReferenceList.add(makeDocumentReference(patient, organization, documentResource));
         }
       }
@@ -328,7 +339,7 @@ public class DischargeSummaryConverter {
 
   private List<Procedure> makeProcedureList(DischargeSummaryRequest dischargeSummaryRequest) {
     List<Procedure> procedureList = new ArrayList<>();
-    for (ProcedureResource item : dischargeSummaryRequest.getProcedure()) {
+    for (ProcedureResource item : dischargeSummaryRequest.getProcedures()) {
       Procedure procedure = new Procedure();
       procedure.setId(UUID.randomUUID().toString());
       procedure.setStatus(Procedure.ProcedureStatus.INPROGRESS);
@@ -341,9 +352,9 @@ public class DischargeSummaryConverter {
   }
 
   private List<FamilyMemberHistory> makeFamilyMemberHistory(
-      Patient patient, DischargeSummaryRequest dischargeSummaryRequest) {
+      Patient patient, DischargeSummaryRequest dischargeSummaryRequest) throws ParseException {
     List<FamilyMemberHistory> familyMemberHistoryList = new ArrayList<>();
-    for (FamilyObservationResource item : dischargeSummaryRequest.getFamilyHistory()) {
+    for (FamilyObservationResource item : dischargeSummaryRequest.getFamilyHistories()) {
       familyMemberHistoryList.add(makeFamilyMemberResource.getFamilyHistory(patient, item));
     }
     return familyMemberHistoryList;
@@ -352,7 +363,7 @@ public class DischargeSummaryConverter {
   private List<Condition> makeMedicalHistoryList(
       DischargeSummaryRequest dischargeSummaryRequest, Patient patient) throws ParseException {
     List<Condition> medicalHistoryList = new ArrayList<>();
-    for (ChiefComplaintResource item : dischargeSummaryRequest.getMedicalHistory()) {
+    for (ChiefComplaintResource item : dischargeSummaryRequest.getMedicalHistories()) {
       medicalHistoryList.add(
           makeConditionResource.getCondition(
               item.getComplaint(), patient, item.getRecordedDate(), item.getDateRange()));
@@ -363,11 +374,13 @@ public class DischargeSummaryConverter {
   private List<AllergyIntolerance> makeAllergiesList(
       Patient patient,
       List<Practitioner> practitionerList,
-      DischargeSummaryRequest dischargeSummaryRequest) {
+      DischargeSummaryRequest dischargeSummaryRequest)
+      throws ParseException {
     List<AllergyIntolerance> allergyIntoleranceList = new ArrayList<>();
     for (String item : dischargeSummaryRequest.getAllergies()) {
       allergyIntoleranceList.add(
-          makeAllergyToleranceResource.getAllergy(patient, practitionerList, item));
+          makeAllergyToleranceResource.getAllergy(
+              patient, practitionerList, item, dischargeSummaryRequest.getAuthoredOn()));
     }
     return allergyIntoleranceList;
   }
@@ -375,9 +388,10 @@ public class DischargeSummaryConverter {
   private List<Observation> makePhysicalObservations(
       DischargeSummaryRequest dischargeSummaryRequest,
       Patient patient,
-      List<Practitioner> practitionerList) {
+      List<Practitioner> practitionerList)
+      throws ParseException {
     List<Observation> observationList = new ArrayList<>();
-    for (ObservationResource item : dischargeSummaryRequest.getPhysicalExamination()) {
+    for (ObservationResource item : dischargeSummaryRequest.getPhysicalExaminations()) {
       observationList.add(makeObservationResource.getObservation(patient, practitionerList, item));
     }
     return observationList;

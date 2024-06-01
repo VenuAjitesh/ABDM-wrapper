@@ -19,7 +19,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class HealthDocumentRecord {
-  @NotNull(message = "BundleType is mandatory and must not be empty, ex: prescription") private String bundleType;
+  @Pattern(regexp = "HealthDocumentRecord")
+  @NotNull(message = "BundleType is mandatory and must not be empty : 'HealthDocumentRecord'") private String bundleType;
 
   @NotNull(message = "careContextReference is mandatory and must not be empty") private String careContextReference;
 
@@ -29,10 +30,13 @@ public class HealthDocumentRecord {
   @Pattern(
       regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",
       message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSX")
-  private String date;
+  private String authoredOn;
 
-  @Valid private List<PractitionerResource> practitioner;
+  @Valid private List<PractitionerResource> practitioners;
+
   private OrganisationResource organisation;
   private String encounter;
-  private List<DocumentResource> document;
+
+  @NotNull(message = "documents are mandatory") @Valid
+  private List<DocumentResource> documents;
 }

@@ -9,6 +9,7 @@ import com.nha.abdm.fhir.mapper.requests.helpers.ObservationResource;
 import com.nha.abdm.fhir.mapper.requests.helpers.WellnessObservationResource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class WellnessRecordRequest {
-  @NotNull(message = "BundleType is mandatory and must not be empty, ex: prescription") private String bundleType;
+  @Pattern(regexp = "WellnessRecord")
+  @NotNull(message = "BundleType is mandatory and must not be empty : 'WellnessRecord'") private String bundleType;
 
   @NotNull(message = "careContextReference is mandatory and must not be empty") private String careContextReference;
 
@@ -29,17 +31,22 @@ public class WellnessRecordRequest {
 
   private String encounter;
 
-  @NotNull(message = "No Practitioner found") private List<PractitionerResource> practitioner;
+  @Pattern(
+      regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",
+      message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSX")
+  @NotNull(message = "authoredOn is mandatory timestamp") private String authoredOn;
+
+  @Valid private List<PractitionerResource> practitioners;
 
   @Valid
   @NotNull(message = "organisation is mandatory") private OrganisationResource organisation;
 
   @Valid private List<WellnessObservationResource> vitalSigns;
-  @Valid private List<WellnessObservationResource> bodyMeasurement;
-  @Valid private List<WellnessObservationResource> physicalActivity;
-  @Valid private List<WellnessObservationResource> generalAssessment;
-  @Valid private List<WellnessObservationResource> womanHealth;
-  @Valid private List<WellnessObservationResource> lifeStyle;
+  @Valid private List<WellnessObservationResource> bodyMeasurements;
+  @Valid private List<WellnessObservationResource> physicalActivities;
+  @Valid private List<WellnessObservationResource> generalAssessments;
+  @Valid private List<WellnessObservationResource> womanHealths;
+  @Valid private List<WellnessObservationResource> lifeStyles;
   @Valid private List<ObservationResource> otherObservations;
-  private List<DocumentResource> documentList;
+  @Valid private List<DocumentResource> documents;
 }

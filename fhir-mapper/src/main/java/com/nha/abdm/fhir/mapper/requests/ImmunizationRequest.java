@@ -7,8 +7,8 @@ import com.nha.abdm.fhir.mapper.common.helpers.PatientResource;
 import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.helpers.ImmunizationResource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,21 +20,25 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ImmunizationRequest {
-  @NotNull(message = "BundleType is mandatory and must not be empty, ex: prescription") private String bundleType;
+  @Pattern(regexp = "ImmunizationRecord")
+  @NotNull(message = "BundleType is mandatory and must not be empty : 'ImmunizationRecord'") private String bundleType;
 
   @NotNull(message = "careContextReference is mandatory and must not be empty") private String careContextReference;
 
   @Valid
   @NotNull(message = "Patient demographic details are mandatory and must not be empty") private PatientResource patient;
 
-  @Valid
-  @NotEmpty(message = "practitionerList is mandatory and must not be empty")
-  private List<PractitionerResource> practitionerList;
+  @Valid private List<PractitionerResource> practitioners;
 
   private OrganisationResource organisation;
 
-  @Valid
-  @NotNull(message = "Immunizations are mandatory") private List<ImmunizationResource> immunizationList;
+  @Pattern(
+      regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",
+      message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSX")
+  @NotNull(message = "authoredOn is mandatory timestamp") private String authoredOn;
 
-  @Valid private List<DocumentResource> documentList;
+  @Valid
+  @NotNull(message = "Immunizations are mandatory") private List<ImmunizationResource> immunizations;
+
+  @Valid private List<DocumentResource> documents;
 }
