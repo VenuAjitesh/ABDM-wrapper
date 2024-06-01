@@ -1,0 +1,393 @@
+{
+	"info": {
+		"_postman_id": "dee66ba8-0499-43a6-ae7d-2cbfe574a6a0",
+		"name": "HIU",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24014718"
+	},
+	"item": [
+		{
+			"name": "localhost:8082/consent-init",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var verifyResponse = JSON.parse(responseBody);\r",
+							"if(verifyResponse!=null && verifyResponse.clientRequestId!=null)\r",
+							"pm.environment.set(\"clientRequestId\",  verifyResponse.clientRequestId);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"consent\": {\r\n        \"purpose\": {\r\n            \"text\": \"string\",\r\n            \"code\": \"CAREMGT\"\r\n        },\r\n        \"patient\": {\r\n            \"id\": \"ajitesh6x@sbx\"\r\n        },\r\n        \"careContexts\": [\r\n                {\r\n                    \"careContextReference\": \"visit-ajiteshx-5-23/03/2024\",\r\n                    \"patientReference\": \"ajiteshx\"\r\n                }\r\n            ],\r\n            \"hip\":{\r\n                \"id\":\"Demo_Ajitesh_HIP\"\r\n            },\r\n        \"hiu\": {\r\n            // \"id\": \"NIT-N-Ajitesh\"\r\n            \"id\": \"Demo_Ajitesh_HIP\"\r\n        },\r\n        \"requester\": {\r\n            \"name\": \"Dr. Venu AJitesh\",\r\n            \"identifier\": {\r\n                \"type\": \"REGNO\",\r\n                \"value\": \"MH1001\",\r\n                \"system\": \"https://www.mciindia.org\"\r\n            }\r\n        },\r\n        \"hiTypes\": [\r\n            \"DiagnosticReport\",\r\n            \"DischargeSummary\",\r\n            \"HealthDocumentRecord\",\r\n            \"ImmunizationRecord\",\r\n            \"OPConsultation\",\r\n            \"Prescription\",\r\n            \"WellnessRecord\"\r\n        ],\r\n        \"permission\": {\r\n            \"accessMode\": \"VIEW\",\r\n            \"dateRange\": {\r\n                \"from\": \"2023-02-16T12:45:18.548Z\",\r\n                \"to\": \"2024-03-15T11:43:18.548Z\"\r\n            },\r\n            \"dataEraseAt\": \"2025-07-28T09:36:34.171Z\",\r\n            \"frequency\": {\r\n                \"unit\": \"HOUR\",\r\n                \"value\": 1,\r\n                \"repeats\": 0\r\n            }\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/consent-init",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"consent-init"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8082/v1/consent-status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/consent-status/{{clientRequestId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"consent-status",
+						"{{clientRequestId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "localhost:8082/v1/consent-status",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8082/v1/consent-status/{{clientRequestId}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"v1",
+								"consent-status",
+								"{{clientRequestId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 11 Apr 2024 11:43:04 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"CONSENT_FETCH_ACCEPTED\",\n    \"error\": null,\n    \"httpStatusCode\": \"OK\",\n    \"consent\": [\n        {\n            \"status\": \"GRANTED\",\n            \"dateRange\": {\n                \"from\": \"2023-02-16T11:43:18.548Z\",\n                \"to\": \"2024-03-15T11:43:18.548Z\"\n            },\n            \"dataEraseAt\": \"2024-04-10T12:48:18.548Z\",\n            \"consentArtefacts\": []\n        },\n        {\n            \"status\": \"REVOKED\",\n            \"dateRange\": {\n                \"from\": \"2023-02-16T11:43:18.548Z\",\n                \"to\": \"2024-03-15T11:43:18.548Z\"\n            },\n            \"dataEraseAt\": \"2024-04-10T12:48:18.548Z\",\n            \"consentArtefacts\": [\n                {\n                    \"id\": \"2c6d592d-27cc-4438-a45b-861950cddc56\",\n                    \"hipId\": \"Predator_HIP\",\n                    \"careContextReference\": [\n                        \"visit-venu-3-12/03/2024\"\n                    ]\n                }\n            ]\n        },\n        {\n            \"status\": \"EXPIRED\",\n            \"dateRange\": {\n                \"from\": \"2023-02-16T11:43:18.548Z\",\n                \"to\": \"2024-03-15T11:43:18.548Z\"\n            },\n            \"dataEraseAt\": \"2024-04-10T12:48:18.548Z\",\n            \"consentArtefacts\": [\n                {\n                    \"id\": \"47d821ca-edb4-47db-adaa-97b63274644e\",\n                    \"hipId\": \"NIT-N-Ajitesh\",\n                    \"careContextReference\": [\n                        \"visit-venu-3-14/03/2024\",\n                        \"visit-ajitesh3-5-28/03/2024\"\n                    ]\n                },\n                {\n                    \"id\": \"8fa8c5b6-a8e6-4de7-af61-d34c5e066cbb\",\n                    \"hipId\": \"demo-hip-Ajitesh\",\n                    \"careContextReference\": [\n                        \"visit-1\",\n                        \" test visit-911fe71d-fdc8-4f2f-82be-1b9d7af9c98f\",\n                        \" test visit-4ce200d0-41ee-4094-a85d-42ebc1bbec1b\",\n                        \" test visit-f2b6c374-f09c-42f9-b91c-7211152f8b9d\",\n                        \" test visit-4e45bc84-2b99-434e-83ee-45b2773610df\",\n                        \" test visit-850fd6b6-2dcf-4970-b5fe-f572c3d4937e\"\n                    ]\n                }\n            ]\n        }\n    ]\n}"
+				},
+				{
+					"name": "localhost:8082/v1/consent-status",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8082/v1/consent-status/34bfe088-9699-4c79-9ffc-3b247c170108",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"v1",
+								"consent-status",
+								"34bfe088-9699-4c79-9ffc-3b247c170108"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Mon, 15 Apr 2024 20:18:04 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"CONSENT_FETCH_ACCEPTED\",\n    \"error\": null,\n    \"httpStatusCode\": \"OK\",\n    \"initConsentRequest\": {\n        \"purpose\": {\n            \"text\": \"string\",\n            \"code\": \"CAREMGT\",\n            \"refUri\": null\n        },\n        \"patient\": {\n            \"id\": \"ajitesh6x@sbx\"\n        },\n        \"hip\": null,\n        \"careContexts\": null,\n        \"hiu\": {\n            \"id\": \"Demo_Ajitesh_HIP\"\n        },\n        \"requester\": {\n            \"name\": \"Dr. Venu AJitesh\",\n            \"identifier\": {\n                \"type\": \"REGNO\",\n                \"value\": \"MH1001\",\n                \"system\": \"https://www.mciindia.org\"\n            }\n        },\n        \"hiTypes\": [\n            \"DiagnosticReport\",\n            \"DischargeSummary\",\n            \"HealthDocumentRecord\",\n            \"ImmunizationRecord\",\n            \"OPConsultation\",\n            \"Prescription\",\n            \"WellnessRecord\"\n        ],\n        \"permission\": {\n            \"accessMode\": \"VIEW\",\n            \"dateRange\": {\n                \"from\": \"2023-02-16T11:44:18.548Z\",\n                \"to\": \"2024-03-15T11:43:18.548Z\"\n            },\n            \"dataEraseAt\": \"2024-04-16T12:47:18.548Z\",\n            \"frequency\": {\n                \"unit\": \"HOUR\",\n                \"value\": 1,\n                \"repeats\": 0\n            }\n        }\n    },\n    \"consentDetails\": {\n        \"dateRange\": {\n            \"from\": \"2023-02-16T11:43:18.548Z\",\n            \"to\": \"2024-03-15T11:43:18.548Z\"\n        },\n        \"dataEraseAt\": \"2024-04-09T11:46:18.548Z\",\n        \"hiTypes\": [\n            \"DiagnosticReport\",\n            \"DischargeSummary\",\n            \"HealthDocumentRecord\",\n            \"ImmunizationRecord\",\n            \"OPConsultation\",\n            \"Prescription\",\n            \"WellnessRecord\"\n        ],\n        \"consent\": [\n            {\n                \"status\": \"GRANTED\",\n                \"actionTimestamp\": null,\n                \"consentArtefacts\": []\n            },\n            {\n                \"status\": \"REVOKED\",\n                \"actionTimestamp\": null,\n                \"consentArtefacts\": []\n            },\n            {\n                \"status\": \"EXPIRED\",\n                \"actionTimestamp\": \"2024-04-09T11:46:18.548Z\",\n                \"consentArtefacts\": [\n                    {\n                        \"id\": \"91c61066-f4d4-4cf4-9cc5-334bf9d49a8d\",\n                        \"hipId\": \"NIT-N-Ajitesh\",\n                        \"careContextReference\": [\n                            \"visit-ajitesh3-5-28/03/2024\"\n                        ]\n                    }\n                ]\n            }\n        ]\n    }\n}"
+				},
+				{
+					"name": "localhost:8082/v1/consent-status",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8082/v1/consent-status/{{clientRequestId}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"v1",
+								"consent-status",
+								"{{clientRequestId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 17 Apr 2024 12:10:46 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"CONSENT_FETCH_ACCEPTED\",\n    \"error\": null,\n    \"httpStatusCode\": \"OK\",\n    \"initConsentRequest\": {\n        \"requestId\": \"6ec68aef-ba55-4094-a5a9-cfd6d2e25715\",\n        \"timestamp\": \"2024-04-17T12:09:02.053Z\",\n        \"consent\": {\n            \"purpose\": {\n                \"text\": \"string\",\n                \"code\": \"CAREMGT\",\n                \"refUri\": null\n            },\n            \"patient\": {\n                \"id\": \"ajitesh6x@sbx\"\n            },\n            \"hip\": null,\n            \"careContexts\": null,\n            \"hiu\": {\n                \"id\": \"Demo_Ajitesh_HIP\"\n            },\n            \"requester\": {\n                \"name\": \"Dr. Venu AJitesh\",\n                \"identifier\": {\n                    \"type\": \"REGNO\",\n                    \"value\": \"MH1001\",\n                    \"system\": \"https://www.mciindia.org\"\n                }\n            },\n            \"hiTypes\": [\n                \"DiagnosticReport\",\n                \"DischargeSummary\",\n                \"HealthDocumentRecord\",\n                \"ImmunizationRecord\",\n                \"OPConsultation\",\n                \"Prescription\",\n                \"WellnessRecord\"\n            ],\n            \"permission\": {\n                \"accessMode\": \"VIEW\",\n                \"dateRange\": {\n                    \"from\": \"2023-02-16T12:45:18.548Z\",\n                    \"to\": \"2024-03-15T11:43:18.548Z\"\n                },\n                \"dataEraseAt\": \"2024-04-18T12:45:18.548Z\",\n                \"frequency\": {\n                    \"unit\": \"HOUR\",\n                    \"value\": 1,\n                    \"repeats\": 0\n                }\n            }\n        }\n    },\n    \"consentDetails\": {\n        \"dateRange\": {\n            \"from\": \"2023-02-16T12:45:18.548Z\",\n            \"to\": \"2024-03-15T11:43:18.548Z\"\n        },\n        \"dataEraseAt\": \"2024-04-18T12:45:18.548Z\",\n        \"hiTypes\": [\n            \"DiagnosticReport\",\n            \"DischargeSummary\",\n            \"HealthDocumentRecord\",\n            \"ImmunizationRecord\",\n            \"OPConsultation\",\n            \"Prescription\",\n            \"WellnessRecord\"\n        ],\n        \"consent\": [\n            {\n                \"status\": \"REVOKED\",\n                \"consentArtefacts\": [\n                    {\n                        \"id\": \"08d5fa99-952a-4073-92e6-7dddabb64288\",\n                        \"lastUpdated\": \"2024-04-17T12:10:42.469Z\",\n                        \"hipId\": \"NIT-N-Ajitesh\",\n                        \"careContextReference\": [\n                            \"visit-ajitesh3-5-28/03/2024\"\n                        ]\n                    }\n                ]\n            },\n            {\n                \"status\": \"GRANTED\",\n                \"consentArtefacts\": [\n                    {\n                        \"id\": \"44fa9d25-c062-4542-9429-bcfe458750a0\",\n                        \"lastUpdated\": \"2024-04-17T12:09:23.644Z\",\n                        \"hipId\": \"abdm-dnp\",\n                        \"careContextReference\": [\n                            \"visit-57c1ccf6-7c5b-4649-9113-dfd1c642a1f0\",\n                            \"Health Document Reference Number\"\n                        ]\n                    },\n                    {\n                        \"id\": \"fa849708-ebb0-4fdb-abcc-b0c12c0363a4\",\n                        \"lastUpdated\": \"2024-04-17T12:09:23.711Z\",\n                        \"hipId\": \"abdm-dnp\",\n                        \"careContextReference\": [\n                            \"visit-57c1ccf6-7c5b-4649-9113-dfd1c642a1f0\",\n                            \"Health Document Reference Number\"\n                        ]\n                    },\n                    {\n                        \"id\": \"525c654b-7c7e-4efb-9d8d-df66c677e8a4\",\n                        \"lastUpdated\": \"2024-04-17T12:09:23.774Z\",\n                        \"hipId\": \"IN3410000223\",\n                        \"careContextReference\": [\n                            \"22462\"\n                        ]\n                    },\n                    {\n                        \"id\": \"ca08486f-0cc2-49f3-9126-bdb118df648f\",\n                        \"lastUpdated\": \"2024-04-17T12:09:23.836Z\",\n                        \"hipId\": \"nextgenhospital145Hip\",\n                        \"careContextReference\": [\n                            \"66-20230001895-1\"\n                        ]\n                    }\n                ]\n            }\n        ]\n    }\n}"
+				},
+				{
+					"name": "localhost:8082/v1/consent-status",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8082/v1/consent-status/{{clientRequestId}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"v1",
+								"consent-status",
+								"{{clientRequestId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 19 Apr 2024 15:37:03 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"CONSENT_FETCH_ACCEPTED\",\n    \"error\": null,\n    \"httpStatusCode\": \"OK\",\n    \"initConsentRequest\": {\n        \"requestId\": \"96799d23-2700-48c5-8179-505890e72cc3\",\n        \"timestamp\": \"2024-04-19T15:33:35.589Z\",\n        \"consent\": {\n            \"purpose\": {\n                \"text\": \"string\",\n                \"code\": \"CAREMGT\",\n                \"refUri\": null\n            },\n            \"patient\": {\n                \"id\": \"venuajitesh1@sbx\"\n            },\n            \"hip\": null,\n            \"careContexts\": null,\n            \"hiu\": {\n                \"id\": \"Demo_Ajitesh_HIP\"\n            },\n            \"requester\": {\n                \"name\": \"Dr. Venu AJitesh\",\n                \"identifier\": {\n                    \"type\": \"REGNO\",\n                    \"value\": \"MH1001\",\n                    \"system\": \"https://www.mciindia.org\"\n                }\n            },\n            \"hiTypes\": [\n                \"DiagnosticReport\",\n                \"DischargeSummary\",\n                \"HealthDocumentRecord\",\n                \"ImmunizationRecord\",\n                \"OPConsultation\",\n                \"Prescription\",\n                \"WellnessRecord\"\n            ],\n            \"permission\": {\n                \"accessMode\": \"VIEW\",\n                \"dateRange\": {\n                    \"from\": \"2023-02-16T12:45:18.548Z\",\n                    \"to\": \"2024-03-15T11:43:18.548Z\"\n                },\n                \"dataEraseAt\": \"2024-04-20T08:38:34.171Z\",\n                \"frequency\": {\n                    \"unit\": \"HOUR\",\n                    \"value\": 1,\n                    \"repeats\": 0\n                }\n            }\n        }\n    },\n    \"consentDetails\": {\n        \"grantedOn\": \"2024-04-19T15:33:46.146Z\",\n        \"dateRange\": {\n            \"from\": \"2023-02-16T12:45:18.548Z\",\n            \"to\": \"2024-03-15T11:43:18.548Z\"\n        },\n        \"dataEraseAt\": \"2024-04-20T08:38:34.171Z\",\n        \"hiTypes\": [\n            \"DiagnosticReport\",\n            \"DischargeSummary\",\n            \"HealthDocumentRecord\",\n            \"ImmunizationRecord\",\n            \"OPConsultation\",\n            \"Prescription\",\n            \"WellnessRecord\"\n        ],\n        \"consent\": [\n            {\n                \"status\": \"REVOKED\",\n                \"consentArtefacts\": [\n                    {\n                        \"id\": \"6546be04-2b11-4b6b-b3e1-f8a9079b5dba\",\n                        \"lastUpdated\": \"2024-04-19T15:36:58.510Z\",\n                        \"hipId\": \"Predator_HIP\",\n                        \"careContextReference\": [\n                            \"visit-venu-06/02/2024\"\n                        ]\n                    }\n                ]\n            },\n            {\n                \"status\": \"GRANTED\",\n                \"consentArtefacts\": [\n                    {\n                        \"id\": \"befce2de-fff3-4a8e-859e-4bbee889f0a2\",\n                        \"lastUpdated\": \"2024-04-19T15:33:46.160Z\",\n                        \"hipId\": \"Demo_Ajitesh_HIP\",\n                        \"careContextReference\": [\n                            \" test visit-f9af123c-a723-45c2-b50b-617f4b1a5be0\",\n                            \"test visit-f9af123c-a723-49c2-b50b-617f4b1a5be0\",\n                            \"test visit-f7af123c-a723-45c2-b50b-617f4b1a5be0\",\n                            \" test visit-f9af123c-a723-45c2-b50b-617f4b1a5be7\",\n                            \" test visit-f9af123c-a723-45c2-b50b-617f4b1a5ie0\",\n                            \" test visit-48395e5c-ee0b-4653-8710-9cb4a2f3bb3b\",\n                            \" test visit-437df780-5afa-4bd4-a9b8-35f7ec855066\",\n                            \" test visit-7cc044ba-5a5a-4f7b-b406-aadecd4cd102\",\n                            \" test visit-8530b3d5-8297-463b-8f83-a72b7df9994d\",\n                            \" test visit-dc138140-b693-4fb6-9834-cec16d2f5af8\",\n                            \" test visit-6fc2719e-a8fa-4cc4-ba13-86ee91cdecbb\",\n                            \" test visit-7b351c99-3188-42c9-8944-83e58279fc66\",\n                            \" test visit-a935cacc-e0f0-4e27-b605-d40dea3ad79e\",\n                            \" test visit-5ba8a8ea-5fe6-40e0-890c-29c9f9a3e0e8\",\n                            \" test visit-766084e4-1ec5-4128-a0b8-4c632fbc9044\",\n                            \" test visit-70a2d6f1-b13a-4b75-8ec2-2e4ac289c233\",\n                            \" test visit-453c4b46-4cc2-4824-83de-f59767c838a7\",\n                            \" test visit-9e9fc37b-e7f6-40a3-95e6-b73ccbf29bcd\",\n                            \" test visit-5ebf336e-8143-4776-8915-ca5441985560\",\n                            \" test visit-e00a67e6-8171-4baa-a53e-ab31b4b05105\",\n                            \" test visit-2284dcc1-c64e-4046-abfb-1321fad6622e\",\n                            \"visit-Arpan-1/11/2024\",\n                            \"visit-Arpan-1/11/2024\",\n                            \"visit-Arpan-16/1/2024\",\n                            \"visit-Venu-16/1/2024\",\n                            \"visit-Venu-17/1/2024\"\n                        ]\n                    }\n                ]\n            }\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "localhost:8082/v1/health-information/fetch-records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var verifyResponse = JSON.parse(responseBody);\r",
+							"if(verifyResponse!=null && verifyResponse.clientRequestId!=null)\r",
+							"pm.environment.set(\"clientRequestId\",  verifyResponse.clientRequestId);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"requestId\":\"{{$guid}}\",\r\n    \"consentId\":\"5ff378fc-d378-4770-830d-d8cd3359e297\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/health-information/fetch-records",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"health-information",
+						"fetch-records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8082/v1/health-information/status/",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/health-information/status/2f30529e-d2e1-4e9e-9e72-efe17b061dac",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"health-information",
+						"status",
+						"2f30529e-d2e1-4e9e-9e72-efe17b061dac"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

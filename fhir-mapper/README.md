@@ -543,5 +543,5 @@ Recommended RAM: Systems with more than 8 GB RAM
     ```
 ### Things To Consider
 - If the FHIR bundle is generated the HttpStatus will be `201 created`
-- The authoredOn will accept date in the format of string in format : `yyyy-MM-dd` or `yyyy-MM-dd'T'HH:mm:ss.SSSX`
-
+- The authoredOn will accept date in the format of string in format : `yyyy-MM-dd` or `yyyy-MM-dd'T'HH:mm:ss.SSSX` - UTC iso time format
+- For now you can check the swagger documentation by copying the code from fhir-mapper.yaml and pasting it in `https://swagger.io/tools/swagger-editor/` inside `Try swagger editor`
