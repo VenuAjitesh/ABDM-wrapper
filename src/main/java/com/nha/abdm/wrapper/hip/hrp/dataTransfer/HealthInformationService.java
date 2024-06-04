@@ -132,15 +132,23 @@ public class HealthInformationService implements HealthInformationInterface {
     // Acknowledge to gateway that health information request has been received.
     healthInformationAcknowledgementRequest(
         hipHealthInformationRequest, onHealthInformationRequest);
-    // Prepare health information bundle request which needs to be sent to HIU.
-    HealthInformationBundleResponse healthInformationBundleResponse =
-        fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
-    // Push the health information to HIU.
-    ResponseEntity<GenericResponse> pushHealthInformationResponse =
-        pushHealthInformation(healthInformationBundleResponse, consentId);
-    // Notify Gateway that health information was pushed to HIU.
-    healthInformationPushNotify(
-        hipHealthInformationRequest, consentId, pushHealthInformationResponse);
+
+    // Sending the data to HIU only if there is no errors
+    if(Objects.isNull(onHealthInformationRequest.getError())){
+      // Prepare health information bundle request which needs to be sent to HIU.
+      HealthInformationBundleResponse healthInformationBundleResponse =
+              fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
+      // Push the health information to HIU.
+      ResponseEntity<GenericResponse> pushHealthInformationResponse =
+              pushHealthInformation(healthInformationBundleResponse, consentId);
+      // Notify Gateway that health information was pushed to HIU.
+      healthInformationPushNotify(
+              hipHealthInformationRequest, consentId, pushHealthInformationResponse);
+    }else{
+      // Sending BAD_REQUEST since there are some errors earlier
+      healthInformationPushNotify(
+              hipHealthInformationRequest, consentId, new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    }
   }
 
   private void healthInformationAcknowledgementRequest(
