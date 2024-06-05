@@ -20,6 +20,7 @@ public class ImmunizationConverter {
   private final MakeOrganisationResource makeOrganisationResource;
   private final MakeImmunizationResource makeImmunizationResource;
   private final MakeBundleMetaResource makeBundleMetaResource;
+  private final MakeEncounterResource makeEncounterResource;
   private String docName = "Immunization record";
   private String docCode = "41000179103";
 
@@ -29,13 +30,15 @@ public class ImmunizationConverter {
       MakePractitionerResource makePractitionerResource,
       MakeOrganisationResource makeOrganisationResource,
       MakeImmunizationResource makeImmunizationResource,
-      MakeBundleMetaResource makeBundleMetaResource) {
+      MakeBundleMetaResource makeBundleMetaResource,
+      MakeEncounterResource makeEncounterResource) {
     this.makeDocumentReference = makeDocumentReference;
     this.makePatientResource = makePatientResource;
     this.makePractitionerResource = makePractitionerResource;
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeImmunizationResource = makeImmunizationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
+    this.makeEncounterResource = makeEncounterResource;
   }
 
   public BundleResponse makeImmunizationBundle(ImmunizationRequest immunizationRequest)
@@ -60,6 +63,10 @@ public class ImmunizationConverter {
               .orElseGet(ArrayList::new);
       Organization organization =
           makeOrganisationResource.getOrganization(immunizationRequest.getOrganisation());
+      Encounter encounter =
+          immunizationRequest.getEncounter() != null
+              ? makeEncounterResource.getEncounter(patient, immunizationRequest.getEncounter())
+              : null;
       List<Organization> manufactureList = new ArrayList<>();
       List<Immunization> immunizationList = new ArrayList<>();
       for (ImmunizationResource immunizationResource : immunizationRequest.getImmunizations()) {
@@ -108,10 +115,18 @@ public class ImmunizationConverter {
                 .setFullUrl("Practitioner/" + practitioner.getId())
                 .setResource(practitioner));
       }
-      entries.add(
-          new Bundle.BundleEntryComponent()
-              .setFullUrl("Organisation/" + organization.getId())
-              .setResource(organization));
+      if (Objects.nonNull(organization)) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Organisation/" + organization.getId())
+                .setResource(organization));
+      }
+      if (Objects.nonNull(encounter)) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Encounter/" + encounter.getId())
+                .setResource(encounter));
+      }
       for (Organization manufacturer : manufactureList) {
         entries.add(
             new Bundle.BundleEntryComponent()

@@ -45,6 +45,8 @@ public class MakeDiagnosticLabResource {
     for (Practitioner practitioner : practitionerList) {
       diagnosticReport.addPerformer(
           new Reference().setReference("Practitioner/" + practitioner.getId()));
+      diagnosticReport.addResultsInterpreter(
+          new Reference().setReference("Practitioner/" + practitioner.getId()));
     }
     diagnosticReport.addCategory(
         new CodeableConcept()
@@ -54,9 +56,12 @@ public class MakeDiagnosticLabResource {
                     .setSystem("http://snomed.info/sct")
                     .setCode("261665006")
                     .setDisplay(diagnosticResource.getServiceCategory())));
-    for (Observation observation : observationList)
+    for (Observation observation : observationList) {
       diagnosticReport.addResult(
           new Reference().setReference("Observation/" + observation.getId()));
+    }
+    diagnosticReport.setConclusion(diagnosticResource.getConclusion());
+    diagnosticReport.setConclusion(diagnosticReport.getConclusion());
     diagnosticReport.addConclusionCode(
         new CodeableConcept()
             .setText(diagnosticResource.getConclusion())

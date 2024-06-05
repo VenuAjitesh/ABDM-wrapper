@@ -23,7 +23,7 @@ public class MakeAllergyToleranceResource {
     Coding coding = new Coding();
     coding.setSystem("http://snomed.info/sct");
     coding.setCode("609328004");
-    coding.setDisplay(allergy);
+    coding.setDisplay("Allergy");
     CodeableConcept code = new CodeableConcept();
     code.addCoding(coding);
     code.setText(allergy);

@@ -45,7 +45,9 @@ public class HealthDocumentConverter {
       throws ParseException {
     try {
       Organization organization =
-          makeOrganisationResource.getOrganization(healthDocumentRecord.getOrganisation());
+          Objects.nonNull(healthDocumentRecord.getOrganisation())
+              ? makeOrganisationResource.getOrganization(healthDocumentRecord.getOrganisation())
+              : null;
       Patient patient = makePatientResource.getPatient(healthDocumentRecord.getPatient());
       List<Practitioner> practitionerList =
           Optional.ofNullable(healthDocumentRecord.getPractitioners())
@@ -99,14 +101,17 @@ public class HealthDocumentConverter {
                 .setFullUrl("Practitioner/" + practitioner.getId())
                 .setResource(practitioner));
       }
-      entries.add(
-          new Bundle.BundleEntryComponent()
-              .setFullUrl("Organisation/" + organization.getId())
-              .setResource(organization));
+      if (Objects.nonNull(organization)) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Organisation/" + organization.getId())
+                .setResource(organization));
+      }
       if (Objects.nonNull(encounter)) {
-        new Bundle.BundleEntryComponent()
-            .setFullUrl("Encounter/" + encounter.getId())
-            .setResource(encounter);
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Encounter/" + encounter.getId())
+                .setResource(encounter));
       }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
@@ -162,10 +167,12 @@ public class HealthDocumentConverter {
               .setDisplay(practionerName.getText())
               .setReference("Practitioner/" + practitioner.getId()));
     }
-    composition.setCustodian(
-        new Reference()
-            .setDisplay(organization.getName())
-            .setReference("Organisation/" + organization.getId()));
+    if (Objects.nonNull(organization)) {
+      composition.setCustodian(
+          new Reference()
+              .setDisplay(organization.getName())
+              .setReference("Organisation/" + organization.getId()));
+    }
     composition.setAuthor(authorList);
     HumanName patientName = patient.getName().get(0);
     composition.setSubject(

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MakeMedicationRequestResource {
   public MedicationRequest getMedicationResource(
-      Date authoredOn,
+      String authoredOn,
       PrescriptionResource prescriptionResource,
       Organization organization,
       List<Practitioner> practitioners,
@@ -29,7 +29,7 @@ public class MakeMedicationRequestResource {
             .addCoding(
                 new Coding()
                     .setSystem("http://snomed.info/sct")
-                    .setCode("319775004")
+                    .setCode("261665006")
                     .setDisplay(prescriptionResource.getMedicine())));
     if (prescriptionResource.getDosage() != null)
       medicationRequest.setDosageInstruction(
@@ -46,11 +46,10 @@ public class MakeMedicationRequestResource {
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    if (medicationRequest.getAuthoredOn() != null) medicationRequest.setAuthoredOn(authoredOn);
+    if (authoredOn != null) medicationRequest.setAuthoredOn(Utils.getFormattedDate(authoredOn));
     medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.COMPLETED);
     medicationRequest.setIntent(MedicationRequest.MedicationRequestIntent.ORDER);
     medicationRequest.setId(UUID.randomUUID().toString());
-    medicationRequest.setAuthoredOn(authoredOn);
     return medicationRequest;
   }
 }

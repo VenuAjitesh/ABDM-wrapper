@@ -30,8 +30,12 @@ public class MakePatientResource {
 
     Patient patient = new Patient();
     patient.addName(new HumanName().setText(patientResource.getName()));
-    patient.setGender(Enumerations.AdministrativeGender.fromCode(patientResource.getGender()));
-    patient.setBirthDate(Utils.getFormattedDateTime(patientResource.getBirthDate()));
+    if (patientResource.getGender() != null) {
+      patient.setGender(Enumerations.AdministrativeGender.fromCode(patientResource.getGender()));
+    }
+    if (patientResource.getBirthDate() != null) {
+      patient.setBirthDate(Utils.getFormattedDateTime(patientResource.getBirthDate()));
+    }
     patient.setMeta(meta);
     patient.addIdentifier(identifier);
     patient.setId(UUID.randomUUID().toString());

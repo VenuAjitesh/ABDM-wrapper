@@ -15,7 +15,8 @@ public class MakeServiceRequestResource {
   public ServiceRequest getServiceRequest(
       Patient patient,
       List<Practitioner> practitionerList,
-      ServiceRequestResource serviceRequestResource)
+      ServiceRequestResource serviceRequestResource,
+      String authoredOn)
       throws ParseException {
     HumanName patientName = patient.getName().get(0);
     ServiceRequest serviceRequest = new ServiceRequest();
@@ -24,6 +25,7 @@ public class MakeServiceRequestResource {
         ServiceRequest.ServiceRequestStatus.valueOf(serviceRequestResource.getStatus()));
     serviceRequest.setIntent(ServiceRequest.ServiceRequestIntent.PROPOSAL);
     serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.ACTIVE);
+    serviceRequest.setAuthoredOn(Utils.getFormattedDate(authoredOn));
     serviceRequest.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
@@ -38,6 +40,14 @@ public class MakeServiceRequestResource {
     for (Practitioner practitioner : practitionerList) {
       practitionerName = practitioner.getName().get(0);
       performerList.add(
+          new Reference()
+              .setReference("Practitioner/" + practitioner.getId())
+              .setDisplay(practitionerName.getText()));
+    }
+    if (!performerList.isEmpty()) {
+      Practitioner practitioner = practitionerList.get(0);
+      practitionerName = practitioner.getName().get(0);
+      serviceRequest.setRequester(
           new Reference()
               .setReference("Practitioner/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));

@@ -25,7 +25,7 @@ public class WellnessRecordConverter {
   private final MakeObservationResource makeObservationResource;
   private final MakeWellnessObservationResource makeWellnessObservationResource;
   private String docName = "Document Reference";
-  private String docCode = "51848-0";
+  private String docCode = "261665006";
 
   public WellnessRecordConverter(
       MakeOrganisationResource makeOrganisationResource,

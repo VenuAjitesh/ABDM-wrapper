@@ -113,23 +113,22 @@ public class DischargeSummaryConverter {
       for (PrescriptionResource prescriptionResource : dischargeSummaryRequest.getMedications()) {
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
-                Utils.getFormattedDate(dischargeSummaryRequest.getAuthoredOn()),
+                dischargeSummaryRequest.getAuthoredOn(),
                 prescriptionResource,
                 organization,
                 practitionerList,
                 patient));
       }
       List<DiagnosticReport> diagnosticReportList = new ArrayList<>();
+      List<Observation> diagnosticObservationList = new ArrayList<>();
       for (DiagnosticResource diagnosticResource : dischargeSummaryRequest.getDiagnostics()) {
         List<Observation> observationList = new ArrayList<>();
         for (ObservationResource observationResource : diagnosticResource.getResult()) {
           Observation observation =
               makeObservationResource.getObservation(
                   patient, practitionerList, observationResource);
-          entries.add(
-              new Bundle.BundleEntryComponent()
-                  .setFullUrl("Observation/" + observation.getId())
-                  .setResource(observation));
+          observationList.add(observation);
+          diagnosticObservationList.add(observation);
         }
         diagnosticReportList.add(
             makeDiagnosticLabResource.getDiagnosticReport(
@@ -138,7 +137,7 @@ public class DischargeSummaryConverter {
 
       List<Procedure> procedureList =
           dischargeSummaryRequest.getProcedures() != null
-              ? makeProcedureList(dischargeSummaryRequest)
+              ? makeProcedureList(dischargeSummaryRequest, patient)
               : new ArrayList<>();
       List<DocumentReference> documentReferenceList = new ArrayList<>();
       if (Objects.nonNull(dischargeSummaryRequest.getDocuments())) {
@@ -231,10 +230,11 @@ public class DischargeSummaryConverter {
                 .setFullUrl("MedicationRequest/" + medicationRequest.getId())
                 .setResource(medicationRequest));
       }
+
       for (DiagnosticReport diagnosticReport : diagnosticReportList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("MedicationRequest/" + diagnosticReport.getId())
+                .setFullUrl("DiagnosticReport/" + diagnosticReport.getId())
                 .setResource(diagnosticReport));
       }
 
@@ -243,6 +243,12 @@ public class DischargeSummaryConverter {
             new Bundle.BundleEntryComponent()
                 .setFullUrl("Procedure/" + procedure.getId())
                 .setResource(procedure));
+      }
+      for (Observation observation : diagnosticObservationList) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Observation/" + observation.getId())
+                .setResource(observation));
       }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
@@ -337,7 +343,8 @@ public class DischargeSummaryConverter {
         patient, organization, documentResource, docCode, docName);
   }
 
-  private List<Procedure> makeProcedureList(DischargeSummaryRequest dischargeSummaryRequest) {
+  private List<Procedure> makeProcedureList(
+      DischargeSummaryRequest dischargeSummaryRequest, Patient patient) {
     List<Procedure> procedureList = new ArrayList<>();
     for (ProcedureResource item : dischargeSummaryRequest.getProcedures()) {
       Procedure procedure = new Procedure();
@@ -346,6 +353,7 @@ public class DischargeSummaryConverter {
       procedure.addReasonCode(new CodeableConcept().setText(item.getDetails()));
       procedure.setOutcome(new CodeableConcept().setText(item.getOutcome()));
       procedure.addComplication(new CodeableConcept().setText(item.getCondition()));
+      procedure.setSubject(new Reference().setReference("Patient/" + patient.getId()));
       procedureList.add(procedure);
     }
     return procedureList;
@@ -422,7 +430,7 @@ public class DischargeSummaryConverter {
       List<Procedure> procedureList,
       List<DocumentReference> documentReferenceList) {
     List<Composition.SectionComponent> sectionComponentList = new ArrayList<>();
-    if (Objects.nonNull(chiefComplaintList)) {
+    if (!(chiefComplaintList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -438,7 +446,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(physicalObservationList)) {
+    if (!(physicalObservationList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -454,7 +462,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(allergieList)) {
+    if (!(allergieList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -470,7 +478,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(medicalHistoryList)) {
+    if (!medicalHistoryList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -486,7 +494,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(familyMemberHistoryList)) {
+    if (!(familyMemberHistoryList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -502,7 +510,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(medicationRequestList)) {
+    if (!(medicationRequestList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -518,7 +526,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(diagnosticReportList)) {
+    if (!(diagnosticReportList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -534,7 +542,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(procedureList)) {
+    if (!(procedureList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -549,7 +557,7 @@ public class DischargeSummaryConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(documentReferenceList)) {
+    if (!(documentReferenceList.isEmpty())) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()

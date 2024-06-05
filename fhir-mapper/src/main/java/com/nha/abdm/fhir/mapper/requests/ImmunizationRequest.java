@@ -31,6 +31,7 @@ public class ImmunizationRequest {
   @Valid private List<PractitionerResource> practitioners;
 
   private OrganisationResource organisation;
+  private String encounter;
 
   @Pattern(
       regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",

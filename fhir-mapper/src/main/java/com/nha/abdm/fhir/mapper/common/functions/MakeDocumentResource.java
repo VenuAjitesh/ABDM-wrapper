@@ -4,6 +4,7 @@ package com.nha.abdm.fhir.mapper.common.functions;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import java.text.ParseException;
+import java.util.Objects;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,12 @@ public class MakeDocumentResource {
     Identifier identifier = new Identifier();
     identifier.setType(codeableConcept);
     identifier.setSystem("https://facility.abdm.gov.in");
-    identifier.setValue(
-        organization.getId() == null ? UUID.randomUUID().toString() : organization.getId());
-
+    if (Objects.nonNull(organization)) {
+      identifier.setValue(
+          organization.getId() == null ? UUID.randomUUID().toString() : organization.getId());
+    } else {
+      identifier.setValue(UUID.randomUUID().toString());
+    }
     Attachment attachment = new Attachment();
     attachment.setContentType(documentResource.getContentType());
     attachment.setData(documentResource.getData().getBytes());

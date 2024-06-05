@@ -73,7 +73,7 @@ public class PrescriptionConverter {
       for (PrescriptionResource item : prescriptionRequest.getPrescriptions()) {
         medicationRequestList.add(
             makeMedicationRequestResource.getMedicationResource(
-                Utils.getFormattedDate(prescriptionRequest.getAuthoredOn()),
+                prescriptionRequest.getAuthoredOn(),
                 item,
                 organization,
                 practitionerList,

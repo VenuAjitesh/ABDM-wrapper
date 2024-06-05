@@ -16,6 +16,7 @@ public class MakeConditionResource {
     HumanName patientName = patient.getName().get(0);
     Condition condition = new Condition();
     condition.setId(UUID.randomUUID().toString());
+
     condition.setCode(new CodeableConcept().setText(conditionDetails));
     condition.setMeta(
         new Meta()

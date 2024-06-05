@@ -4,6 +4,7 @@ package com.nha.abdm.fhir.mapper.common.functions;
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.helpers.OrganisationResource;
 import java.text.ParseException;
+import java.util.Objects;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,14 @@ public class MakeOrganisationResource {
     Identifier identifier = new Identifier();
     identifier.setType(codeableConcept);
     identifier.setSystem("https://facility.abdm.gov.in");
-    identifier.setValue(organisationResource.getFacilityId());
+    if (Objects.nonNull(organisationResource)) {
+      identifier.setValue(
+          organisationResource.getFacilityId() == null
+              ? UUID.randomUUID().toString()
+              : organisationResource.getFacilityId());
+    } else {
+      identifier.setValue(UUID.randomUUID().toString());
+    }
 
     Meta meta = new Meta();
     meta.setVersionId("1");
@@ -29,7 +37,10 @@ public class MakeOrganisationResource {
     meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Organization");
 
     Organization organization = new Organization();
-    organization.setName(organisationResource.getFacilityName());
+    organization.setName(
+        organisationResource.getFacilityName() != null
+            ? organisationResource.getFacilityName()
+            : organisationResource.getFacilityId());
     organization.setMeta(meta);
     organization.addIdentifier(identifier);
     organization.setId(UUID.randomUUID().toString());
