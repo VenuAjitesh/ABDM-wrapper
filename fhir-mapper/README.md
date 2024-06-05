@@ -136,7 +136,7 @@ Recommended RAM: Systems with more than 8 GB RAM
     "allergies":[
         "Walnuts"
     ],
-    "medicalHistorys":[
+    "medicalHistories":[
         {
             "complaint":"Sugar", //mandatory
             "recordedDate":"2024-05-20", //mandatory
@@ -146,7 +146,7 @@ Recommended RAM: Systems with more than 8 GB RAM
             }
         }
     ],
-    "familyHistorys":[
+    "familyHistories":[
         {
             "relationship":"Friend", //mandatory
             "observation":"Toxic" //mandatory

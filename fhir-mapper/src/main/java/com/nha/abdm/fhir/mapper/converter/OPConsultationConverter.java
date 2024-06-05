@@ -114,7 +114,7 @@ public class OPConsultationConverter {
       for (PrescriptionResource prescriptionResource : opConsultationRequest.getMedications()) {
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
-                Utils.getFormattedDate(opConsultationRequest.getAuthoredOn()),
+                opConsultationRequest.getAuthoredOn(),
                 prescriptionResource,
                 organization,
                 practitionerList,
@@ -126,7 +126,7 @@ public class OPConsultationConverter {
               : new ArrayList<>();
       List<Procedure> procedureList =
           opConsultationRequest.getProcedures() != null
-              ? makeProcedureList(opConsultationRequest)
+              ? makeProcedureList(opConsultationRequest, patient)
               : new ArrayList<>();
       List<ServiceRequest> referralList =
           opConsultationRequest.getReferrals() != null
@@ -297,7 +297,7 @@ public class OPConsultationConverter {
     Composition composition = new Composition();
     CodeableConcept typeCode = new CodeableConcept();
     Coding typeCoding = new Coding();
-    typeCoding.setSystem("https://projecteka.in/sct");
+    typeCoding.setSystem("http://snomed.info/sct");
     typeCoding.setCode("371530004");
     typeCoding.setDisplay("Clinical consultation report");
     typeCode.addCoding(typeCoding);
@@ -377,12 +377,14 @@ public class OPConsultationConverter {
     List<ServiceRequest> refferalList = new ArrayList<>();
     for (ServiceRequestResource item : opConsultationRequest.getReferrals()) {
       refferalList.add(
-          makeServiceRequestResource.getServiceRequest(patient, practitionerList, item));
+          makeServiceRequestResource.getServiceRequest(
+              patient, practitionerList, item, opConsultationRequest.getAuthoredOn()));
     }
     return refferalList;
   }
 
-  private List<Procedure> makeProcedureList(OPConsultationRequest opConsultationRequest) {
+  private List<Procedure> makeProcedureList(
+      OPConsultationRequest opConsultationRequest, Patient patient) {
     List<Procedure> procedureList = new ArrayList<>();
     for (ProcedureResource item : opConsultationRequest.getProcedures()) {
       Procedure procedure = new Procedure();
@@ -391,6 +393,7 @@ public class OPConsultationConverter {
       procedure.addReasonCode(new CodeableConcept().setText(item.getDetails()));
       procedure.setOutcome(new CodeableConcept().setText(item.getOutcome()));
       procedure.addComplication(new CodeableConcept().setText(item.getCondition()));
+      procedure.setSubject(new Reference().setReference("Patient/" + patient.getId()));
       procedureList.add(procedure);
     }
     return procedureList;
@@ -406,7 +409,8 @@ public class OPConsultationConverter {
       appointment.setParticipant(
           Collections.singletonList(
               new Appointment.AppointmentParticipantComponent()
-                  .setActor(new Reference().setReference("Patient/" + patient.getId()))));
+                  .setActor(new Reference().setReference("Patient/" + patient.getId()))
+                  .setStatus(Appointment.ParticipationStatus.ACCEPTED)));
       appointment.setStart(Utils.getFormattedDateTime(item.getAppointmentTime()));
       appointment.addReasonCode(new CodeableConcept().setText(item.getReason()));
       appointment.setServiceType(
@@ -424,7 +428,8 @@ public class OPConsultationConverter {
     List<ServiceRequest> investigationList = new ArrayList<>();
     for (ServiceRequestResource item : opConsultationRequest.getServiceRequests()) {
       investigationList.add(
-          makeServiceRequestResource.getServiceRequest(patient, practitionerList, item));
+          makeServiceRequestResource.getServiceRequest(
+              patient, practitionerList, item, opConsultationRequest.getAuthoredOn()));
     }
     return investigationList;
   }

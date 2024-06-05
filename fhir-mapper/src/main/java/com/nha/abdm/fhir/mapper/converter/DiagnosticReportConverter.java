@@ -84,6 +84,7 @@ public class DiagnosticReportConverter {
           Observation observation =
               makeObservationResource.getObservation(
                   patient, practitionerList, observationResource);
+          observationList.add(observation);
           diagnosticObservationList.add(observation);
         }
         diagnosticReportList.add(
@@ -129,10 +130,18 @@ public class DiagnosticReportConverter {
                 .setFullUrl("Practitioner/" + practitioner.getId())
                 .setResource(practitioner));
       }
-      entries.add(
-          new Bundle.BundleEntryComponent()
-              .setFullUrl("Organisation/" + organization.getId())
-              .setResource(organization));
+      if (Objects.nonNull(organization)) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Organisation/" + organization.getId())
+                .setResource(organization));
+      }
+      if (Objects.nonNull(encounter)) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl("Encounter/" + encounter.getId())
+                .setResource(encounter));
+      }
       for (DiagnosticReport diagnosticReport : diagnosticReportList) {
         entries.add(
             new Bundle.BundleEntryComponent()
