@@ -4,8 +4,8 @@ package com.nha.abdm.wrapper.common;
 import com.nha.abdm.wrapper.common.requests.SessionManager;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.handler.timeout.TimeoutException;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class RequestManager {
   // Initializing headers every time to avoid setting the old headers/session token and getting
   // unauthorised error from gateway.
   @Retryable(
-      value = {WebClientRequestException.class, ReadTimeoutException.class},
+      value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
       maxAttempts = 5,
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public <T> ResponseEntity<GenericResponse> fetchResponseFromGateway(String uri, T request) {
@@ -65,12 +65,13 @@ public class RequestManager {
         .retrieve()
         .toEntity(GenericResponse.class)
         .retryWhen(
-            Retry.backoff(5, Duration.ofSeconds(5))
+            Retry.backoff(5, Duration.ofSeconds(2))
                 .filter(
                     throwable ->
                         throwable instanceof HttpServerErrorException
                             || throwable instanceof WebClientRequestException
-                                && throwable.getCause() instanceof TimeoutException))
+                            || throwable instanceof ReadTimeoutException
+                            || throwable instanceof TimeoutException))
         .block();
   }
 }

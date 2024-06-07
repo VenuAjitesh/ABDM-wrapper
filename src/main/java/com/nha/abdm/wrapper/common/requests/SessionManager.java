@@ -86,7 +86,7 @@ public class SessionManager {
    */
   @Scheduled(initialDelay = 15 * 60 * 1000, fixedRate = 15 * 60 * 1000)
   @Retryable(
-      value = {WebClientRequestException.class, ReadTimeoutException.class},
+      value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
       maxAttempts = 5,
       backoff = @Backoff(delay = 1000, multiplier = 2))
   private void startSession() throws Throwable {
@@ -132,12 +132,13 @@ public class SessionManager {
         .retrieve()
         .toEntity(ObjectNode.class)
         .retryWhen(
-            Retry.backoff(5, Duration.ofSeconds(5))
+            Retry.backoff(5, Duration.ofSeconds(2))
                 .filter(
                     throwable ->
                         throwable instanceof HttpServerErrorException
                             || throwable instanceof WebClientRequestException
-                                && throwable.getCause() instanceof TimeoutException))
+                            || throwable instanceof ReadTimeoutException
+                            || throwable instanceof java.util.concurrent.TimeoutException))
         .block();
   }
 

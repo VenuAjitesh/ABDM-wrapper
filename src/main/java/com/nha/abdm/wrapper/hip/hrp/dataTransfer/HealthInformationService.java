@@ -134,20 +134,20 @@ public class HealthInformationService implements HealthInformationInterface {
         hipHealthInformationRequest, onHealthInformationRequest);
 
     // Sending the data to HIU only if there is no errors
-    if(Objects.isNull(onHealthInformationRequest.getError())){
+    if (Objects.isNull(onHealthInformationRequest.getError())) {
       // Prepare health information bundle request which needs to be sent to HIU.
       HealthInformationBundleResponse healthInformationBundleResponse =
-              fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
+          fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
       // Push the health information to HIU.
       ResponseEntity<GenericResponse> pushHealthInformationResponse =
-              pushHealthInformation(healthInformationBundleResponse, consentId);
+          pushHealthInformation(healthInformationBundleResponse, consentId);
       // Notify Gateway that health information was pushed to HIU.
       healthInformationPushNotify(
-              hipHealthInformationRequest, consentId, pushHealthInformationResponse);
-    }else{
+          hipHealthInformationRequest, consentId, pushHealthInformationResponse);
+    } else {
       // Sending BAD_REQUEST since there are some errors earlier
       healthInformationPushNotify(
-              hipHealthInformationRequest, consentId, new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+          hipHealthInformationRequest, consentId, new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
   }
 
@@ -219,28 +219,30 @@ public class HealthInformationService implements HealthInformationInterface {
       RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
       HIPNotifyRequest hipNotifyRequest =
-              (HIPNotifyRequest) requestLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
+          (HIPNotifyRequest)
+              requestLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
 
       HIPHealthInformationRequest hipHealthInformationRequest =
-              (HIPHealthInformationRequest)
-                      requestLog.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
+          (HIPHealthInformationRequest)
+              requestLog.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
       HealthInformationPushRequest healthInformationPushRequest =
-              fetchHealthInformationPushRequest(
-                      hipNotifyRequest, hipHealthInformationRequest, healthInformationBundleResponse);
+          fetchHealthInformationPushRequest(
+              hipNotifyRequest, hipHealthInformationRequest, healthInformationBundleResponse);
 
       log.debug("Health Information push request: " + healthInformationPushRequest);
       log.info("initiating the dataTransfer to HIU");
       return hiuClient.pushHealthInformation(
-              hipHealthInformationRequest.getHiRequest().getDataPushUrl(), healthInformationPushRequest);
+          hipHealthInformationRequest.getHiRequest().getDataPushUrl(),
+          healthInformationPushRequest);
     } catch (WebClientResponseException.BadRequest ex) {
       ErrorResponseV3 error = ex.getResponseBodyAs(ErrorResponseV3.class);
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
     } catch (Exception ex) {
       String error =
-              "An unknown error occurred while calling Gateway API: "
-                      + ex.getMessage()
-                      + " unwrapped exception: "
-                      + Exceptions.unwrap(ex);
+          "An unknown error occurred while calling Gateway API: "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
       log.debug(error);
     }
     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

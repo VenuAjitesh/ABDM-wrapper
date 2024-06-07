@@ -12,6 +12,11 @@ services:
       - docker_network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
   mongodb:
     image: mongodb/mongodb-community-server:latest
@@ -28,3 +33,5 @@ volumes:
 networks:
   docker_network:
     driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1500

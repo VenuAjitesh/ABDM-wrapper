@@ -32,6 +32,7 @@ public class DischargeSummaryConverter {
   private final MakeEncounterResource makeEncounterResource;
   private final MakeMedicationRequestResource makeMedicationRequestResource;
   private final MakeDiagnosticLabResource makeDiagnosticLabResource;
+  private final MakeProcedureResource makeProcedureResource;
   private String docName = "Discharge summary";
   private String docCode = "373942005";
 
@@ -50,7 +51,8 @@ public class DischargeSummaryConverter {
       MakeDocumentResource makeDocumentResource,
       MakeEncounterResource makeEncounterResource,
       MakeMedicationRequestResource makeMedicationRequestResource,
-      MakeDiagnosticLabResource makeDiagnosticLabResource) {
+      MakeDiagnosticLabResource makeDiagnosticLabResource,
+      MakeProcedureResource makeProcedureResource) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makePatientResource = makePatientResource;
@@ -64,6 +66,7 @@ public class DischargeSummaryConverter {
     this.makeEncounterResource = makeEncounterResource;
     this.makeMedicationRequestResource = makeMedicationRequestResource;
     this.makeDiagnosticLabResource = makeDiagnosticLabResource;
+    this.makeProcedureResource = makeProcedureResource;
   }
 
   public BundleResponse convertToDischargeSummary(DischargeSummaryRequest dischargeSummaryRequest)
@@ -344,17 +347,10 @@ public class DischargeSummaryConverter {
   }
 
   private List<Procedure> makeProcedureList(
-      DischargeSummaryRequest dischargeSummaryRequest, Patient patient) {
+      DischargeSummaryRequest dischargeSummaryRequest, Patient patient) throws ParseException {
     List<Procedure> procedureList = new ArrayList<>();
     for (ProcedureResource item : dischargeSummaryRequest.getProcedures()) {
-      Procedure procedure = new Procedure();
-      procedure.setId(UUID.randomUUID().toString());
-      procedure.setStatus(Procedure.ProcedureStatus.INPROGRESS);
-      procedure.addReasonCode(new CodeableConcept().setText(item.getDetails()));
-      procedure.setOutcome(new CodeableConcept().setText(item.getOutcome()));
-      procedure.addComplication(new CodeableConcept().setText(item.getCondition()));
-      procedure.setSubject(new Reference().setReference("Patient/" + patient.getId()));
-      procedureList.add(procedure);
+      procedureList.add(makeProcedureResource.getProcedure(patient, item));
     }
     return procedureList;
   }
