@@ -390,9 +390,9 @@ public class OPConsultationConverter {
       Procedure procedure = new Procedure();
       procedure.setId(UUID.randomUUID().toString());
       procedure.setStatus(Procedure.ProcedureStatus.INPROGRESS);
-      procedure.addReasonCode(new CodeableConcept().setText(item.getDetails()));
+      procedure.addReasonCode(new CodeableConcept().setText(item.getProcedureName()));
       procedure.setOutcome(new CodeableConcept().setText(item.getOutcome()));
-      procedure.addComplication(new CodeableConcept().setText(item.getCondition()));
+      procedure.addComplication(new CodeableConcept().setText(item.getProcedureReason()));
       procedure.setSubject(new Reference().setReference("Patient/" + patient.getId()));
       procedureList.add(procedure);
     }

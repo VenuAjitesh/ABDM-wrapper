@@ -2,6 +2,7 @@
 package com.nha.abdm.fhir.mapper.requests.helpers;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +13,14 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ProcedureResource {
-  @NotNull(message = "status is mandatory") private String status;
+  @NotNull(message = "date of the procedure is mandatory") private String date;
 
-  @NotNull(message = "condition is mandatory") private String condition;
+  @Pattern(regexp = "COMPLETED|INPROGRESS")
+  private String status;
+
+  @NotNull(message = "procedureReason is mandatory") private String procedureReason;
 
   private String outcome;
 
-  @NotNull(message = "details is mandatory") private String details;
+  @NotNull(message = "procedureName is mandatory") private String procedureName;
 }

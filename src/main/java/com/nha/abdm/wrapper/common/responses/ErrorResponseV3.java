@@ -1,3 +1,4 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.common.responses;
 
 import lombok.AllArgsConstructor;
@@ -10,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponseV3 {
-    public String code;
-    public String message;
+  public String code;
+  public String message;
 }
