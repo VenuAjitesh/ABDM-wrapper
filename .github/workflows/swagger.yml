@@ -38,4 +38,4 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           # Specify the directory containing your index.html
-          path: 'ABDM-wrapper/fhir-mapper/swagger'  
+          path: 'ABDM-wrapper/fhir-mapper/swagger'
