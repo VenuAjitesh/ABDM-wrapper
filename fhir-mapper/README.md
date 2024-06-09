@@ -45,6 +45,7 @@ Recommended RAM: Systems with more than 8 GB RAM
 | WellnessRecord          | The Clinical Artifact represents regular wellness information of patients typically through the Patient Health Record (PHR) application covering clinical information such as vitals, physical examination, general wellness, women wellness, etc., that can be shared across the health ecosystem.                            |
 
 ### APIs for generating the FHIR bundle
+- For Swagger-ui, check [here](https://venuajitesh.github.io/ABDM-wrapper/)
 #### DiagnosticReportRecord
 - for the DiagnosticReportRecord bundle you need to 
   * `POST` Request `/v1/bundle/diagnostic-report`
@@ -546,4 +547,3 @@ Recommended RAM: Systems with more than 8 GB RAM
 ### Things To Consider
 - If the FHIR bundle is generated the HttpStatus will be `201 created`
 - The authoredOn will accept date in the format of string in format : `yyyy-MM-dd` or `yyyy-MM-dd'T'HH:mm:ss.SSSX` - UTC iso time format
-- For now you can check the swagger documentation by copying the code from fhir-mapper.yaml and pasting it in `https://swagger.io/tools/swagger-editor/` inside `Try swagger editor`
