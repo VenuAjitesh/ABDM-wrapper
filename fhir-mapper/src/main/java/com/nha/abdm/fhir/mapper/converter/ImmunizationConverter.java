@@ -91,7 +91,12 @@ public class ImmunizationConverter {
       }
       Composition composition =
           makeCompositionResource(
-              patient, practitionerList, organization, immunizationList, documentList);
+              patient,
+              practitionerList,
+              organization,
+              immunizationRequest.getAuthoredOn(),
+              immunizationList,
+              documentList);
       bundle.setId(UUID.randomUUID().toString());
       bundle.setType(Bundle.BundleType.DOCUMENT);
       bundle.setTimestamp(Utils.getCurrentTimeStamp());
@@ -158,6 +163,7 @@ public class ImmunizationConverter {
       Patient patient,
       List<Practitioner> practitionerList,
       Organization organization,
+      String authoredOn,
       List<Immunization> immunizationList,
       List<DocumentReference> documentList)
       throws ParseException {
@@ -193,7 +199,7 @@ public class ImmunizationConverter {
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
     Composition.SectionComponent immunizationSection = new Composition.SectionComponent();
     immunizationSection.setTitle("Immunizations");
     immunizationSection.setCode(

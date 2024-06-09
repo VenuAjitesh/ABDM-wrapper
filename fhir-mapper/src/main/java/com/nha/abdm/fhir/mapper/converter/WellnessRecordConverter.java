@@ -179,6 +179,7 @@ public class WellnessRecordConverter {
       Composition composition =
           makeWellnessComposition(
               patient,
+              wellnessRecordRequest.getAuthoredOn(),
               encounter,
               practitionerList,
               organization,
@@ -283,6 +284,7 @@ public class WellnessRecordConverter {
 
   private Composition makeWellnessComposition(
       Patient patient,
+      String authoredOn,
       Encounter encounter,
       List<Practitioner> practitionerList,
       Organization organization,
@@ -319,7 +321,7 @@ public class WellnessRecordConverter {
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
     List<Composition.SectionComponent> sectionComponentList =
         makeCompositionSection(
             patient,

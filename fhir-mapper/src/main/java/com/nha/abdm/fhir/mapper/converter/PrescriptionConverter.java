@@ -101,6 +101,7 @@ public class PrescriptionConverter {
               patient,
               practitionerList,
               organization,
+              prescriptionRequest.getAuthoredOn(),
               encounter,
               medicationRequestList,
               documentList);
@@ -165,6 +166,7 @@ public class PrescriptionConverter {
       Patient patient,
       List<Practitioner> practitionerList,
       Organization organization,
+      String authoredOn,
       Encounter encounter,
       List<MedicationRequest> medicationRequestList,
       List<Binary> documentList)
@@ -206,7 +208,7 @@ public class PrescriptionConverter {
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
     Composition.SectionComponent medicationComponent = new Composition.SectionComponent();
     medicationComponent.setTitle("Medications");
     medicationComponent.setCode(

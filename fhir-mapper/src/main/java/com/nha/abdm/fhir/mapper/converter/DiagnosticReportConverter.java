@@ -101,6 +101,7 @@ public class DiagnosticReportConverter {
       Composition composition =
           makeCompositionResource(
               patient,
+              diagnosticReportRequest.getAuthoredOn(),
               practitionerList,
               organization,
               encounter,
@@ -171,6 +172,7 @@ public class DiagnosticReportConverter {
 
   private Composition makeCompositionResource(
       Patient patient,
+      String authoredOn,
       List<Practitioner> practitionerList,
       Organization organization,
       Encounter encounter,
@@ -223,7 +225,7 @@ public class DiagnosticReportConverter {
         new Reference()
             .setDisplay(patientName.getText())
             .setReference("Patient/" + patient.getId()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
     composition.setStatus(Composition.CompositionStatus.FINAL);
     Identifier identifier = new Identifier();
     identifier.setSystem("https://ABDM_WRAPPER/document");

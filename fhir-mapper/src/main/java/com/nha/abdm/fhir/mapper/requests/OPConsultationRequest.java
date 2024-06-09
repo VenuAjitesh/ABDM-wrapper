@@ -7,6 +7,7 @@ import com.nha.abdm.fhir.mapper.common.helpers.PatientResource;
 import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import com.nha.abdm.fhir.mapper.requests.helpers.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.util.List;
@@ -21,16 +22,19 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OPConsultationRequest {
   @Pattern(regexp = "OPConsultRecord")
-  @NotNull(message = "BundleType is mandatory and must not be empty : 'OPConsultRecord'") private String bundleType;
+  @NotBlank(message = "BundleType is mandatory and must not be empty : 'OPConsultRecord'")
+  private String bundleType;
 
-  @NotNull(message = "careContextReference is mandatory and must not be empty") private String careContextReference;
+  @NotBlank(message = "careContextReference is mandatory and must not be empty")
+  private String careContextReference;
 
   @Valid
   @NotNull(message = "Patient demographic details are mandatory and must not be empty") private PatientResource patient;
 
   private String encounter;
 
-  @Valid private List<PractitionerResource> practitioners;
+  @Valid
+  @NotNull(message = "practitioners are mandatory and must not be empty")private List<PractitionerResource> practitioners;
 
   @Valid
   @NotNull(message = "organisation is mandatory") private OrganisationResource organisation;
@@ -45,7 +49,7 @@ public class OPConsultationRequest {
   @Pattern(
       regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",
       message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSX")
-  @NotNull(message = "authoredOn is mandatory timestamp") @NotNull private String authoredOn;
+  @NotNull(message = "authoredOn is mandatory timestamp") @NotNull private String visitDate;
 
   @Valid private List<PrescriptionResource> medications;
   @Valid private List<FollowupResource> followups;

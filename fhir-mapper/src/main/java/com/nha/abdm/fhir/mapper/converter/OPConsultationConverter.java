@@ -31,6 +31,7 @@ public class OPConsultationConverter {
   private final MakeDocumentResource makeDocumentResource;
   private final MakeEncounterResource makeEncounterResource;
   private final MakeMedicationRequestResource makeMedicationRequestResource;
+  private final MakeProcedureResource makeProcedureResource;
   private String docName = "Clinical consultation report";
   private String docCode = "371530004";
 
@@ -48,7 +49,8 @@ public class OPConsultationConverter {
       MakeFamilyMemberResource makeFamilyMemberResource,
       MakeDocumentResource makeDocumentResource,
       MakeEncounterResource makeEncounterResource,
-      MakeMedicationRequestResource makeMedicationRequestResource) {
+      MakeMedicationRequestResource makeMedicationRequestResource,
+      MakeProcedureResource makeProcedureResource) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makePatientResource = makePatientResource;
@@ -61,6 +63,7 @@ public class OPConsultationConverter {
     this.makeDocumentResource = makeDocumentResource;
     this.makeEncounterResource = makeEncounterResource;
     this.makeMedicationRequestResource = makeMedicationRequestResource;
+    this.makeProcedureResource = makeProcedureResource;
   }
 
   public BundleResponse convertToOPConsultationBundle(OPConsultationRequest opConsultationRequest)
@@ -114,7 +117,7 @@ public class OPConsultationConverter {
       for (PrescriptionResource prescriptionResource : opConsultationRequest.getMedications()) {
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
-                opConsultationRequest.getAuthoredOn(),
+                opConsultationRequest.getVisitDate(),
                 prescriptionResource,
                 organization,
                 practitionerList,
@@ -146,6 +149,7 @@ public class OPConsultationConverter {
       Composition composition =
           makeOPCompositionResource(
               patient,
+              opConsultationRequest.getVisitDate(),
               encounter,
               practitionerList,
               organization,
@@ -277,6 +281,7 @@ public class OPConsultationConverter {
 
   private Composition makeOPCompositionResource(
       Patient patient,
+      String visitDate,
       Encounter encounter,
       List<Practitioner> practitionerList,
       Organization organization,
@@ -321,7 +326,7 @@ public class OPConsultationConverter {
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(visitDate)));
     composition.setStatus(Composition.CompositionStatus.FINAL);
     List<Composition.SectionComponent> sectionComponentList =
         makeCompositionSection(
@@ -378,23 +383,16 @@ public class OPConsultationConverter {
     for (ServiceRequestResource item : opConsultationRequest.getReferrals()) {
       refferalList.add(
           makeServiceRequestResource.getServiceRequest(
-              patient, practitionerList, item, opConsultationRequest.getAuthoredOn()));
+              patient, practitionerList, item, opConsultationRequest.getVisitDate()));
     }
     return refferalList;
   }
 
   private List<Procedure> makeProcedureList(
-      OPConsultationRequest opConsultationRequest, Patient patient) {
+      OPConsultationRequest opConsultationRequest, Patient patient) throws ParseException {
     List<Procedure> procedureList = new ArrayList<>();
     for (ProcedureResource item : opConsultationRequest.getProcedures()) {
-      Procedure procedure = new Procedure();
-      procedure.setId(UUID.randomUUID().toString());
-      procedure.setStatus(Procedure.ProcedureStatus.INPROGRESS);
-      procedure.addReasonCode(new CodeableConcept().setText(item.getProcedureName()));
-      procedure.setOutcome(new CodeableConcept().setText(item.getOutcome()));
-      procedure.addComplication(new CodeableConcept().setText(item.getProcedureReason()));
-      procedure.setSubject(new Reference().setReference("Patient/" + patient.getId()));
-      procedureList.add(procedure);
+      procedureList.add(makeProcedureResource.getProcedure(patient, item));
     }
     return procedureList;
   }
@@ -429,7 +427,7 @@ public class OPConsultationConverter {
     for (ServiceRequestResource item : opConsultationRequest.getServiceRequests()) {
       investigationList.add(
           makeServiceRequestResource.getServiceRequest(
-              patient, practitionerList, item, opConsultationRequest.getAuthoredOn()));
+              patient, practitionerList, item, opConsultationRequest.getVisitDate()));
     }
     return investigationList;
   }
@@ -463,7 +461,7 @@ public class OPConsultationConverter {
     for (String item : opConsultationRequest.getAllergies()) {
       allergyIntoleranceList.add(
           makeAllergyToleranceResource.getAllergy(
-              patient, practitionerList, item, opConsultationRequest.getAuthoredOn()));
+              patient, practitionerList, item, opConsultationRequest.getVisitDate()));
     }
     return allergyIntoleranceList;
   }

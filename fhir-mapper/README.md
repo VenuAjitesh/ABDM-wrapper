@@ -45,6 +45,7 @@ Recommended RAM: Systems with more than 8 GB RAM
 | WellnessRecord          | The Clinical Artifact represents regular wellness information of patients typically through the Patient Health Record (PHR) application covering clinical information such as vitals, physical examination, general wellness, women wellness, etc., that can be shared across the health ecosystem.                            |
 
 ### APIs for generating the FHIR bundle
+- For Swagger-ui, check [here](https://venuajitesh.github.io/ABDM-wrapper/)
 #### DiagnosticReportRecord
 - for the DiagnosticReportRecord bundle you need to 
   * `POST` Request `/v1/bundle/diagnostic-report`
@@ -59,7 +60,7 @@ Recommended RAM: Systems with more than 8 GB RAM
             "gender":"male",
             "birthDate":"2001-04-27"
         },
-        "practitioners":[{ 
+        "practitioners":[{  //mandatory
             "name":"Dr.Venu Ajitesh", //mandatory
             "practitionerId":"Predator"
         }],
@@ -93,109 +94,110 @@ Recommended RAM: Systems with more than 8 GB RAM
       }
     ```
 #### DischargeSummaryRecord
-- for the DischargeSummaryRecord bundle you need to
-  * `POST` Request `/v1/bundle/discharge-summary`
-  ```
-  {
-    "bundleType":"DischargeSummaryRecord", //mandatory
-    "careContextReference":"visist 21-03-2024", //mandatory
-    "patient":{ //mandatory
-        "name":"Venu Ajitesh", //mandatory
-        "patientReference":"ajitesh6x", //mandatory
-        "gender":"male",
-        "birthDate":"2001-04-27"
-    },
-    "practitioners":[{ 
-        "name":"Dr.Venu Ajitesh", //mandatory
-        "practitionerId":"Predator"
-    }],
-    "organisation":{ //mandatory
-        "facilityName":"Predator_HIP", //mandatory
-        "facilityId":"Predator_HIP"
-    },
-    "chiefComplaints":[
-        {
-            "complaint":"Sugar", //mandatory
-            "recordedDate":"2024-05-20", //mandatory
-            "dateRange":{
-                "from":"2018-04-27",
-                "to":"2018-05-26"
-            }
-        }
-    ],
-    "physicalExaminations":[
-        {
-            "observation":"Height", //mandatory
-            "result":"Normal", //you can pass either result or valueQuantity not both
-            "valueQuantity": {
-					"unit": "CM",
-					"value": 170
-			}
-        }
-    ],
-    "allergies":[
-        "Walnuts"
-    ],
-    "medicalHistories":[
-        {
-            "complaint":"Sugar", //mandatory
-            "recordedDate":"2024-05-20", //mandatory
-            "dateRange":{
-                "from":"2018-04-27",
-                "to":"2018-05-26"
-            }
-        }
-    ],
-    "familyHistories":[
-        {
-            "relationship":"Friend", //mandatory
-            "observation":"Toxic" //mandatory
-        }
-    ],
-    "authoredOn":"2024-02-03", //mandatory
-    "medications":[
-        {
-            "medicine":"Dolo", //mandatory
-            "dosage":"1-0-1" //mandatory
-        },{
-            "medicine":"Disprin",
-            "dosage":"0-0-1"
-        }
-    ],
-    "diagnostics":[{
-        "serviceName":"BloodTest", //mandatory
-        "serviceCategory":"Hematography", //mandatory
-        "result":[{ 
-            "observation":"Height", //mandatory
-            "result":"Normal", //you can pass either result or valueQuantity not both
-            "valueQuantity": {
-					"unit": "CM",
-					"value": 170
-			}
-        }],
-        "conclusion":"Normal", //mandatory
-        "presentedForm":{
-            "contentType":"application/pdf",
-            "data":"Base64 data of the pdf"
+  - for the DischargeSummaryRecord bundle you need to
+    * `POST` Request `/v1/bundle/discharge-summary`
+    ```
+    {
+      "bundleType":"DischargeSummaryRecord", //mandatory
+      "careContextReference":"visist 21-03-2024", //mandatory
+      "patient":{ //mandatory
+          "name":"Venu Ajitesh", //mandatory
+          "patientReference":"ajitesh6x", //mandatory
+          "gender":"male",
+          "birthDate":"2001-04-27"
+      },
+      "practitioners":[{ //mandatory
+          "name":"Dr.Venu Ajitesh", //mandatory
+          "practitionerId":"Predator"
+      }],
+      "organisation":{ //mandatory
+          "facilityName":"Predator_HIP", //mandatory
+          "facilityId":"Predator_HIP"
+      },
+      "chiefComplaints":[
+          {
+              "complaint":"Sugar", //mandatory
+              "recordedDate":"2024-05-20", //mandatory
+              "dateRange":{
+                  "from":"2018-04-27",
+                  "to":"2018-05-26"
+              }
           }
-    }],
+      ],
+      "physicalExaminations":[
+          {
+              "observation":"Height", //mandatory
+              "result":"Normal", //you can pass either result or valueQuantity not both
+              "valueQuantity": {
+                      "unit": "CM",
+                      "value": 170
+              }
+          }
+      ],
+      "allergies":[
+          "Walnuts"
+      ],
+      "medicalHistories":[
+          {
+              "complaint":"Sugar", //mandatory
+              "recordedDate":"2024-05-20", //mandatory
+              "dateRange":{
+                  "from":"2018-04-27",
+                  "to":"2018-05-26"
+              }
+          }
+      ],
+      "familyHistories":[
+          {
+              "relationship":"Friend", //mandatory
+              "observation":"Toxic" //mandatory
+          }
+      ],
+      "authoredOn":"2024-02-03", //mandatory
+      "medications":[
+          {
+              "medicine":"Dolo", //mandatory
+              "dosage":"1-0-1" //mandatory
+          },{
+              "medicine":"Disprin",
+              "dosage":"0-0-1"
+          }
+      ],
+      "diagnostics":[{
+          "serviceName":"BloodTest", //mandatory
+          "serviceCategory":"Hematography", //mandatory
+          "result":[{ 
+              "observation":"Height", //mandatory
+              "result":"Normal", //you can pass either result or valueQuantity not both
+              "valueQuantity": {
+                      "unit": "CM",
+                      "value": 170
+              }
+          }],
+          "conclusion":"Normal", //mandatory
+          "presentedForm":{
+              "contentType":"application/pdf",
+              "data":"Base64 data of the pdf"
+            }
+      }],
     
-    "procedures":[
-        {
-            "status":"INPROGRESS, //mandatory
-            "condition":"Severe", //mandatory
-            "outcome":"Healthy",
-            "details":"Operation" //mandatory
-        }
-    ],
+      "procedures":[
+          {
+              "date":"2001-04-20", //mandatory
+              "status":"INPROGRESS", //mandatory
+              "procedureReason":"Severe", //mandatory
+              "outcome":"Healthy",
+              "procedureName":"Operation" //mandatory
+          }
+      ],
 
-    "documents":[{
-        "type":"Discharge record", //mandatory
-        "contentType":"application/pdf", //mandatory
-        "data":"Base64 data of the pdf" //mandatory
-    }]
-  }
-  ```
+      "documents":[{
+          "type":"Discharge record", //mandatory
+          "contentType":"application/pdf", //mandatory
+          "data":"Base64 data of the pdf" //mandatory
+      }]
+    }
+    ```
 #### HealthDocumentRecord
 - for the HealthDocumentRecord bundle you need to
   * `POST` Request `/v1/bundle/health-document`
@@ -210,7 +212,7 @@ Recommended RAM: Systems with more than 8 GB RAM
         "birthDate":"2001-04-27"
     },
     "authoredOn":"2001-04-27", //mandatory
-    "practitioners":[{ 
+    "practitioners":[{ //mandatory
         "name":"Dr.Venu Ajitesh", //mandatory
         "practitionerId":"Predator"
     }],
@@ -240,7 +242,7 @@ Recommended RAM: Systems with more than 8 GB RAM
         "gender":"male",
         "birthDate":"2001-04-27"
     },
-    "practitioners":[{ 
+    "practitioners":[{ //mandatory
         "name":"Dr.Venu Ajitesh", //mandatory
         "practitionerId":"Predator"
     }],
@@ -269,14 +271,14 @@ Recommended RAM: Systems with more than 8 GB RAM
   {
     "bundleType":"OPConsultRecord", //mandatory
     "careContextReference":"visist 21-03-2025", //mandatory
-    "authoredOn":"2000-06-23", //mandatory
+    "visitDate":"2000-06-23", //mandatory
     "patient":{ //mandatory
         "name":"Venu Ajitesh", //mandatory
         "patientReference":"ajitesh6x", //mandatory
         "gender":"male",
         "birthDate":"2001-04-27"
     },
-    "practitioners":[{ 
+    "practitioners":[{ //mandatory
         "name":"Dr.Venu Ajitesh", //mandatory
         "practitionerId":"Predator"
     }],
@@ -347,13 +349,14 @@ Recommended RAM: Systems with more than 8 GB RAM
         }
     ],
     "procedures":[
-        {
-            "status":"INPROGRESS", //mandatory
-            "condition":"Severe", //mandatory
-            "outcome":"Healthy",
-            "details":"Operation" //mandatory
-        }
-    ],
+          {
+              "date":"2001-04-20", //mandatory
+              "status":"INPROGRESS", //mandatory
+              "procedureReason":"Severe", //mandatory
+              "outcome":"Healthy",
+              "procedureName":"Operation" //mandatory
+          }
+      ],
     "referrals":[
         {
             "status":"ACTIVE", //mandatory
@@ -393,7 +396,7 @@ Recommended RAM: Systems with more than 8 GB RAM
         "gender":"male",
         "birthDate":"2001-04-27"
     },
-    "practitioners":[{ 
+    "practitioners":[{ //mandatory
         "name":"Dr.Venu Ajitesh", //mandatory
         "practitionerId":"Predator"
     }],
@@ -432,7 +435,7 @@ Recommended RAM: Systems with more than 8 GB RAM
         "gender":"male",
         "birthDate":"2001-04-27"
     },
-    "practitioners":[{ 
+    "practitioners":[{ //mandatory
         "name":"Dr.Venu Ajitesh", //mandatory
         "practitionerId":"Predator"
     }],
@@ -544,4 +547,3 @@ Recommended RAM: Systems with more than 8 GB RAM
 ### Things To Consider
 - If the FHIR bundle is generated the HttpStatus will be `201 created`
 - The authoredOn will accept date in the format of string in format : `yyyy-MM-dd` or `yyyy-MM-dd'T'HH:mm:ss.SSSX` - UTC iso time format
-- For now you can check the swagger documentation by copying the code from fhir-mapper.yaml and pasting it in `https://swagger.io/tools/swagger-editor/` inside `Try swagger editor`
