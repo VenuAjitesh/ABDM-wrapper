@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.requests.helpers;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class WellnessObservationResource {
-  @NotNull(message = "observation is mandatory") private String observation;
+  @NotBlank(message = "observation is mandatory")
+  private String observation;
 
   //  @NotNull(message = "result is mandatory")
   private String result;

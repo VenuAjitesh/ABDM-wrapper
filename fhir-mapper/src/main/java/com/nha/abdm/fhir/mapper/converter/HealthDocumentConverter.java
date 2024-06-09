@@ -76,7 +76,12 @@ public class HealthDocumentConverter {
               : null;
       Composition composition =
           makeCompositionResource(
-              patient, practitionerList, organization, encounter, documentReferenceList);
+              patient,
+              healthDocumentRecord.getAuthoredOn(),
+              practitionerList,
+              organization,
+              encounter,
+              documentReferenceList);
       Bundle bundle = new Bundle();
       bundle.setId(UUID.randomUUID().toString());
       bundle.setType(Bundle.BundleType.DOCUMENT);
@@ -130,6 +135,7 @@ public class HealthDocumentConverter {
 
   private Composition makeCompositionResource(
       Patient patient,
+      String authoredOn,
       List<Practitioner> practitionerList,
       Organization organization,
       Encounter encounter,
@@ -179,7 +185,7 @@ public class HealthDocumentConverter {
         new Reference()
             .setDisplay(patientName.getText())
             .setReference("Patient/" + patient.getId()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
     composition.setStatus(Composition.CompositionStatus.FINAL);
     Identifier identifier = new Identifier();
     identifier.setSystem("https://ABDM_WRAPPER/document");

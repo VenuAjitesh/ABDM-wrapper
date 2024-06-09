@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.common.helpers;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class PractitionerResource {
-  @NotNull(message = "Name of the practitioner is mandatory") private String name;
+  @NotBlank(message = "Name of the practitioner is mandatory")
+  private String name;
 
   private String practitionerId;
 }

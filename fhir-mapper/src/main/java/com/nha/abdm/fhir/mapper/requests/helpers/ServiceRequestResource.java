@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.requests.helpers;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ServiceRequestResource {
-  @NotNull(message = "status is mandatory") private String status;
+  @NotBlank(message = "status is mandatory")
+  private String status;
 
-  @NotNull(message = "details of service is mandatory") private String details;
+  @NotBlank(message = "details of service is mandatory")
+  private String details;
 
   private String specimen;
 }

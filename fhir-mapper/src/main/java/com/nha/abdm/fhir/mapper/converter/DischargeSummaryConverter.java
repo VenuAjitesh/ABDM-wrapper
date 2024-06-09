@@ -150,8 +150,9 @@ public class DischargeSummaryConverter {
       }
 
       Composition composition =
-          makeOPCompositionResource(
+          makeDischargeCompositionResource(
               patient,
+              dischargeSummaryRequest.getAuthoredOn(),
               encounter,
               practitionerList,
               organization,
@@ -268,8 +269,9 @@ public class DischargeSummaryConverter {
     }
   }
 
-  private Composition makeOPCompositionResource(
+  private Composition makeDischargeCompositionResource(
       Patient patient,
+      String authoredOn,
       Encounter encounter,
       List<Practitioner> practitionerList,
       Organization organization,
@@ -312,7 +314,7 @@ public class DischargeSummaryConverter {
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getCurrentTimeStamp()));
+    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
     composition.setStatus(Composition.CompositionStatus.FINAL);
     List<Composition.SectionComponent> sectionComponentList =
         makeCompositionSection(

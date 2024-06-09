@@ -216,7 +216,7 @@ components:
         careContextReference:
           type: string
           example: visit 21-03-2025
-        authoredOn:
+        visitDate:
           type: string
           format: date
           example: 2000-06-23
@@ -279,6 +279,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
         - authoredOn
     PrescriptionRecord:
@@ -317,6 +318,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
         - authoredOn
         - prescriptions
@@ -377,6 +379,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
         - authoredOn
         - documents
@@ -435,6 +438,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
         - authoredOn
         - diagnostics
@@ -500,6 +504,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
         - authoredOn
         - immunizations
@@ -587,6 +592,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
         - authoredOn
       example:
@@ -705,6 +711,7 @@ components:
       required:
         - bundleType
         - patient
+        - practitioners
         - careContextReference
       example:
         bundleType: wellness-record
@@ -1022,23 +1029,27 @@ components:
     Procedure:
       type: object
       properties:
+        date:
+          type: string
         status:
           type: string
-        condition:
+        procedureReason:
           type: string
         outcome:
           type: string
-        details:
+        procedureName:
           type: string
       required:
+        - date
         - status
-        - details
-        - condition
+        - procedureName
+        - procedureReason
       example:
+        date: 2001-04-25
         status: INPROGRESS
-        condition: Severe
+        procedureReason: Severe
         outcome: Healthy
-        details: Operation
+        procedureName: Operation
 
     Referral:
       type: object
