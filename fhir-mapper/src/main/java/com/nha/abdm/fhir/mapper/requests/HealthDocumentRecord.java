@@ -36,7 +36,7 @@ public class HealthDocumentRecord {
   private String authoredOn;
 
   @Valid
-  @NotNull(message = "practitioners are mandatory and must not be empty")private List<PractitionerResource> practitioners;
+  @NotNull(message = "practitioners are mandatory and must not be empty") private List<PractitionerResource> practitioners;
 
   private OrganisationResource organisation;
   private String encounter;

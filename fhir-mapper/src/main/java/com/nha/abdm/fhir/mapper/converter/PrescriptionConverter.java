@@ -90,7 +90,7 @@ public class PrescriptionConverter {
               new Meta()
                   .setLastUpdated(Utils.getCurrentTimeStamp())
                   .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Binary"));
-          binary.setContent(documentResource.getData().getBytes());
+          binary.setContent(documentResource.getData());
           binary.setContentType(documentResource.getContentType());
           binary.setId(UUID.randomUUID().toString());
           documentList.add(binary);

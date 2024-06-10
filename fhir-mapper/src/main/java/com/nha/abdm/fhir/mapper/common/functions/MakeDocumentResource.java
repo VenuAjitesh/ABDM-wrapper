@@ -37,7 +37,7 @@ public class MakeDocumentResource {
     }
     Attachment attachment = new Attachment();
     attachment.setContentType(documentResource.getContentType());
-    attachment.setData(documentResource.getData().getBytes());
+    attachment.setData(documentResource.getData());
     attachment.setTitle(documentResource.getType());
     attachment.setCreation(Utils.getCurrentTimeStamp());
     DocumentReference.DocumentReferenceContentComponent documentReferenceContentComponent =

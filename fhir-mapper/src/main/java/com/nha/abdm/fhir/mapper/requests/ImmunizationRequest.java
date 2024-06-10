@@ -32,7 +32,7 @@ public class ImmunizationRequest {
   @NotNull(message = "Patient demographic details are mandatory and must not be empty") private PatientResource patient;
 
   @Valid
-  @NotNull(message = "practitioners are mandatory and must not be empty")private List<PractitionerResource> practitioners;
+  @NotNull(message = "practitioners are mandatory and must not be empty") private List<PractitionerResource> practitioners;
 
   private OrganisationResource organisation;
   private String encounter;
