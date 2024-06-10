@@ -41,7 +41,7 @@ public class WellnessRecordRequest {
   private String authoredOn;
 
   @Valid
-  @NotNull(message = "practitioners are mandatory and must not be empty")private List<PractitionerResource> practitioners;
+  @NotNull(message = "practitioners are mandatory and must not be empty") private List<PractitionerResource> practitioners;
 
   @Valid
   @NotNull(message = "organisation is mandatory") private OrganisationResource organisation;

@@ -25,10 +25,23 @@ public class MakeFamilyMemberResource {
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
     familyMemberHistory.setRelationship(
-        new CodeableConcept().setText(familyObservationResource.getRelationship()));
+        new CodeableConcept()
+            .addCoding(
+                new Coding()
+                    .setSystem("http://snomed.info/sct")
+                    .setCode("261665006")
+                    .setDisplay(familyObservationResource.getRelationship()))
+            .setText(familyObservationResource.getRelationship()));
     familyMemberHistory.addCondition(
         new FamilyMemberHistory.FamilyMemberHistoryConditionComponent()
-            .setCode(new CodeableConcept().setText(familyObservationResource.getObservation())));
+            .setCode(
+                new CodeableConcept()
+                    .addCoding(
+                        new Coding()
+                            .setSystem("http://snomed.info/sct")
+                            .setCode("261665006")
+                            .setDisplay(familyObservationResource.getObservation()))
+                    .setText(familyObservationResource.getObservation())));
     return familyMemberHistory;
   }
 }
