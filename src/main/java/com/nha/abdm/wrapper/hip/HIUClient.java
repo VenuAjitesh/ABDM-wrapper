@@ -5,6 +5,7 @@ import com.nha.abdm.wrapper.common.requests.HealthInformationPushRequest;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.TimeoutException;
+import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
@@ -19,16 +20,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.util.retry.Retry;
 
-import java.time.Duration;
-
 @Component
 public class HIUClient {
   private static final Logger log = LogManager.getLogger(HIUClient.class);
 
   @Retryable(
-          value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
-          maxAttempts = 5,
-          backoff = @Backoff(delay = 1000, multiplier = 2))
+      value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
+      maxAttempts = 5,
+      backoff = @Backoff(delay = 1000, multiplier = 2))
   public ResponseEntity<GenericResponse> pushHealthInformation(
       String datPushURl, HealthInformationPushRequest healthInformationPushRequest) {
     WebClient webClient =
@@ -43,14 +42,14 @@ public class HIUClient {
             .body(BodyInserters.fromValue(healthInformationPushRequest))
             .retrieve()
             .toEntity(GenericResponse.class)
-                .retryWhen(
-                        Retry.backoff(5, Duration.ofSeconds(2))
-                                .filter(
-                                        throwable ->
-                                                throwable instanceof HttpServerErrorException
-                                                        || throwable instanceof WebClientRequestException
-                                                        || throwable instanceof ReadTimeoutException
-                                                        || throwable instanceof TimeoutException))
+            .retryWhen(
+                Retry.backoff(5, Duration.ofSeconds(2))
+                    .filter(
+                        throwable ->
+                            throwable instanceof HttpServerErrorException
+                                || throwable instanceof WebClientRequestException
+                                || throwable instanceof ReadTimeoutException
+                                || throwable instanceof TimeoutException))
             .block();
     log.debug("correlation id: " + response.getHeaders());
     return response;
