@@ -91,7 +91,13 @@ public class DischargeSummaryConverter {
                               })
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
-      Encounter encounter = makeEncounterResource.getEncounter(patient, "");
+      Encounter encounter =
+          makeEncounterResource.getEncounter(
+              patient,
+              dischargeSummaryRequest.getEncounter() != null
+                  ? dischargeSummaryRequest.getEncounter()
+                  : null,
+              dischargeSummaryRequest.getAuthoredOn());
       List<Condition> chiefComplaintList =
           dischargeSummaryRequest.getChiefComplaints() != null
               ? makeCheifComplaintsList(dischargeSummaryRequest, patient)

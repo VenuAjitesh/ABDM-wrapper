@@ -1000,12 +1000,27 @@ components:
           type: string
         dosage:
           type: string
+        timing:
+          description: frequency-period-periodUnit
+          type: string
+          enum: [S,MIN,H,D,WK,MO]
+        route:
+          type: string
+        method:
+          type: string
+        additionalInstructions:
+          type: string
       required:
         - medicine
         - dosage
       example:
         medicine: Dolo
         dosage: 1-0-1
+        timing: 1-1-D
+        route: Oral
+        method: swallow
+        additionalInstructions: Take them after food
+
 
     FollowUp:
       type: object

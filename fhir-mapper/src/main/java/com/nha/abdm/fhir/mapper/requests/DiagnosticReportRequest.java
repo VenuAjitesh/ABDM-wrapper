@@ -32,8 +32,8 @@ public class DiagnosticReportRequest {
   @NotNull(message = "Patient demographic details are mandatory and must not be empty") private PatientResource patient;
 
   @Pattern(
-      regexp = "((\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}'T'\\d{2}:\\d{2}:\\d{2}.\\d{3}X))",
-      message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSX")
+      regexp = "(\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z)",
+      message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   @NotBlank(message = "authoredOn is mandatory timestamp")
   @NotNull private String authoredOn;
 

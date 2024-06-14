@@ -156,12 +156,21 @@ Recommended RAM: Systems with more than 8 GB RAM
       "authoredOn":"2024-02-03", //mandatory
       "medications":[
           {
-              "medicine":"Dolo", //mandatory
-              "dosage":"1-0-1" //mandatory
-          },{
-              "medicine":"Disprin",
-              "dosage":"0-0-1"
-          }
+            "medicine":"Aspirin 75 mg oral tablet", //mandatory
+            "dosage":"1-0-1", //mandatory
+            "timing":"2-5-d",
+            "route":"Oral",
+            "method":"swallow",
+            "additionalInstructions":"Take them after food"
+        }
+        ,{
+            "medicine":"Disprin",
+            "dosage":"0-0-1", //mandatory
+            "timing":"1-2-d", //mandatory
+            "route":"Syrup",
+            "method":"drink",
+            "additionalInstructions":"Take them before food"
+        }
       ],
       "diagnostics":[{
           "serviceName":"BloodTest", //mandatory
@@ -334,11 +343,20 @@ Recommended RAM: Systems with more than 8 GB RAM
     ],
     "medications":[
         {
-            "medicine":"Dolo", //mandatory
-            "dosage":"1-0-1" //mandatory
-        },{
-            "medicine":"Disprin",
-            "dosage":"0-0-1"
+            "medicine":"Aspirin 75 mg oral tablet", //mandatory
+            "dosage":"1-0-1", //mandatory
+            "timing":"2-5-d",
+            "route":"Oral",
+            "method":"swallow",
+            "additionalInstructions":"Take them after food"
+        }
+        ,{
+            "medicine":"Disprin", //mandatory
+            "dosage":"0-0-1", //mandatory
+            "timing":"1-2-d",
+            "route":"Syrup",
+            "method":"drink",
+            "additionalInstructions":"Take them before food"
         }
     ],
     "followups":[
@@ -407,11 +425,19 @@ Recommended RAM: Systems with more than 8 GB RAM
     "prescriptions":[
         {
             "medicine":"Aspirin 75 mg oral tablet", //mandatory
-            "dosage":"1-0-1" //mandatory
+            "dosage":"1-0-1", //mandatory
+            "timing":"2-5-d",
+            "route":"Oral",
+            "method":"swallow",
+            "additionalInstructions":"Take them after food"
         }
         ,{
-            "medicine":"Disprin",
-            "dosage":"0-0-1"
+            "medicine":"Disprin", //mandatory
+            "dosage":"0-0-1", //mandatory
+            "timing":"1-2-d",
+            "route":"Syrup",
+            "method":"drink",
+            "additionalInstructions":"Take them before food"
         }
     ],
     "documents":[{

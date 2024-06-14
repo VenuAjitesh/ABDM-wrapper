@@ -79,9 +79,13 @@ public class PrescriptionConverter {
                 practitionerList,
                 patient));
       }
-      Encounter encounter = null;
-      if (prescriptionRequest.getEncounter() != null)
-        encounter = makeEncounterResource.getEncounter(patient, prescriptionRequest.getEncounter());
+      Encounter encounter =
+          makeEncounterResource.getEncounter(
+              patient,
+              prescriptionRequest.getEncounter() != null
+                  ? prescriptionRequest.getEncounter()
+                  : null,
+              prescriptionRequest.getAuthoredOn());
       List<Binary> documentList = new ArrayList<>();
       if (prescriptionRequest.getDocuments() != null) {
         for (DocumentResource documentResource : prescriptionRequest.getDocuments()) {
@@ -213,7 +217,7 @@ public class PrescriptionConverter {
     medicationComponent.setTitle("Medications");
     medicationComponent.setCode(
         new CodeableConcept()
-            .setText("Medications")
+            .setText("Prescription record")
             .addCoding(
                 new Coding()
                     .setCode("440545006")

@@ -64,9 +64,12 @@ public class ImmunizationConverter {
       Organization organization =
           makeOrganisationResource.getOrganization(immunizationRequest.getOrganisation());
       Encounter encounter =
-          immunizationRequest.getEncounter() != null
-              ? makeEncounterResource.getEncounter(patient, immunizationRequest.getEncounter())
-              : null;
+          makeEncounterResource.getEncounter(
+              patient,
+              immunizationRequest.getEncounter() != null
+                  ? immunizationRequest.getEncounter()
+                  : null,
+              immunizationRequest.getAuthoredOn());
       List<Organization> manufactureList = new ArrayList<>();
       List<Immunization> immunizationList = new ArrayList<>();
       for (ImmunizationResource immunizationResource : immunizationRequest.getImmunizations()) {
