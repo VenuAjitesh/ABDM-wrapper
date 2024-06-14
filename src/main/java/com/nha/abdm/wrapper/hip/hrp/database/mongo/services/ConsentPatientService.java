@@ -29,7 +29,10 @@ public class ConsentPatientService {
     MongoCollection<Document> collection = mongoTemplate.getCollection("consent-patient");
     UpdateOptions updateOptions = new UpdateOptions().upsert(true);
     collection.updateOne(
-        Filters.eq(FieldIdentifiers.CONSENT_ID, consentId),
+            Filters.and(
+                    Filters.eq(FieldIdentifiers.CONSENT_ID, consentId),
+                    Filters.eq(FieldIdentifiers.ENTITY_TYPE, entityType)
+            ),
         Updates.combine(
             Updates.set(FieldIdentifiers.ABHA_ADDRESS, patientAbhaAddress),
             Updates.set(FieldIdentifiers.ENTITY_TYPE, entityType)),

@@ -85,6 +85,8 @@ public class ConsentService implements ConsentInterface {
           consent.getConsentDetail().getConsentId(),
           hipNotification.getConsentDetail().getPatient().getId(),
           "HIP");
+      log.info("successfully saved consent in consent-patient: "+consent.getConsentDetail().getConsentId());
+      log.info("Consent in HIP: "+consentPatientService.findMappingByConsentId(consent.getConsentDetail().getConsentId(),"HIP"));
       ConsentAcknowledgement dataAcknowledgement =
           ConsentAcknowledgement.builder()
               .status("OK")
