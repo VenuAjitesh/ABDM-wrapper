@@ -73,9 +73,12 @@ public class DiagnosticReportConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       Encounter encounter =
-          diagnosticReportRequest.getEncounter() != null
-              ? makeEncounterResource.getEncounter(patient, diagnosticReportRequest.getEncounter())
-              : null;
+          makeEncounterResource.getEncounter(
+              patient,
+              diagnosticReportRequest.getEncounter() != null
+                  ? diagnosticReportRequest.getEncounter()
+                  : null,
+              diagnosticReportRequest.getAuthoredOn());
       List<DiagnosticReport> diagnosticReportList = new ArrayList<>();
       List<Observation> diagnosticObservationList = new ArrayList<>();
       for (DiagnosticResource diagnosticResource : diagnosticReportRequest.getDiagnostics()) {

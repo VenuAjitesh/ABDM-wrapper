@@ -66,7 +66,13 @@ public class WellnessRecordConverter {
                               })
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
-      Encounter encounter = makeEncounterResource.getEncounter(patient, "");
+      Encounter encounter =
+          makeEncounterResource.getEncounter(
+              patient,
+              wellnessRecordRequest.getEncounter() != null
+                  ? wellnessRecordRequest.getEncounter()
+                  : null,
+              wellnessRecordRequest.getAuthoredOn());
       List<Observation> vitalSignsList =
           Optional.ofNullable(wellnessRecordRequest.getVitalSigns())
               .map(

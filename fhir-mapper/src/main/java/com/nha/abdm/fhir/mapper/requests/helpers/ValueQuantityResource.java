@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ValueQuantityResource {
   private String unit;
-  private int value;
+  private double value;
 }

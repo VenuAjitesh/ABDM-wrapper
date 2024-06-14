@@ -71,9 +71,12 @@ public class HealthDocumentConverter {
                 patient, organization, documentResource, docCode, docName));
       }
       Encounter encounter =
-          (healthDocumentRecord.getEncounter() != null)
-              ? makeEncounterResource.getEncounter(patient, healthDocumentRecord.getEncounter())
-              : null;
+          makeEncounterResource.getEncounter(
+              patient,
+              healthDocumentRecord.getEncounter() != null
+                  ? healthDocumentRecord.getEncounter()
+                  : null,
+              healthDocumentRecord.getAuthoredOn());
       Composition composition =
           makeCompositionResource(
               patient,

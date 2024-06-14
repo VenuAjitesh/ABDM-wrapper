@@ -87,7 +87,13 @@ public class OPConsultationConverter {
                               })
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
-      Encounter encounter = makeEncounterResource.getEncounter(patient, "");
+      Encounter encounter =
+          makeEncounterResource.getEncounter(
+              patient,
+              opConsultationRequest.getEncounter() != null
+                  ? opConsultationRequest.getEncounter()
+                  : null,
+              opConsultationRequest.getVisitDate());
       List<Condition> chiefComplaintList =
           opConsultationRequest.getChiefComplaints() != null
               ? makeCheifComplaintsList(opConsultationRequest, patient)
@@ -156,6 +162,7 @@ public class OPConsultationConverter {
               chiefComplaintList,
               physicalObservationList,
               allergieList,
+              medicationList,
               medicalHistoryList,
               familyMemberHistoryList,
               investigationAdviceList,
@@ -288,6 +295,7 @@ public class OPConsultationConverter {
       List<Condition> chiefComplaintList,
       List<Observation> physicalObservationList,
       List<AllergyIntolerance> allergieList,
+      List<MedicationRequest> medicationList,
       List<Condition> medicalHistoryList,
       List<FamilyMemberHistory> familyMemberHistoryList,
       List<ServiceRequest> investigationAdviceList,
@@ -336,6 +344,7 @@ public class OPConsultationConverter {
             chiefComplaintList,
             physicalObservationList,
             allergieList,
+            medicationList,
             medicalHistoryList,
             familyMemberHistoryList,
             investigationAdviceList,
@@ -496,6 +505,7 @@ public class OPConsultationConverter {
       List<Condition> chiefComplaintList,
       List<Observation> physicalObservationList,
       List<AllergyIntolerance> allergieList,
+      List<MedicationRequest> medicationList,
       List<Condition> medicalHistoryList,
       List<FamilyMemberHistory> familyMemberHistoryList,
       List<ServiceRequest> investigationAdviceList,
@@ -601,7 +611,7 @@ public class OPConsultationConverter {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(medicalHistoryList)) {
+    if (Objects.nonNull(medicationList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -611,9 +621,9 @@ public class OPConsultationConverter {
                       .setSystem("http://snomed.info/sct")
                       .setCode("721912009")
                       .setDisplay("Medication summary document")));
-      for (Condition medicalHistory : medicalHistoryList) {
+      for (MedicationRequest medication : medicationList) {
         sectionComponent.addEntry(
-            new Reference().setReference("MedicalHistory/" + medicalHistory.getId()));
+            new Reference().setReference("MedicationRequest/" + medication.getId()));
       }
       sectionComponentList.add(sectionComponent);
     }

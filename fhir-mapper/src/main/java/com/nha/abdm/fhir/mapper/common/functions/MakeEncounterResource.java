@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MakeEncounterResource {
-  public Encounter getEncounter(Patient patient, String encounterName) throws ParseException {
+  public Encounter getEncounter(Patient patient, String encounterName, String visitDate)
+      throws ParseException {
     HumanName patientName = patient.getName().get(0);
     Encounter encounter = new Encounter();
     encounter.setId(UUID.randomUUID().toString());
@@ -22,11 +23,15 @@ public class MakeEncounterResource {
         new Coding()
             .setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode")
             .setCode("AMB")
-            .setDisplay(!encounterName.isEmpty() ? encounterName : "ambulatory"));
+            .setDisplay(
+                (encounterName != null && !encounterName.isEmpty())
+                    ? encounterName
+                    : "ambulatory"));
     encounter.setSubject(
         new Reference()
             .setReference("Patient/" + patient.getId())
             .setDisplay(patientName.getText()));
+    encounter.setPeriod(new Period().setStart(Utils.getFormattedDateTime(visitDate)));
     return encounter;
   }
 }
