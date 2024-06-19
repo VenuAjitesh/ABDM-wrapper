@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
 import java.util.*;
@@ -23,7 +26,7 @@ public class MakeMedicationRequestResource {
     // Setting Meta of the Medication Resource
     medicationRequest.setMeta(
         new Meta()
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationRequest")
+            .addProfile(ResourceProfileIdentifier.PROFILE_MEDICATION_REQUEST)
             .setLastUpdated(Utils.getCurrentTimeStamp()));
 
     // Setting Medications
@@ -32,7 +35,7 @@ public class MakeMedicationRequestResource {
             .setText(prescriptionResource.getMedicine())
             .addCoding(
                 new Coding()
-                    .setSystem("http://snomed.info/sct")
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
                     .setCode("261665006")
                     .setDisplay(prescriptionResource.getMedicine())));
     if (prescriptionResource.getDosage() != null) {
@@ -44,7 +47,7 @@ public class MakeMedicationRequestResource {
                 .setText(prescriptionResource.getAdditionalInstructions())
                 .addCoding(
                     new Coding()
-                        .setSystem("http://snomed.info/sct")
+                        .setSystem(BundleUrlIdentifier.SNOMED_URL)
                         .setCode("261665006")
                         .setDisplay(prescriptionResource.getAdditionalInstructions())));
       }
@@ -54,7 +57,7 @@ public class MakeMedicationRequestResource {
                 .setText(prescriptionResource.getRoute())
                 .addCoding(
                     new Coding()
-                        .setSystem("http://snomed.info/sct")
+                        .setSystem(BundleUrlIdentifier.SNOMED_URL)
                         .setCode("261665006")
                         .setDisplay(prescriptionResource.getRoute())));
       }
@@ -64,7 +67,7 @@ public class MakeMedicationRequestResource {
                 .setText(prescriptionResource.getMethod())
                 .addCoding(
                     new Coding()
-                        .setSystem("http://snomed.info/sct")
+                        .setSystem(BundleUrlIdentifier.SNOMED_URL)
                         .setCode("261665006")
                         .setDisplay(prescriptionResource.getMethod())));
       }
@@ -85,12 +88,12 @@ public class MakeMedicationRequestResource {
       HumanName practitionerName = practitioner.getName().get(0);
       medicationRequest.setRequester(
           new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));
     }
     medicationRequest.setSubject(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     if (authoredOn != null) medicationRequest.setAuthoredOn(Utils.getFormattedDate(authoredOn));
     medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.COMPLETED);

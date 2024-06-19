@@ -47,7 +47,7 @@ public class OPConsultationRequest {
   @Valid private List<ServiceRequestResource> serviceRequests;
 
   @Pattern(
-      regexp = "(\\d{4}-\\d{2}-\\d{2})|(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z)",
+      regexp = "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z)?$",
       message = "Value must match either yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   @NotNull(message = "authoredOn is mandatory timestamp") @NotNull private String visitDate;
 

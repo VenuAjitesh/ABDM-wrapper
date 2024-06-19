@@ -1,12 +1,13 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.converter;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.functions.*;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
+import com.nha.abdm.fhir.mapper.dto.compositions.MakeOpComposition;
+import com.nha.abdm.fhir.mapper.dto.resources.*;
 import com.nha.abdm.fhir.mapper.requests.OPConsultationRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.*;
 import java.text.ParseException;
@@ -32,10 +33,10 @@ public class OPConsultationConverter {
   private final MakeEncounterResource makeEncounterResource;
   private final MakeMedicationRequestResource makeMedicationRequestResource;
   private final MakeProcedureResource makeProcedureResource;
+  private final MakeOpComposition makeOpComposition;
   private String docName = "Clinical consultation report";
   private String docCode = "371530004";
 
-  FhirContext ctx = FhirContext.forR4();
 
   public OPConsultationConverter(
       MakeOrganisationResource makeOrganisationResource,
@@ -50,7 +51,8 @@ public class OPConsultationConverter {
       MakeDocumentResource makeDocumentResource,
       MakeEncounterResource makeEncounterResource,
       MakeMedicationRequestResource makeMedicationRequestResource,
-      MakeProcedureResource makeProcedureResource) {
+      MakeProcedureResource makeProcedureResource,
+      MakeOpComposition makeOpComposition) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makePatientResource = makePatientResource;
@@ -64,6 +66,7 @@ public class OPConsultationConverter {
     this.makeEncounterResource = makeEncounterResource;
     this.makeMedicationRequestResource = makeMedicationRequestResource;
     this.makeProcedureResource = makeProcedureResource;
+    this.makeOpComposition = makeOpComposition;
   }
 
   public BundleResponse convertToOPConsultationBundle(OPConsultationRequest opConsultationRequest)
@@ -153,7 +156,7 @@ public class OPConsultationConverter {
       }
 
       Composition composition =
-          makeOPCompositionResource(
+          makeOpComposition.makeOPCompositionResource(
               patient,
               opConsultationRequest.getVisitDate(),
               encounter,
@@ -184,97 +187,105 @@ public class OPConsultationConverter {
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Composition/" + composition.getId())
+              .setFullUrl(BundleResourceIdentifier.COMPOSITION + "/" + composition.getId())
               .setResource(composition));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Patient/" + patient.getId())
+              .setFullUrl(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
               .setResource(patient));
       for (Practitioner practitioner : practitionerList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Practitioner/" + practitioner.getId())
+                .setFullUrl(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
                 .setResource(practitioner));
       }
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Encounter/" + encounter.getId())
+              .setFullUrl(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId())
               .setResource(encounter));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Organisation/" + organization.getId())
+              .setFullUrl(BundleResourceIdentifier.ORGANISATION + "/" + organization.getId())
               .setResource(organization));
 
       for (Condition complaint : chiefComplaintList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("ChiefComplaints/" + complaint.getId())
+                .setFullUrl(BundleResourceIdentifier.CHIEF_COMPLAINTS + "/" + complaint.getId())
                 .setResource(complaint));
       }
       for (Observation physicalObservation : physicalObservationList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("PhysicalExamination/" + physicalObservation.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.PHYSICAL_EXAMINATION
+                        + "/"
+                        + physicalObservation.getId())
                 .setResource(physicalObservation));
       }
       for (AllergyIntolerance allergyIntolerance : allergieList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Allergies/" + allergyIntolerance.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.ALLERGY_INTOLERANCE + "/" + allergyIntolerance.getId())
                 .setResource(allergyIntolerance));
       }
       for (Condition medicalHistory : medicalHistoryList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("MedicalHistory/" + medicalHistory.getId())
+                .setFullUrl(BundleResourceIdentifier.MEDICAL_HISTORY + "/" + medicalHistory.getId())
                 .setResource(medicalHistory));
       }
       for (FamilyMemberHistory familyMemberHistory : familyMemberHistoryList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("FamilyHistory/" + familyMemberHistory.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.FAMILY_HISTORY + "/" + familyMemberHistory.getId())
                 .setResource(familyMemberHistory));
       }
       for (ServiceRequest investigation : investigationAdviceList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("InvestigationAdvice/" + investigation.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.INVESTIGATION_ADVICE + "/" + investigation.getId())
                 .setResource(investigation));
       }
       for (MedicationRequest medicationRequest : medicationList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("MedicationRequest/" + medicationRequest.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.MEDICATION_REQUEST + "/" + medicationRequest.getId())
                 .setResource(medicationRequest));
       }
       for (Appointment followUp : followupList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("FollowUp/" + followUp.getId())
+                .setFullUrl(BundleResourceIdentifier.FOLLOW_UP + "/" + followUp.getId())
                 .setResource(followUp));
       }
       for (Procedure procedure : procedureList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Procedure/" + procedure.getId())
+                .setFullUrl(BundleResourceIdentifier.PROCEDURE + "/" + procedure.getId())
                 .setResource(procedure));
       }
       for (ServiceRequest referral : referralList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Referral/" + referral.getId())
+                .setFullUrl(BundleResourceIdentifier.REFERRAL + "/" + referral.getId())
                 .setResource(referral));
       }
       for (Observation observation : otherObservationList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("OtherObservations/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.OTHER_OBSERVATIONS + "/" + observation.getId())
                 .setResource(observation));
       }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("DocumentReference/" + documentReference.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId())
                 .setResource(documentReference));
       }
       bundle.setEntry(entries);
@@ -284,84 +295,6 @@ public class OPConsultationConverter {
           .error(ErrorResponse.builder().code(1000).message(e.getMessage()).build())
           .build();
     }
-  }
-
-  private Composition makeOPCompositionResource(
-      Patient patient,
-      String visitDate,
-      Encounter encounter,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      List<Condition> chiefComplaintList,
-      List<Observation> physicalObservationList,
-      List<AllergyIntolerance> allergieList,
-      List<MedicationRequest> medicationList,
-      List<Condition> medicalHistoryList,
-      List<FamilyMemberHistory> familyMemberHistoryList,
-      List<ServiceRequest> investigationAdviceList,
-      List<Appointment> followupList,
-      List<Procedure> procedureList,
-      List<ServiceRequest> referralList,
-      List<Observation> otherObservationList,
-      List<DocumentReference> documentReferenceList)
-      throws ParseException {
-    HumanName patientName = patient.getName().get(0);
-    HumanName practitionerName = null;
-    Composition composition = new Composition();
-    CodeableConcept typeCode = new CodeableConcept();
-    Coding typeCoding = new Coding();
-    typeCoding.setSystem("http://snomed.info/sct");
-    typeCoding.setCode("371530004");
-    typeCoding.setDisplay("Clinical consultation report");
-    typeCode.addCoding(typeCoding);
-    composition.setType(typeCode);
-    composition.setTitle("Consultation Report");
-    List<Reference> authorList = new ArrayList<>();
-    for (Practitioner practitioner : practitionerList) {
-      practitionerName = practitioner.getName().get(0);
-      authorList.add(
-          new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
-              .setDisplay(practitionerName != null ? practitionerName.getText() : null));
-    }
-    composition.setEncounter(new Reference().setReference("Encounter/" + encounter.getId()));
-    composition.setCustodian(
-        new Reference()
-            .setReference("Organisation/" + organization.getId())
-            .setDisplay(organization.getName()));
-    composition.setAuthor(authorList);
-    composition.setSubject(
-        new Reference()
-            .setReference("Patient/" + patient.getId())
-            .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(visitDate)));
-    composition.setStatus(Composition.CompositionStatus.FINAL);
-    List<Composition.SectionComponent> sectionComponentList =
-        makeCompositionSection(
-            patient,
-            practitionerList,
-            organization,
-            chiefComplaintList,
-            physicalObservationList,
-            allergieList,
-            medicationList,
-            medicalHistoryList,
-            familyMemberHistoryList,
-            investigationAdviceList,
-            followupList,
-            procedureList,
-            referralList,
-            otherObservationList,
-            documentReferenceList);
-    if (Objects.nonNull(sectionComponentList))
-      for (Composition.SectionComponent sectionComponent : sectionComponentList)
-        composition.addSection(sectionComponent);
-    Identifier identifier = new Identifier();
-    identifier.setSystem("https://ABDM_WRAPPER/document");
-    identifier.setValue(UUID.randomUUID().toString());
-    composition.setIdentifier(identifier);
-    composition.setId(UUID.randomUUID().toString());
-    return composition;
   }
 
   private DocumentReference makeDocumentReference(
@@ -416,9 +349,11 @@ public class OPConsultationConverter {
       appointment.setParticipant(
           Collections.singletonList(
               new Appointment.AppointmentParticipantComponent()
-                  .setActor(new Reference().setReference("Patient/" + patient.getId()))
+                  .setActor(
+                      new Reference()
+                          .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId()))
                   .setStatus(Appointment.ParticipationStatus.ACCEPTED)));
-      appointment.setStart(Utils.getFormattedDateTime(item.getAppointmentTime()));
+      appointment.setStart(Utils.getFormattedDateTime(item.getAppointmentTime()).getValue());
       appointment.addReasonCode(new CodeableConcept().setText(item.getReason()));
       appointment.setServiceType(
           Collections.singletonList(new CodeableConcept().setText(item.getServiceType())));
@@ -496,215 +431,5 @@ public class OPConsultationConverter {
               item.getComplaint(), patient, item.getRecordedDate(), item.getDateRange()));
     }
     return conditionList;
-  }
-
-  private List<Composition.SectionComponent> makeCompositionSection(
-      Patient patient,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      List<Condition> chiefComplaintList,
-      List<Observation> physicalObservationList,
-      List<AllergyIntolerance> allergieList,
-      List<MedicationRequest> medicationList,
-      List<Condition> medicalHistoryList,
-      List<FamilyMemberHistory> familyMemberHistoryList,
-      List<ServiceRequest> investigationAdviceList,
-      List<Appointment> followupList,
-      List<Procedure> procedureList,
-      List<ServiceRequest> referralList,
-      List<Observation> otherObservationList,
-      List<DocumentReference> documentReferenceList) {
-    List<Composition.SectionComponent> sectionComponentList = new ArrayList<>();
-    if (Objects.nonNull(chiefComplaintList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Chief Complaints")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("422843007")
-                      .setDisplay("Chief complaint section")));
-      for (Condition chiefComplaint : chiefComplaintList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("ChiefComplaints/" + chiefComplaint.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(physicalObservationList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Physical Examination")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("425044008")
-                      .setDisplay("Physical exam section")));
-      for (Observation physicalObservation : physicalObservationList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("PhysicalExamination/" + physicalObservation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(allergieList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Allergy Section")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("722446000")
-                      .setDisplay("Allergy record")));
-      for (AllergyIntolerance allergyIntolerance : allergieList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("AllergyIntolerance/" + allergyIntolerance.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(medicalHistoryList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Medical History")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("371529009")
-                      .setDisplay("History and physical report")));
-      for (Condition medicalHistory : medicalHistoryList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("MedicalHistory/" + medicalHistory.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(familyMemberHistoryList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Family History")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("422432008")
-                      .setDisplay("Family history section")));
-      for (FamilyMemberHistory familyMemberHistory : familyMemberHistoryList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("FamilyHistory/" + familyMemberHistory.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(investigationAdviceList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Investigation Advice")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("721963009")
-                      .setDisplay("Order document")));
-      for (ServiceRequest investigation : investigationAdviceList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("InvestigationAdvice/" + investigation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(medicationList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Medication summary document")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("721912009")
-                      .setDisplay("Medication summary document")));
-      for (MedicationRequest medication : medicationList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("MedicationRequest/" + medication.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(followupList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Follow Up")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("390906007")
-                      .setDisplay("Follow-up encounter")));
-      for (Appointment followUp : followupList) {
-        sectionComponent.addEntry(new Reference().setReference("FollowUp/" + followUp.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(procedureList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Procedure")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("371525003")
-                      .setDisplay("Clinical procedure report")));
-      for (Procedure procedure : procedureList) {
-        sectionComponent.addEntry(new Reference().setReference("Procedure/" + procedure.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(referralList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Referral")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("306206005")
-                      .setDisplay("Referral to service")));
-      for (ServiceRequest referral : referralList) {
-        sectionComponent.addEntry(new Reference().setReference("Referral/" + referral.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(otherObservationList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Other Observations")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("404684003")
-                      .setDisplay("Clinical finding")));
-      for (Observation otherObservation : otherObservationList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("OtherObservations/" + otherObservation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(documentReferenceList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setCode(
-          new CodeableConcept()
-              .setText("Document Reference")
-              .addCoding(
-                  new Coding()
-                      .setSystem("http://snomed.info/sct")
-                      .setCode("371530004")
-                      .setDisplay("Clinical consultation report")));
-      for (DocumentReference documentReferenceItem : documentReferenceList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("DocumentReference/" + documentReferenceItem.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-
-    return sectionComponentList;
   }
 }

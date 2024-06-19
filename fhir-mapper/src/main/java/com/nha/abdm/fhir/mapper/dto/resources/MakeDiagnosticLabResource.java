@@ -1,7 +1,11 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.SnomedCodeIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.DiagnosticResource;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -26,39 +30,42 @@ public class MakeDiagnosticLabResource {
     diagnosticReport.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DiagnosticReportLab"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_DIAGNOSTIC_REPORT_LAB));
     diagnosticReport.setStatus(DiagnosticReport.DiagnosticReportStatus.FINAL);
     diagnosticReport.setCode(
         new CodeableConcept()
             .setText(diagnosticResource.getServiceName())
             .addCoding(
                 new Coding()
-                    .setSystem("http://loinc.org")
-                    .setCode("261665006")
+                    .setSystem(BundleUrlIdentifier.LOINC_URL)
+                    .setCode(SnomedCodeIdentifier.SNOMED_DIAGNOSTIC_LAB)
                     .setDisplay(diagnosticResource.getServiceName())));
     diagnosticReport.setSubject(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     if (Objects.nonNull(encounter))
-      diagnosticReport.setEncounter(new Reference().setReference("Encounter/" + encounter.getId()));
+      diagnosticReport.setEncounter(new Reference().setReference("/" + encounter.getId()));
     for (Practitioner practitioner : practitionerList) {
       diagnosticReport.addPerformer(
-          new Reference().setReference("Practitioner/" + practitioner.getId()));
+          new Reference()
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId()));
       diagnosticReport.addResultsInterpreter(
-          new Reference().setReference("Practitioner/" + practitioner.getId()));
+          new Reference()
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId()));
     }
     diagnosticReport.addCategory(
         new CodeableConcept()
             .setText(diagnosticResource.getServiceCategory())
             .addCoding(
                 new Coding()
-                    .setSystem("http://snomed.info/sct")
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
                     .setCode("261665006")
                     .setDisplay(diagnosticResource.getServiceCategory())));
     for (Observation observation : observationList) {
       diagnosticReport.addResult(
-          new Reference().setReference("Observation/" + observation.getId()));
+          new Reference()
+              .setReference(BundleResourceIdentifier.OBSERVATION + "/" + observation.getId()));
     }
     diagnosticReport.setConclusion(diagnosticResource.getConclusion());
     diagnosticReport.setConclusion(diagnosticReport.getConclusion());
@@ -67,7 +74,7 @@ public class MakeDiagnosticLabResource {
             .setText(diagnosticResource.getConclusion())
             .addCoding(
                 new Coding()
-                    .setSystem("http://snomed.info/sct")
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
                     .setCode("261665006")
                     .setDisplay(diagnosticResource.getConclusion())));
     if (Objects.nonNull(diagnosticResource.getPresentedForm())) {

@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.ImmunizationResource;
 import java.text.ParseException;
 import java.util.Collections;
@@ -23,33 +26,37 @@ public class MakeImmunizationResource {
     Meta meta = new Meta();
     meta.setVersionId("1");
     meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Immunization");
+    meta.addProfile(ResourceProfileIdentifier.PROFILE_IMMUNIZATION);
     immunization.setMeta(meta);
     immunization.setStatus(Immunization.ImmunizationStatus.COMPLETED);
-    immunization.setPatient(new Reference().setReference("Patient/" + patient.getId()));
-    immunization.setOccurrence(
-        new DateTimeType().setValue(Utils.getFormattedDateTime(immunizationResource.getDate())));
+    immunization.setPatient(
+        new Reference().setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId()));
+    immunization.setOccurrence((Utils.getFormattedDateTime(immunizationResource.getDate())));
     immunization.addExtension(
         new Extension()
             .setValue(new StringType().setValue(immunizationResource.getVaccineName()))
-            .setUrl("https://nrces.in/ndhm/fhir/r4/StructureDefinition/BrandName"));
+            .setUrl(ResourceProfileIdentifier.PROFILE_VACCINE_BRAND_NAME));
     immunization.setPrimarySource(true);
     immunization.setVaccineCode(
         new CodeableConcept()
             .setText(immunizationResource.getVaccineName())
             .addCoding(
                 new Coding()
-                    .setSystem("http://snomed.info/sct")
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
                     .setCode("609328004")
                     .setDisplay(immunizationResource.getVaccineName())));
     immunization.setManufacturer(
-        new Reference().setReference("Manufacturer/" + organization.getId()));
+        new Reference()
+            .setReference(BundleResourceIdentifier.MANUFACTURER + "/" + organization.getId()));
     immunization.setLotNumber(immunizationResource.getLotNumber());
     immunization.setDoseQuantity(new Quantity().setValue(immunizationResource.getDoseNumber()));
     for (Practitioner practitioner : practitionerList) {
       immunization.addPerformer(
           new Immunization.ImmunizationPerformerComponent()
-              .setActor(new Reference().setReference("Practitioner/" + practitioner.getId())));
+              .setActor(
+                  new Reference()
+                      .setReference(
+                          BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())));
     }
     immunization.setProtocolApplied(
         Collections.singletonList(

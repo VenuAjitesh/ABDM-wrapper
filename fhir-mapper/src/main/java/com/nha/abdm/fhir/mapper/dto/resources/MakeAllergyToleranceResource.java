@@ -1,7 +1,8 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.*;
 import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
@@ -19,20 +20,19 @@ public class MakeAllergyToleranceResource {
     allergyIntolerance.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/AllergyIntolerance"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_ALLERGY_INTOLERANCE));
     Coding coding = new Coding();
-    coding.setSystem("http://snomed.info/sct");
-    coding.setCode("609328004");
-    coding.setDisplay("Allergy");
+    coding.setSystem(BundleUrlIdentifier.SNOMED_URL);
+    coding.setCode(SnomedCodeIdentifier.SNOMED_ALLERGY_INTOLERANCE);
+    coding.setDisplay(BundleFieldIdentifier.ALLERGY);
     CodeableConcept code = new CodeableConcept();
     code.addCoding(coding);
     code.setText(allergy);
     allergyIntolerance.setCode(code);
     Coding clinicalStatusCoding = new Coding();
-    clinicalStatusCoding.setSystem(
-        "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
-    clinicalStatusCoding.setCode("active");
-    clinicalStatusCoding.setDisplay("Active");
+    clinicalStatusCoding.setSystem(ResourceProfileIdentifier.PROFILE_ALLERGY_INTOLERANCE_SYSTEM);
+    clinicalStatusCoding.setCode(BundleFieldIdentifier.ACTIVE);
+    clinicalStatusCoding.setDisplay(BundleFieldIdentifier.ACTIVE);
     CodeableConcept clinicalStatus = new CodeableConcept();
     clinicalStatus.addCoding(clinicalStatusCoding);
     allergyIntolerance.setClinicalStatus(clinicalStatus);
@@ -40,12 +40,13 @@ public class MakeAllergyToleranceResource {
     allergyIntolerance.setType(AllergyIntolerance.AllergyIntoleranceType.ALLERGY);
     allergyIntolerance.setPatient(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     if (!(practitionerList.isEmpty())) {
       allergyIntolerance.setRecorder(
           new Reference()
-              .setReference("Practitioner/" + practitionerList.get(0).getId())
+              .setReference(
+                  BundleResourceIdentifier.PRACTITIONER + "/" + practitionerList.get(0).getId())
               .setDisplay(patientName.getText()));
     }
     return allergyIntolerance;

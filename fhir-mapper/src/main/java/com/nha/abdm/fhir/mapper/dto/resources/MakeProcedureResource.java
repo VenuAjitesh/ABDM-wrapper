@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.ProcedureResource;
 import java.text.ParseException;
 import java.util.UUID;
@@ -14,14 +17,14 @@ public class MakeProcedureResource {
       throws ParseException {
     Procedure procedure = new Procedure();
     procedure.setId(UUID.randomUUID().toString());
-    procedure.setMeta(
-        new Meta().addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Procedure"));
+    procedure.setMeta(new Meta().addProfile(ResourceProfileIdentifier.PROFILE_PROCEDURE));
     if (procedureResource.getStatus() != null) {
       procedure.setStatus(Procedure.ProcedureStatus.valueOf(procedureResource.getStatus()));
     } else {
       procedure.setStatus(Procedure.ProcedureStatus.COMPLETED);
     }
-    procedure.setSubject(new Reference().setReference("Patient/" + patient.getId()));
+    procedure.setSubject(
+        new Reference().setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId()));
     procedure.setCode(
         new CodeableConcept()
             .setText(procedureResource.getProcedureName())
@@ -29,14 +32,14 @@ public class MakeProcedureResource {
                 new Coding()
                     .setDisplay(procedureResource.getProcedureName())
                     .setCode("261665006")
-                    .setSystem("http://snomed.info/sct")));
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)));
     if (procedureResource.getOutcome() != null) {
       procedure.setOutcome(
           new CodeableConcept()
               .setText(procedureResource.getOutcome())
               .addCoding(
                   new Coding()
-                      .setSystem("http://snomed.info/sct")
+                      .setSystem(BundleUrlIdentifier.SNOMED_URL)
                       .setCode("261665006")
                       .setDisplay(procedureResource.getOutcome())));
     }
@@ -45,11 +48,10 @@ public class MakeProcedureResource {
             .setText(procedureResource.getProcedureReason())
             .addCoding(
                 new Coding()
-                    .setSystem("http://snomed.info/sct")
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
                     .setCode("261665006")
                     .setDisplay(procedureResource.getProcedureReason())));
-    procedure.setPerformed(
-        new DateTimeType(Utils.getFormattedDateTime(procedureResource.getDate())));
+    procedure.setPerformed((Utils.getFormattedDateTime(procedureResource.getDate())));
     return procedure;
   }
 }

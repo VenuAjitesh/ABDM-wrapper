@@ -2,9 +2,11 @@
 package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.functions.*;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
+import com.nha.abdm.fhir.mapper.dto.compositions.MakeWellnessComposition;
+import com.nha.abdm.fhir.mapper.dto.resources.*;
 import com.nha.abdm.fhir.mapper.requests.WellnessRecordRequest;
 import java.text.ParseException;
 import java.util.*;
@@ -24,6 +26,7 @@ public class WellnessRecordConverter {
   private final MakeEncounterResource makeEncounterResource;
   private final MakeObservationResource makeObservationResource;
   private final MakeWellnessObservationResource makeWellnessObservationResource;
+  private final MakeWellnessComposition makeWellnessComposition;
   private String docName = "Document Reference";
   private String docCode = "261665006";
 
@@ -35,7 +38,8 @@ public class WellnessRecordConverter {
       MakeDocumentResource makeDocumentResource,
       MakeEncounterResource makeEncounterResource,
       MakeObservationResource makeObservationResource,
-      MakeWellnessObservationResource makeWellnessObservationResource) {
+      MakeWellnessObservationResource makeWellnessObservationResource,
+      MakeWellnessComposition makeWellnessComposition) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makePatientResource = makePatientResource;
@@ -44,6 +48,7 @@ public class WellnessRecordConverter {
     this.makeEncounterResource = makeEncounterResource;
     this.makeObservationResource = makeObservationResource;
     this.makeWellnessObservationResource = makeWellnessObservationResource;
+    this.makeWellnessComposition = makeWellnessComposition;
   }
 
   public BundleResponse getWellnessBundle(WellnessRecordRequest wellnessRecordRequest) {
@@ -183,7 +188,7 @@ public class WellnessRecordConverter {
               .orElseGet(ArrayList::new);
 
       Composition composition =
-          makeWellnessComposition(
+          makeWellnessComposition.makeWellnessComposition(
               patient,
               wellnessRecordRequest.getAuthoredOn(),
               encounter,
@@ -210,73 +215,74 @@ public class WellnessRecordConverter {
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Composition/" + composition.getId())
+              .setFullUrl(BundleResourceIdentifier.COMPOSITION + "/" + composition.getId())
               .setResource(composition));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Patient/" + patient.getId())
+              .setFullUrl(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
               .setResource(patient));
       for (Practitioner practitioner : practitionerList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Practitioner/" + practitioner.getId())
+                .setFullUrl(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
                 .setResource(practitioner));
       }
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Encounter/" + encounter.getId())
+              .setFullUrl(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId())
               .setResource(encounter));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Organisation/" + organization.getId())
+              .setFullUrl(BundleResourceIdentifier.ORGANISATION + "/" + organization.getId())
               .setResource(organization));
 
       for (Observation observation : vitalSignsList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("VitalSigns/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.VITAL_SIGNS + "/" + observation.getId())
                 .setResource(observation));
       }
       for (Observation observation : bodyMeasurementList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("BodyMeasurement/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.BODY_MEASUREMENT + "/" + observation.getId())
                 .setResource(observation));
       }
       for (Observation observation : physicalActivityList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("PhysicalActivity/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.PHYSICAL_ACTIVITY + "/" + observation.getId())
                 .setResource(observation));
       }
       for (Observation observation : generalAssessmentList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("GeneralAssessment/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.GENERAL_ASSESSMENT + "/" + observation.getId())
                 .setResource(observation));
       }
       for (Observation observation : womanHealthList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("WomanHealth/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.WOMAN_HEALTH + "/" + observation.getId())
                 .setResource(observation));
       }
       for (Observation observation : lifeStyleList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("LifeStyle/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.LIFE_STYLE + "/" + observation.getId())
                 .setResource(observation));
       }
       for (Observation observation : otherObservationList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("OtherObservations/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.OTHER_OBSERVATIONS + "/" + observation.getId())
                 .setResource(observation));
       }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("DocumentReference/" + documentReference.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId())
                 .setResource(documentReference));
       }
       bundle.setEntry(entries);
@@ -286,158 +292,5 @@ public class WellnessRecordConverter {
           .error(ErrorResponse.builder().code(1000).message(e.getMessage()).build())
           .build();
     }
-  }
-
-  private Composition makeWellnessComposition(
-      Patient patient,
-      String authoredOn,
-      Encounter encounter,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      List<Observation> vitalSignsList,
-      List<Observation> bodyMeasurementList,
-      List<Observation> physicalActivityList,
-      List<Observation> generalAssessmentList,
-      List<Observation> womanHealthList,
-      List<Observation> lifeStyleList,
-      List<Observation> otherObservationList,
-      List<DocumentReference> documentReferenceList)
-      throws ParseException {
-    HumanName patientName = patient.getName().get(0);
-    HumanName practitionerName = null;
-    Composition composition = new Composition();
-    composition.setStatus(Composition.CompositionStatus.FINAL);
-    composition.setType(new CodeableConcept().setText("Wellness Record"));
-    composition.setTitle("Wellness Record");
-    List<Reference> authorList = new ArrayList<>();
-    for (Practitioner practitioner : practitionerList) {
-      practitionerName = practitioner.getName().get(0);
-      authorList.add(
-          new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
-              .setDisplay(practitionerName != null ? practitionerName.getText() : null));
-    }
-    composition.setEncounter(new Reference().setReference("Encounter/" + encounter.getId()));
-    composition.setCustodian(
-        new Reference()
-            .setReference("Organisation/" + organization.getId())
-            .setDisplay(organization.getName()));
-    composition.setAuthor(authorList);
-    composition.setSubject(
-        new Reference()
-            .setReference("Patient/" + patient.getId())
-            .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
-    List<Composition.SectionComponent> sectionComponentList =
-        makeCompositionSection(
-            patient,
-            encounter,
-            practitionerList,
-            organization,
-            vitalSignsList,
-            bodyMeasurementList,
-            physicalActivityList,
-            generalAssessmentList,
-            womanHealthList,
-            lifeStyleList,
-            otherObservationList,
-            documentReferenceList);
-    if (Objects.nonNull(sectionComponentList))
-      for (Composition.SectionComponent sectionComponent : sectionComponentList)
-        composition.addSection(sectionComponent);
-    Identifier identifier = new Identifier();
-    identifier.setSystem("https://ABDM_WRAPPER/document");
-    identifier.setValue(UUID.randomUUID().toString());
-    composition.setIdentifier(identifier);
-    composition.setId(UUID.randomUUID().toString());
-    return composition;
-  }
-
-  private List<Composition.SectionComponent> makeCompositionSection(
-      Patient patient,
-      Encounter encounter,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      List<Observation> vitalSignsList,
-      List<Observation> bodyMeasurementList,
-      List<Observation> physicalActivityList,
-      List<Observation> generalAssessmentList,
-      List<Observation> womanHealthList,
-      List<Observation> lifeStyleList,
-      List<Observation> otherObservationList,
-      List<DocumentReference> documentReferenceList) {
-    List<Composition.SectionComponent> sectionComponentList = new ArrayList<>();
-    if (Objects.nonNull(vitalSignsList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Vital Signs");
-      for (Observation observation : vitalSignsList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("VitalSigns/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(bodyMeasurementList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Body Measurement");
-      for (Observation observation : bodyMeasurementList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("BodyMeasurement/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(physicalActivityList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Physical Activity");
-      for (Observation observation : physicalActivityList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("PhysicalActivity/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(generalAssessmentList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("General Assessment");
-      for (Observation observation : generalAssessmentList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("GeneralAssessment/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(womanHealthList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Women Health");
-      for (Observation observation : womanHealthList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("WomanHealth/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(lifeStyleList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Lifestyle");
-      for (Observation observation : lifeStyleList) {
-        sectionComponent.addEntry(new Reference().setReference("Lifestyle/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(otherObservationList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Other Observations");
-      for (Observation observation : otherObservationList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("OtherObservations/" + observation.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    if (Objects.nonNull(documentReferenceList)) {
-      Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Document Reference");
-      for (DocumentReference documentReference : documentReferenceList) {
-        sectionComponent.addEntry(
-            new Reference().setReference("DocumentReference/" + documentReference.getId()));
-      }
-      sectionComponentList.add(sectionComponent);
-    }
-    return sectionComponentList;
   }
 }
