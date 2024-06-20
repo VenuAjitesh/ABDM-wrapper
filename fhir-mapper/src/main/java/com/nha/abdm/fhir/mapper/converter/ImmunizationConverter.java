@@ -2,8 +2,10 @@
 package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.functions.*;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.*;
+import com.nha.abdm.fhir.mapper.dto.compositions.MakeImmunizationComposition;
+import com.nha.abdm.fhir.mapper.dto.resources.*;
 import com.nha.abdm.fhir.mapper.requests.ImmunizationRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.ImmunizationResource;
 import java.text.ParseException;
@@ -21,6 +23,7 @@ public class ImmunizationConverter {
   private final MakeImmunizationResource makeImmunizationResource;
   private final MakeBundleMetaResource makeBundleMetaResource;
   private final MakeEncounterResource makeEncounterResource;
+  private final MakeImmunizationComposition makeImmunizationComposition;
   private String docName = "Immunization record";
   private String docCode = "41000179103";
 
@@ -31,7 +34,8 @@ public class ImmunizationConverter {
       MakeOrganisationResource makeOrganisationResource,
       MakeImmunizationResource makeImmunizationResource,
       MakeBundleMetaResource makeBundleMetaResource,
-      MakeEncounterResource makeEncounterResource) {
+      MakeEncounterResource makeEncounterResource,
+      MakeImmunizationComposition makeImmunizationComposition) {
     this.makeDocumentReference = makeDocumentReference;
     this.makePatientResource = makePatientResource;
     this.makePractitionerResource = makePractitionerResource;
@@ -39,6 +43,7 @@ public class ImmunizationConverter {
     this.makeImmunizationResource = makeImmunizationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makeEncounterResource = makeEncounterResource;
+    this.makeImmunizationComposition = makeImmunizationComposition;
   }
 
   public BundleResponse makeImmunizationBundle(ImmunizationRequest immunizationRequest)
@@ -93,7 +98,7 @@ public class ImmunizationConverter {
         }
       }
       Composition composition =
-          makeCompositionResource(
+          makeImmunizationComposition.makeCompositionResource(
               patient,
               practitionerList,
               organization,
@@ -111,46 +116,47 @@ public class ImmunizationConverter {
               .setValue(immunizationRequest.getCareContextReference()));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Composition/" + composition.getId())
+              .setFullUrl(BundleResourceIdentifier.COMPOSITION + "/" + composition.getId())
               .setResource(composition));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Patient/" + patient.getId())
+              .setFullUrl(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
               .setResource(patient));
       for (Practitioner practitioner : practitionerList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Practitioner/" + practitioner.getId())
+                .setFullUrl(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
                 .setResource(practitioner));
       }
       if (Objects.nonNull(organization)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Organisation/" + organization.getId())
+                .setFullUrl(BundleResourceIdentifier.ORGANISATION + "/" + organization.getId())
                 .setResource(organization));
       }
       if (Objects.nonNull(encounter)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Encounter/" + encounter.getId())
+                .setFullUrl(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId())
                 .setResource(encounter));
       }
       for (Organization manufacturer : manufactureList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Manufacturer/" + manufacturer.getId())
+                .setFullUrl(BundleResourceIdentifier.MANUFACTURER + "/" + manufacturer.getId())
                 .setResource(manufacturer));
       }
       for (Immunization immunization : immunizationList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Immunization/" + immunization.getId())
+                .setFullUrl(BundleResourceIdentifier.IMMUNIZATION + "/" + immunization.getId())
                 .setResource(immunization));
       }
       for (DocumentReference documentReference : documentList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("DocumentReference/" + documentReference.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId())
                 .setResource(documentReference));
       }
       bundle.setEntry(entries);
@@ -160,78 +166,5 @@ public class ImmunizationConverter {
           .error(ErrorResponse.builder().code(1000).message(e.getMessage()).build())
           .build();
     }
-  }
-
-  private Composition makeCompositionResource(
-      Patient patient,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      String authoredOn,
-      List<Immunization> immunizationList,
-      List<DocumentReference> documentList)
-      throws ParseException {
-    Composition composition = new Composition();
-    Meta meta = new Meta();
-    meta.setVersionId("1");
-    meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/ImmunizationRecord");
-    composition.setMeta(meta);
-    CodeableConcept typeCode = new CodeableConcept();
-    Coding typeCoding = new Coding();
-    typeCoding.setSystem("http://snomed.info/sct");
-    typeCoding.setCode("41000179103");
-    typeCoding.setDisplay("Immunization record");
-    typeCode.addCoding(typeCoding);
-    composition.setType(typeCode);
-    composition.setTitle("Immunization record");
-    if (Objects.nonNull(organization))
-      composition.setCustodian(
-          new Reference().setReference("Organisation/" + organization.getId()));
-    List<Reference> authorList = new ArrayList<>();
-    HumanName practitionerName = null;
-    for (Practitioner author : practitionerList) {
-      practitionerName = author.getName().get(0);
-      authorList.add(
-          new Reference()
-              .setReference("Practitioner/" + author.getId())
-              .setDisplay(practitionerName.getText()));
-    }
-    composition.setAuthor(authorList);
-    HumanName patientName = patient.getName().get(0);
-    composition.setSubject(
-        new Reference()
-            .setReference("Patient/" + patient.getId())
-            .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
-    Composition.SectionComponent immunizationSection = new Composition.SectionComponent();
-    immunizationSection.setTitle("Immunizations");
-    immunizationSection.setCode(
-        new CodeableConcept()
-            .setText("Immunizations")
-            .addCoding(
-                new Coding()
-                    .setCode("41000179103")
-                    .setDisplay("Immunization record")
-                    .setSystem("http://snomed.info/sct")));
-    for (Immunization immunization : immunizationList) {
-      Reference entryReference =
-          new Reference()
-              .setReference("Immunization/" + immunization.getId())
-              .setType("Immunization");
-      immunizationSection.addEntry(entryReference);
-    }
-    composition.addSection(immunizationSection);
-    for (DocumentReference documentReference : documentList)
-      immunizationSection.addEntry(
-          new Reference()
-              .setReference("DocumentReference/" + documentReference.getId())
-              .setType("DocumentReference"));
-    composition.setStatus(Composition.CompositionStatus.FINAL);
-    Identifier identifier = new Identifier();
-    identifier.setSystem("https://ABDM_WRAPPER/document");
-    identifier.setValue(UUID.randomUUID().toString());
-    composition.setIdentifier(identifier);
-    composition.setId(UUID.randomUUID().toString());
-    return composition;
   }
 }

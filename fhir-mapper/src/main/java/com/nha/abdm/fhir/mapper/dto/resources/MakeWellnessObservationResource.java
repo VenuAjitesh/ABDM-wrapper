@@ -1,6 +1,8 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
+import com.nha.abdm.fhir.mapper.common.constants.BundleFieldIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.FieldIdentifiers;
 import com.nha.abdm.fhir.mapper.requests.helpers.WellnessObservationResource;
 import java.util.ArrayList;
@@ -23,38 +25,38 @@ public class MakeWellnessObservationResource {
     CodeableConcept typeCode = new CodeableConcept();
     Coding coding = new Coding();
     switch (type) {
-      case "vitalSigns":
-        coding.setSystem(FieldIdentifiers.getVitals("system"));
+      case BundleFieldIdentifier.VITAL_SIGNS:
+        coding.setSystem(FieldIdentifiers.getVitals(BundleFieldIdentifier.SYSTEM));
         coding.setCode(FieldIdentifiers.getVitals(observationResource.getObservation()));
         coding.setDisplay(observationResource.getObservation());
         typeCode.addCoding(coding);
         break;
-      case "bodyMeasurement":
-        coding.setSystem(FieldIdentifiers.getBodyMeasurement("system"));
+      case BundleFieldIdentifier.BODY_MEASUREMENT:
+        coding.setSystem(FieldIdentifiers.getBodyMeasurement(BundleFieldIdentifier.SYSTEM));
         coding.setCode(FieldIdentifiers.getBodyMeasurement(observationResource.getObservation()));
         coding.setDisplay(observationResource.getObservation());
         typeCode.addCoding(coding);
         break;
-      case "physicalActivity":
-        coding.setSystem(FieldIdentifiers.getPhysicalActivity("system"));
+      case BundleFieldIdentifier.PHYSICAL_ACTIVITY:
+        coding.setSystem(FieldIdentifiers.getPhysicalActivity(BundleFieldIdentifier.SYSTEM));
         coding.setCode(FieldIdentifiers.getPhysicalActivity(observationResource.getObservation()));
         coding.setDisplay(observationResource.getObservation());
         typeCode.addCoding(coding);
         break;
-      case "generalAssessment":
-        coding.setSystem(FieldIdentifiers.getGeneralAssessment("system"));
+      case BundleFieldIdentifier.GENERAL_ASSESSMENT:
+        coding.setSystem(FieldIdentifiers.getGeneralAssessment(BundleFieldIdentifier.SYSTEM));
         coding.setCode(FieldIdentifiers.getGeneralAssessment(observationResource.getObservation()));
         coding.setDisplay(observationResource.getObservation());
         typeCode.addCoding(coding);
         break;
-      case "womanHealth":
-        coding.setSystem(FieldIdentifiers.getWomanHealth("system"));
+      case BundleFieldIdentifier.WOMAN_HEALTH:
+        coding.setSystem(FieldIdentifiers.getWomanHealth(BundleFieldIdentifier.SYSTEM));
         coding.setCode(FieldIdentifiers.getWomanHealth(observationResource.getObservation()));
         coding.setDisplay(observationResource.getObservation());
         typeCode.addCoding(coding);
         break;
-      case "lifeStyle":
-        coding.setSystem(FieldIdentifiers.getLifeStyle("system"));
+      case BundleFieldIdentifier.LIFE_STYLE:
+        coding.setSystem(FieldIdentifiers.getLifeStyle(BundleFieldIdentifier.SYSTEM));
         coding.setCode(FieldIdentifiers.getLifeStyle(observationResource.getObservation()));
         coding.setDisplay(observationResource.getObservation());
         typeCode.addCoding(coding);
@@ -65,7 +67,7 @@ public class MakeWellnessObservationResource {
     observation.setCode(typeCode);
     observation.setSubject(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     List<Reference> performerList = new ArrayList<>();
     HumanName practitionerName = null;
@@ -73,7 +75,7 @@ public class MakeWellnessObservationResource {
       practitionerName = practitioner.getName().get(0);
       performerList.add(
           new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));
     }
     observation.setPerformer(performerList);

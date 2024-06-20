@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.fhir.mapper.common.helpers;
 
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import java.util.HashMap;
 
 public class FieldIdentifiers {
@@ -72,7 +73,7 @@ public class FieldIdentifiers {
 
     // LifeStyle
     HashMap<String, String> observationLifeStyle = new HashMap<>();
-    observationLifeStyle.put("system", "http://snomed.info/sct");
+    observationLifeStyle.put("system", BundleUrlIdentifier.SNOMED_URL);
     observationLifeStyle.put("Finding relating to alcohol drinking behavior", "228273003");
     observationLifeStyle.put("Tobacco smoking behavior - finding", "365981007");
     observationLifeStyle.put("Finding relating to tobacco chewing", "228509002");

@@ -1,7 +1,9 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.ObservationResource;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class MakeObservationResource {
     observation.setCode(typeCode);
     observation.setSubject(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     List<Reference> performerList = new ArrayList<>();
     HumanName practitionerName = null;
@@ -36,7 +38,7 @@ public class MakeObservationResource {
       practitionerName = practitioner.getName().get(0);
       performerList.add(
           new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));
     }
     observation.setPerformer(performerList);
@@ -54,7 +56,7 @@ public class MakeObservationResource {
     observation.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Observation"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_OBSERVATION));
     return observation;
   }
 }

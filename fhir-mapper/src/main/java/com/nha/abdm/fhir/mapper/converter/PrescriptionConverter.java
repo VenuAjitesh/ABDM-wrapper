@@ -2,10 +2,14 @@
 package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.functions.*;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
+import com.nha.abdm.fhir.mapper.dto.compositions.MakePrescriptionComposition;
+import com.nha.abdm.fhir.mapper.dto.resources.*;
 import com.nha.abdm.fhir.mapper.requests.PrescriptionRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
@@ -28,6 +32,7 @@ public class PrescriptionConverter {
   private final MakeDocumentResource makeDocumentResource;
   private final MakeMedicationRequestResource makeMedicationRequestResource;
   private final MakeEncounterResource makeEncounterResource;
+  private final MakePrescriptionComposition makePrescriptionComposition;
 
   public PrescriptionConverter(
       MakeOrganisationResource makeOrganisationResource,
@@ -36,7 +41,8 @@ public class PrescriptionConverter {
       MakeBundleMetaResource makeBundleMetaResource,
       MakeDocumentResource makeDocumentResource,
       MakeMedicationRequestResource makeMedicationRequestResource,
-      MakeEncounterResource makeEncounterResource) {
+      MakeEncounterResource makeEncounterResource,
+      MakePrescriptionComposition makePrescriptionComposition) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makePatientResource = makePatientResource;
     this.makePractitionerResource = makePractitionerResource;
@@ -44,6 +50,7 @@ public class PrescriptionConverter {
     this.makeDocumentResource = makeDocumentResource;
     this.makeMedicationRequestResource = makeMedicationRequestResource;
     this.makeEncounterResource = makeEncounterResource;
+    this.makePrescriptionComposition = makePrescriptionComposition;
   }
 
   public BundleResponse convertToPrescriptionBundle(PrescriptionRequest prescriptionRequest)
@@ -93,7 +100,7 @@ public class PrescriptionConverter {
           binary.setMeta(
               new Meta()
                   .setLastUpdated(Utils.getCurrentTimeStamp())
-                  .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Binary"));
+                  .addProfile(ResourceProfileIdentifier.PROFILE_BINARY));
           binary.setContent(documentResource.getData());
           binary.setContentType(documentResource.getContentType());
           binary.setId(UUID.randomUUID().toString());
@@ -101,7 +108,7 @@ public class PrescriptionConverter {
         }
       }
       Composition composition =
-          makeCompositionResource(
+          makePrescriptionComposition.makeCompositionResource(
               patient,
               practitionerList,
               organization,
@@ -116,45 +123,46 @@ public class PrescriptionConverter {
       bundle.setMeta(makeBundleMetaResource.getMeta());
       bundle.setIdentifier(
           new Identifier()
-              .setSystem("https://ABDM_WRAPPER/bundle")
+              .setSystem(BundleUrlIdentifier.WRAPPER_URL)
               .setValue(prescriptionRequest.getCareContextReference()));
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Composition/" + composition.getId())
+              .setFullUrl(BundleResourceIdentifier.COMPOSITION + "/" + composition.getId())
               .setResource(composition));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Patient/" + patient.getId())
+              .setFullUrl(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
               .setResource(patient));
       for (Practitioner practitioner : practitionerList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Practitioner/" + practitioner.getId())
+                .setFullUrl(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
                 .setResource(practitioner));
       }
       if (Objects.nonNull(organization)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Organisation/" + organization.getId())
+                .setFullUrl(BundleResourceIdentifier.ORGANISATION + "/" + organization.getId())
                 .setResource(organization));
       }
       if (Objects.nonNull(encounter)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Encounter/" + encounter.getId())
+                .setFullUrl(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId())
                 .setResource(encounter));
       }
       for (MedicationRequest medicationRequest : medicationRequestList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("MedicationRequest/" + medicationRequest.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.MEDICATION_REQUEST + "/" + medicationRequest.getId())
                 .setResource(medicationRequest));
       }
       for (Binary binary : documentList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Binary/" + binary.getId())
+                .setFullUrl(BundleResourceIdentifier.BINARY + "/" + binary.getId())
                 .setResource(binary));
       }
       bundle.setEntry(entries);
@@ -164,82 +172,5 @@ public class PrescriptionConverter {
           .error(ErrorResponse.builder().code(1000).message(e.getMessage()).build())
           .build();
     }
-  }
-
-  private Composition makeCompositionResource(
-      Patient patient,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      String authoredOn,
-      Encounter encounter,
-      List<MedicationRequest> medicationRequestList,
-      List<Binary> documentList)
-      throws ParseException {
-    Composition composition = new Composition();
-    Meta meta = new Meta();
-    meta.setVersionId("1");
-    meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/PrescriptionRecord");
-    composition.setMeta(meta);
-    CodeableConcept typeCode = new CodeableConcept();
-    Coding typeCoding = new Coding();
-    typeCoding.setSystem("http://snomed.info/sct");
-    typeCoding.setCode("440545006");
-    typeCoding.setDisplay("Prescription record");
-    typeCode.addCoding(typeCoding);
-    composition.setType(typeCode);
-    composition.setTitle("Prescription record");
-    if (Objects.nonNull(organization))
-      composition.setCustodian(
-          new Reference().setReference("Organisation/" + organization.getId()));
-    if (Objects.nonNull(encounter))
-      composition.setEncounter(
-          new Reference()
-              .setReference("Encounter/" + encounter.getId())
-              .setDisplay(encounter.getClass_().getDisplay()));
-    List<Reference> authorList = new ArrayList<>();
-    HumanName practitionerName = null;
-    for (Practitioner author : practitionerList) {
-      practitionerName = author.getName().get(0);
-      authorList.add(
-          new Reference()
-              .setReference("Practitioner/" + author.getId())
-              .setDisplay(practitionerName.getText()));
-    }
-    composition.setAuthor(authorList);
-    HumanName patientName = patient.getName().get(0);
-    composition.setSubject(
-        new Reference()
-            .setReference("Patient/" + patient.getId())
-            .setDisplay(patientName.getText()));
-    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
-    Composition.SectionComponent medicationComponent = new Composition.SectionComponent();
-    medicationComponent.setTitle("Medications");
-    medicationComponent.setCode(
-        new CodeableConcept()
-            .setText("Prescription record")
-            .addCoding(
-                new Coding()
-                    .setCode("440545006")
-                    .setDisplay("Prescription record")
-                    .setSystem("http://snomed.info/sct")));
-    for (MedicationRequest medicationRequest : medicationRequestList) {
-      Reference entryReference =
-          new Reference()
-              .setReference("MedicationRequest/" + medicationRequest.getId())
-              .setType("MedicationRequest");
-      medicationComponent.addEntry(entryReference);
-    }
-    composition.addSection(medicationComponent);
-    for (Binary binary : documentList)
-      medicationComponent.addEntry(
-          new Reference().setReference("Binary/" + binary.getId()).setType("Binary"));
-    composition.setStatus(Composition.CompositionStatus.FINAL);
-    Identifier identifier = new Identifier();
-    identifier.setSystem("https://ABDM_WRAPPER/document");
-    identifier.setValue(UUID.randomUUID().toString());
-    composition.setIdentifier(identifier);
-    composition.setId(UUID.randomUUID().toString());
-    return composition;
   }
 }

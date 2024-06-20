@@ -1,7 +1,9 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleFieldIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import java.text.ParseException;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
@@ -13,12 +15,12 @@ public class MakeBundleMetaResource {
     Meta meta = new Meta();
     meta.setVersionId("1");
     meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle");
+    meta.addProfile(ResourceProfileIdentifier.PROFILE_DOCUMENT_BUNDLE);
     meta.addSecurity(
         new Coding()
-            .setSystem("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
+            .setSystem(ResourceProfileIdentifier.PROFILE_BUNDLE_META)
             .setCode("V")
-            .setDisplay("very restricted"));
+            .setDisplay(BundleFieldIdentifier.VERY_RESTRICTED));
     return meta;
   }
 }

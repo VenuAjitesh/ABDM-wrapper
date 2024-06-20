@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import java.text.ParseException;
 import java.util.Objects;
@@ -21,14 +24,14 @@ public class MakeDocumentResource {
     HumanName patientName = patient.getName().get(0);
     Coding coding = new Coding();
     coding.setCode(docCode);
-    coding.setSystem("http://snomed.info/sct");
+    coding.setSystem(BundleUrlIdentifier.SNOMED_URL);
     coding.setDisplay(docName);
     CodeableConcept codeableConcept = new CodeableConcept();
     codeableConcept.addCoding(coding);
     codeableConcept.setText(documentResource.getType());
     Identifier identifier = new Identifier();
     identifier.setType(codeableConcept);
-    identifier.setSystem("https://facility.abdm.gov.in");
+    identifier.setSystem(BundleUrlIdentifier.FACILITY_URL);
     if (Objects.nonNull(organization)) {
       identifier.setValue(
           organization.getId() == null ? UUID.randomUUID().toString() : organization.getId());
@@ -47,7 +50,7 @@ public class MakeDocumentResource {
     documentReference.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentReference"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_DOCUMENT_REFERENCE));
     documentReference.addIdentifier(identifier);
     documentReference.addContent(documentReferenceContentComponent);
     documentReference.setStatus(Enumerations.DocumentReferenceStatus.CURRENT);
@@ -55,7 +58,7 @@ public class MakeDocumentResource {
     Reference documentSubject = new Reference();
     documentReference.setSubject(
         documentSubject
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     return documentReference;
   }

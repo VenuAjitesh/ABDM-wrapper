@@ -2,10 +2,12 @@
 package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.functions.*;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
+import com.nha.abdm.fhir.mapper.dto.compositions.MakeDiagnosticComposition;
+import com.nha.abdm.fhir.mapper.dto.resources.*;
 import com.nha.abdm.fhir.mapper.requests.DiagnosticReportRequest;
 import com.nha.abdm.fhir.mapper.requests.helpers.DiagnosticResource;
 import com.nha.abdm.fhir.mapper.requests.helpers.ObservationResource;
@@ -27,6 +29,7 @@ public class DiagnosticReportConverter {
   private final MakeObservationResource makeObservationResource;
   private final MakeDiagnosticLabResource makeDiagnosticLabResource;
   private final MakeEncounterResource makeEncounterResource;
+  private final MakeDiagnosticComposition makeDiagnosticComposition;
   private String docName = "";
   private String docCode = "4321000179101";
 
@@ -39,7 +42,8 @@ public class DiagnosticReportConverter {
       MakeObservationResource makeObservationResource,
       MakeDiagnosticLabResource makeDiagnosticLabResource,
       MakeEncounterResource encounterResource,
-      MakeEncounterResource makeEncounterResource) {
+      MakeEncounterResource makeEncounterResource,
+      MakeDiagnosticComposition makeDiagnosticComposition) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makePatientResource = makePatientResource;
@@ -48,6 +52,7 @@ public class DiagnosticReportConverter {
     this.makeObservationResource = makeObservationResource;
     this.makeDiagnosticLabResource = makeDiagnosticLabResource;
     this.makeEncounterResource = makeEncounterResource;
+    this.makeDiagnosticComposition = makeDiagnosticComposition;
   }
 
   public BundleResponse convertToDiagnosticBundle(DiagnosticReportRequest diagnosticReportRequest)
@@ -102,7 +107,7 @@ public class DiagnosticReportConverter {
                 patient, organization, documentResource, docCode, documentResource.getType()));
       }
       Composition composition =
-          makeCompositionResource(
+          makeDiagnosticComposition.makeCompositionResource(
               patient,
               diagnosticReportRequest.getAuthoredOn(),
               practitionerList,
@@ -122,46 +127,48 @@ public class DiagnosticReportConverter {
 
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Composition/" + composition.getId())
+              .setFullUrl(BundleResourceIdentifier.COMPOSITION + "/" + composition.getId())
               .setResource(composition));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Patient/" + patient.getId())
+              .setFullUrl(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
               .setResource(patient));
       for (Practitioner practitioner : practitionerList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Practitioner/" + practitioner.getId())
+                .setFullUrl(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
                 .setResource(practitioner));
       }
       if (Objects.nonNull(organization)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Organisation/" + organization.getId())
+                .setFullUrl(BundleResourceIdentifier.ORGANISATION + "/" + organization.getId())
                 .setResource(organization));
       }
       if (Objects.nonNull(encounter)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Encounter/" + encounter.getId())
+                .setFullUrl(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId())
                 .setResource(encounter));
       }
       for (DiagnosticReport diagnosticReport : diagnosticReportList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("DiagnosticReport/" + diagnosticReport.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.DIAGNOSTIC_REPORT + "/" + diagnosticReport.getId())
                 .setResource(diagnosticReport));
       }
       for (Observation observation : diagnosticObservationList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Observation/" + observation.getId())
+                .setFullUrl(BundleResourceIdentifier.OBSERVATION + "/" + observation.getId())
                 .setResource(observation));
       }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("DocumentReference/" + documentReference.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId())
                 .setResource(documentReference));
       }
       bundle.setEntry(entries);
@@ -171,70 +178,5 @@ public class DiagnosticReportConverter {
           .error(ErrorResponse.builder().code(1000).message(e.getMessage()).build())
           .build();
     }
-  }
-
-  private Composition makeCompositionResource(
-      Patient patient,
-      String authoredOn,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      Encounter encounter,
-      List<DiagnosticReport> diagnosticReportList,
-      List<DocumentReference> documentReferenceList)
-      throws ParseException {
-    Composition composition = new Composition();
-    Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-    Meta meta = new Meta();
-    meta.setVersionId("1");
-    meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/DiagnosticReportRecord");
-    composition.setMeta(meta);
-    CodeableConcept sectionCode = new CodeableConcept();
-    Coding typeCoding = new Coding();
-    typeCoding.setSystem("http://snomed.info/sct");
-    typeCoding.setCode("721981007");
-    typeCoding.setDisplay("Diagnostic studies report");
-    sectionCode.addCoding(typeCoding);
-    composition.setType(sectionCode);
-    composition.setTitle("Diagnostic Report-Lab");
-    sectionComponent.setCode(
-        new CodeableConcept().addCoding(typeCoding).setText("Diagnostic studies report"));
-    for (DiagnosticReport diagnosticReport : diagnosticReportList) {
-      sectionComponent.addEntry(
-          new Reference().setReference("DiagnosticReport/" + diagnosticReport.getId()));
-    }
-    for (DocumentReference documentReference : documentReferenceList) {
-      sectionComponent.addEntry(
-          new Reference().setReference("DocumentReference/" + documentReference.getId()));
-    }
-    composition.addSection(sectionComponent);
-    List<Reference> authorList = new ArrayList<>();
-    for (Practitioner practitioner : practitionerList) {
-      HumanName practionerName = practitioner.getName().get(0);
-      authorList.add(
-          new Reference()
-              .setDisplay(practionerName.getText())
-              .setReference("Practitioner/" + practitioner.getId()));
-    }
-    composition.setCustodian(
-        new Reference()
-            .setDisplay(organization.getName())
-            .setReference("Organisation/" + organization.getId()));
-    composition.setAuthor(authorList);
-    if (Objects.nonNull(encounter))
-      composition.setEncounter(new Reference().setReference("Encounter/" + encounter.getId()));
-    HumanName patientName = patient.getName().get(0);
-    composition.setSubject(
-        new Reference()
-            .setDisplay(patientName.getText())
-            .setReference("Patient/" + patient.getId()));
-    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
-    composition.setStatus(Composition.CompositionStatus.FINAL);
-    Identifier identifier = new Identifier();
-    identifier.setSystem("https://ABDM_WRAPPER/document");
-    identifier.setValue(UUID.randomUUID().toString());
-    composition.setIdentifier(identifier);
-    composition.setId(UUID.randomUUID().toString());
-    return composition;
   }
 }

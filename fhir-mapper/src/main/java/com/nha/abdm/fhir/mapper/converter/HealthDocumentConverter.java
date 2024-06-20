@@ -2,10 +2,12 @@
 package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.functions.*;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
+import com.nha.abdm.fhir.mapper.dto.compositions.MakeHealthDocumentComposition;
+import com.nha.abdm.fhir.mapper.dto.resources.*;
 import com.nha.abdm.fhir.mapper.requests.HealthDocumentRecord;
 import java.text.ParseException;
 import java.util.*;
@@ -23,6 +25,7 @@ public class HealthDocumentConverter {
   private final MakePractitionerResource makePractitionerResource;
   private final MakeDocumentResource makeDocumentResource;
   private final MakeEncounterResource makeEncounterResource;
+  private final MakeHealthDocumentComposition makeHealthDocumentComposition;
   private String docName = "Record artifact";
   private String docCode = "419891008";
 
@@ -32,13 +35,15 @@ public class HealthDocumentConverter {
       MakePatientResource makePatientResource,
       MakePractitionerResource makePractitionerResource,
       MakeDocumentResource makeDocumentResource,
-      MakeEncounterResource makeEncounterResource) {
+      MakeEncounterResource makeEncounterResource,
+      MakeHealthDocumentComposition makeHealthDocumentComposition) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
     this.makePatientResource = makePatientResource;
     this.makePractitionerResource = makePractitionerResource;
     this.makeDocumentResource = makeDocumentResource;
     this.makeEncounterResource = makeEncounterResource;
+    this.makeHealthDocumentComposition = makeHealthDocumentComposition;
   }
 
   public BundleResponse convertToHealthDocumentBundle(HealthDocumentRecord healthDocumentRecord)
@@ -78,7 +83,7 @@ public class HealthDocumentConverter {
                   : null,
               healthDocumentRecord.getAuthoredOn());
       Composition composition =
-          makeCompositionResource(
+          makeHealthDocumentComposition.makeCompositionResource(
               patient,
               healthDocumentRecord.getAuthoredOn(),
               practitionerList,
@@ -97,34 +102,35 @@ public class HealthDocumentConverter {
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Composition/" + composition.getId())
+              .setFullUrl(BundleResourceIdentifier.COMPOSITION + "/" + composition.getId())
               .setResource(composition));
       entries.add(
           new Bundle.BundleEntryComponent()
-              .setFullUrl("Patient/" + patient.getId())
+              .setFullUrl(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
               .setResource(patient));
       for (Practitioner practitioner : practitionerList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Practitioner/" + practitioner.getId())
+                .setFullUrl(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
                 .setResource(practitioner));
       }
       if (Objects.nonNull(organization)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Organisation/" + organization.getId())
+                .setFullUrl(BundleResourceIdentifier.ORGANISATION + "/" + organization.getId())
                 .setResource(organization));
       }
       if (Objects.nonNull(encounter)) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Encounter/" + encounter.getId())
+                .setFullUrl(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId())
                 .setResource(encounter));
       }
       for (DocumentReference documentReference : documentReferenceList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("DocumentReference/" + documentReference.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId())
                 .setResource(documentReference));
       }
       bundle.setEntry(entries);
@@ -134,67 +140,5 @@ public class HealthDocumentConverter {
           .error(ErrorResponse.builder().code(1000).message(e.getMessage()).build())
           .build();
     }
-  }
-
-  private Composition makeCompositionResource(
-      Patient patient,
-      String authoredOn,
-      List<Practitioner> practitionerList,
-      Organization organization,
-      Encounter encounter,
-      List<DocumentReference> documentReferenceList)
-      throws ParseException {
-    Composition composition = new Composition();
-    Meta meta = new Meta();
-    meta.setVersionId("1");
-    meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/HealthDocumentRecord");
-    composition.setMeta(meta);
-    Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-    sectionComponent.setTitle("OPD Records");
-    CodeableConcept typeCode = new CodeableConcept();
-    Coding typeCoding = new Coding();
-    typeCoding.setSystem("http://snomed.info/sct");
-    typeCoding.setCode("419891008");
-    typeCoding.setDisplay("Record artifact");
-    typeCode.addCoding(typeCoding);
-    typeCode.setText("Record artifact");
-    composition.setType(typeCode);
-    sectionComponent.setCode(typeCode);
-    for (DocumentReference documentReference : documentReferenceList) {
-      sectionComponent.addEntry(
-          new Reference().setReference("DocumentReference/" + documentReference.getId()));
-    }
-    composition.addSection(sectionComponent);
-    composition.setTitle("Health Document");
-    composition.setEncounter(new Reference().setReference("Encounter/" + encounter.getId()));
-    List<Reference> authorList = new ArrayList<>();
-    for (Practitioner practitioner : practitionerList) {
-      HumanName practionerName = practitioner.getName().get(0);
-      authorList.add(
-          new Reference()
-              .setDisplay(practionerName.getText())
-              .setReference("Practitioner/" + practitioner.getId()));
-    }
-    if (Objects.nonNull(organization)) {
-      composition.setCustodian(
-          new Reference()
-              .setDisplay(organization.getName())
-              .setReference("Organisation/" + organization.getId()));
-    }
-    composition.setAuthor(authorList);
-    HumanName patientName = patient.getName().get(0);
-    composition.setSubject(
-        new Reference()
-            .setDisplay(patientName.getText())
-            .setReference("Patient/" + patient.getId()));
-    composition.setDateElement(new DateTimeType(Utils.getFormattedDateTime(authoredOn)));
-    composition.setStatus(Composition.CompositionStatus.FINAL);
-    Identifier identifier = new Identifier();
-    identifier.setSystem("https://ABDM_WRAPPER/document");
-    identifier.setValue(UUID.randomUUID().toString());
-    composition.setIdentifier(identifier);
-    composition.setId(UUID.randomUUID().toString());
-    return composition;
   }
 }

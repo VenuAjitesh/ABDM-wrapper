@@ -1,7 +1,9 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.ServiceRequestResource;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -29,11 +31,11 @@ public class MakeServiceRequestResource {
     serviceRequest.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/ServiceRequest"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_SERVICE_REQUEST));
     serviceRequest.setCode(new CodeableConcept().setText(serviceRequestResource.getDetails()));
     serviceRequest.setSubject(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     List<Reference> performerList = new ArrayList<>();
     HumanName practitionerName = null;
@@ -41,7 +43,7 @@ public class MakeServiceRequestResource {
       practitionerName = practitioner.getName().get(0);
       performerList.add(
           new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));
     }
     if (!performerList.isEmpty()) {
@@ -49,7 +51,7 @@ public class MakeServiceRequestResource {
       practitionerName = practitioner.getName().get(0);
       serviceRequest.setRequester(
           new Reference()
-              .setReference("Practitioner/" + practitioner.getId())
+              .setReference(BundleResourceIdentifier.PRACTITIONER + "/" + practitioner.getId())
               .setDisplay(practitionerName.getText()));
     }
     serviceRequest.setPerformer(performerList);

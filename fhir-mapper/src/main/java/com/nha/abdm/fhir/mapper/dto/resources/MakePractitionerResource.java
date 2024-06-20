@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleFieldIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.PractitionerResource;
 import java.text.ParseException;
 import java.util.UUID;
@@ -14,19 +17,19 @@ public class MakePractitionerResource {
       throws ParseException {
     Coding coding = new Coding();
     coding.setCode("MR");
-    coding.setSystem("http://terminology.hl7.org/CodeSystem/v2-0203");
-    coding.setDisplay("Medical record number");
+    coding.setSystem(ResourceProfileIdentifier.PROFILE_PROVIDER);
+    coding.setDisplay(BundleFieldIdentifier.MEDICAL_RECORD_NUMBER);
     CodeableConcept codeableConcept = new CodeableConcept();
     codeableConcept.addCoding(coding);
     Identifier identifier = new Identifier();
     identifier.setType(codeableConcept);
-    identifier.setSystem("https://doctor.abdm.gov.in");
+    identifier.setSystem(BundleUrlIdentifier.DOCTOR_ID_URL);
     identifier.setValue(practitionerResource.getPractitionerId());
 
     Meta meta = new Meta();
     meta.setVersionId("1");
     meta.setLastUpdated(Utils.getCurrentTimeStamp());
-    meta.addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner");
+    meta.addProfile(ResourceProfileIdentifier.PROFILE_PRACTITIONER);
 
     Practitioner practitioner = new Practitioner();
     practitioner.addName(new HumanName().setText(practitionerResource.getName()));

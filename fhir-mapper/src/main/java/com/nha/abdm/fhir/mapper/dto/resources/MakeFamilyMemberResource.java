@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.FamilyObservationResource;
 import java.text.ParseException;
 import java.util.UUID;
@@ -19,16 +22,16 @@ public class MakeFamilyMemberResource {
     familyMemberHistory.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/FamilyMemberHistory"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_FAMILY_MEMBER_HISTORY));
     familyMemberHistory.setPatient(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
     familyMemberHistory.setRelationship(
         new CodeableConcept()
             .addCoding(
                 new Coding()
-                    .setSystem("http://snomed.info/sct")
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
                     .setCode("261665006")
                     .setDisplay(familyObservationResource.getRelationship()))
             .setText(familyObservationResource.getRelationship()));
@@ -38,7 +41,7 @@ public class MakeFamilyMemberResource {
                 new CodeableConcept()
                     .addCoding(
                         new Coding()
-                            .setSystem("http://snomed.info/sct")
+                            .setSystem(BundleUrlIdentifier.SNOMED_URL)
                             .setCode("261665006")
                             .setDisplay(familyObservationResource.getObservation()))
                     .setText(familyObservationResource.getObservation())));

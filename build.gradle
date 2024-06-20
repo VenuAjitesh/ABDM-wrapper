@@ -52,6 +52,7 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.66'
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.5'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 test {

@@ -1,7 +1,10 @@
 /* (C) 2024 */
-package com.nha.abdm.fhir.mapper.common.functions;
+package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleFieldIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import java.text.ParseException;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
@@ -18,20 +21,20 @@ public class MakeEncounterResource {
     encounter.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
-            .addProfile("https://nrces.in/ndhm/fhir/r4/StructureDefinition/Encounter"));
+            .addProfile(ResourceProfileIdentifier.PROFILE_ENCOUNTER));
     encounter.setClass_(
         new Coding()
-            .setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode")
+            .setSystem(ResourceProfileIdentifier.PROFILE_BUNDLE_META)
             .setCode("AMB")
             .setDisplay(
                 (encounterName != null && !encounterName.isEmpty())
                     ? encounterName
-                    : "ambulatory"));
+                    : BundleFieldIdentifier.AMBULATORY));
     encounter.setSubject(
         new Reference()
-            .setReference("Patient/" + patient.getId())
+            .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())
             .setDisplay(patientName.getText()));
-    encounter.setPeriod(new Period().setStart(Utils.getFormattedDateTime(visitDate)));
+    encounter.setPeriod(new Period().setStart(Utils.getFormattedDateTime(visitDate).getValue()));
     return encounter;
   }
 }
