@@ -95,7 +95,16 @@ curl --location --request PATCH 'https://dev.abdm.gov.in/gateway/v1/bridges' \
     "url": <your bridge url>
 }'
 ```
-
+3. Check the BRIDGE URL and Facilities
+```
+curl --location 'https://dev.abdm.gov.in/gateway/v1/bridges/getServices' \
+--header 'Authorization: Bearer your accessToken' \
+--header 'X-CM-ID: sbx' \
+--data ''
+```
+## Swagger UI
+1. Wrapper API's you can check [here](https://wrapper-sbx.abdm.gov.in/swagger/wrapper)
+2. FHIR Module API's you can check [here](https://wrapper-sbx.abdm.gov.in/swagger/fhir)
 ## Bring the application up.
 1. If the actual ABDM Gateway is up and running and responding properly:
    * Provide clientId and clientSecret in [application.properties](src/main/resources/application.properties)
@@ -751,10 +760,11 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
 - The api should be a `POST` handler and should accept a request body:
    ```
    {
+      "hipId":"The Faility ID"
       "careContextsWithPatientReferences": [
         {
-            "patientReference":"",
-            "careContextReference":""
+            "patientReference":"APOLLO_12334",
+            "careContextReference":"OP Visit 20-06-2024"
         }
      ]
    }
@@ -765,7 +775,7 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
   {
      "healthInformationBundle": [
         {
-           "careContextReference": "",
+           "careContextReference": "OP Visit 20-06-2024",
            "bundleContent": "Stringified FHIR bundle"
         }
      ]

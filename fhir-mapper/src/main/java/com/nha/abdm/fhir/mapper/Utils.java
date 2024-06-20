@@ -33,17 +33,6 @@ public class Utils {
 
   public static Date getFormattedDate(String dateTimeString) throws ParseException {
     dateTimeString = dateTimeString.trim();
-    if (dateTimeString.length() <= 10) {
-      return DATE_ONLY_FORMAT.parse(dateTimeString);
-    } else return null;
+    return new DateTimeType(dateTimeString).getValue();
   }
 }
-// public static DateTimeType getFormattedDateTime(String dateTimeString) throws ParseException {
-//  dateTimeString = dateTimeString.trim();
-//  if (dateTimeString.length() <= 10) {
-//    return new DateTimeType(dateTimeString);
-//  } else {
-//    log.info(String.valueOf((DateTimeType) new DateTimeType(dateTimeString)));
-//    return (DateTimeType) new DateTimeType(dateTimeString).setTimeZoneZulu(true);
-//  }
-// }

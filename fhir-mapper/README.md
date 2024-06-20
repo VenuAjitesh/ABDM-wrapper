@@ -45,7 +45,7 @@ Recommended RAM: Systems with more than 8 GB RAM
 | WellnessRecord          | The Clinical Artifact represents regular wellness information of patients typically through the Patient Health Record (PHR) application covering clinical information such as vitals, physical examination, general wellness, women wellness, etc., that can be shared across the health ecosystem.                            |
 
 ### APIs for generating the FHIR bundle
-- For Swagger-ui, check [here](https://venuajitesh.github.io/ABDM-wrapper/)
+- For Swagger-ui, check [here](https://wrapper-sbx.abdm.gov.in/swagger/fhir)
 #### DiagnosticReportRecord
 - for the DiagnosticReportRecord bundle you need to 
   * `POST` Request `/v1/bundle/diagnostic-report`

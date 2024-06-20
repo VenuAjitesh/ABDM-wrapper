@@ -192,11 +192,20 @@ public class HealthInformationService implements HealthInformationInterface {
     ConsentCareContextMapping existingLog =
         consentCareContextsService.findMappingByConsentId(
             hipHealthInformationRequest.getHiRequest().getConsent().getId());
+    HIPNotifyRequest hipNotifyRequest =
+        (HIPNotifyRequest)
+            requestLogService
+                .findByConsentId(
+                    hipHealthInformationRequest.getHiRequest().getConsent().getId(), "HIP")
+                .getRequestDetails()
+                .get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
+    String hipId = hipNotifyRequest.getNotification().getConsentDetail().getHip().getId();
     if (existingLog == null) {
       throw new IllegalDataStateException("consent id not found in db");
     }
     HealthInformationBundleRequest healthInformationBundleRequest =
         HealthInformationBundleRequest.builder()
+            .hipId(hipId)
             .careContextsWithPatientReferences(existingLog.getCareContexts())
             .build();
     log.debug(

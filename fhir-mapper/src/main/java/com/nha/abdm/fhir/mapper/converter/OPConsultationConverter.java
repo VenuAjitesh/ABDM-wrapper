@@ -37,7 +37,6 @@ public class OPConsultationConverter {
   private String docName = "Clinical consultation report";
   private String docCode = "371530004";
 
-
   public OPConsultationConverter(
       MakeOrganisationResource makeOrganisationResource,
       MakeBundleMetaResource makeBundleMetaResource,
