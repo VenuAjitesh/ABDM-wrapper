@@ -161,15 +161,17 @@ Recommended RAM: Systems with more than 8 GB RAM
             "timing":"2-5-d",
             "route":"Oral",
             "method":"swallow",
-            "additionalInstructions":"Take them after food"
+            "additionalInstructions":"Take them after food",
+            "reason": "fever"
         }
         ,{
-            "medicine":"Disprin",
+            "medicine":"Disprin",  //mandatory
             "dosage":"0-0-1", //mandatory
-            "timing":"1-2-d", //mandatory
+            "timing":"1-2-d",
             "route":"Syrup",
             "method":"drink",
-            "additionalInstructions":"Take them before food"
+            "additionalInstructions":"Take them before food",
+            "reason": "Cough"
         }
       ],
       "diagnostics":[{
@@ -348,7 +350,8 @@ Recommended RAM: Systems with more than 8 GB RAM
             "timing":"2-5-d",
             "route":"Oral",
             "method":"swallow",
-            "additionalInstructions":"Take them after food"
+            "additionalInstructions":"Take them after food",
+            "reason": "fever"
         }
         ,{
             "medicine":"Disprin", //mandatory
@@ -356,7 +359,8 @@ Recommended RAM: Systems with more than 8 GB RAM
             "timing":"1-2-d",
             "route":"Syrup",
             "method":"drink",
-            "additionalInstructions":"Take them before food"
+            "additionalInstructions":"Take them before food",
+            "reason": "Cough"
         }
     ],
     "followups":[
@@ -429,7 +433,8 @@ Recommended RAM: Systems with more than 8 GB RAM
             "timing":"2-5-d",
             "route":"Oral",
             "method":"swallow",
-            "additionalInstructions":"Take them after food"
+            "additionalInstructions":"Take them after food",
+            "reason": "fever"
         }
         ,{
             "medicine":"Disprin", //mandatory
@@ -437,7 +442,8 @@ Recommended RAM: Systems with more than 8 GB RAM
             "timing":"1-2-d",
             "route":"Syrup",
             "method":"drink",
-            "additionalInstructions":"Take them before food"
+            "additionalInstructions":"Take them before food",
+            "reason": "Cough"
         }
     ],
     "documents":[{

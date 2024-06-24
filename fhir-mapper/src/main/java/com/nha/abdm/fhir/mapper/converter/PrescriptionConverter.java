@@ -29,28 +29,28 @@ public class PrescriptionConverter {
 
   private final MakePractitionerResource makePractitionerResource;
   private final MakeBundleMetaResource makeBundleMetaResource;
-  private final MakeDocumentResource makeDocumentResource;
   private final MakeMedicationRequestResource makeMedicationRequestResource;
   private final MakeEncounterResource makeEncounterResource;
   private final MakePrescriptionComposition makePrescriptionComposition;
+  private final MakeConditionResource makeConditionResource;
 
   public PrescriptionConverter(
       MakeOrganisationResource makeOrganisationResource,
       MakePatientResource makePatientResource,
       MakePractitionerResource makePractitionerResource,
       MakeBundleMetaResource makeBundleMetaResource,
-      MakeDocumentResource makeDocumentResource,
       MakeMedicationRequestResource makeMedicationRequestResource,
       MakeEncounterResource makeEncounterResource,
-      MakePrescriptionComposition makePrescriptionComposition) {
+      MakePrescriptionComposition makePrescriptionComposition,
+      MakeConditionResource makeConditionResource) {
     this.makeOrganisationResource = makeOrganisationResource;
     this.makePatientResource = makePatientResource;
     this.makePractitionerResource = makePractitionerResource;
     this.makeBundleMetaResource = makeBundleMetaResource;
-    this.makeDocumentResource = makeDocumentResource;
     this.makeMedicationRequestResource = makeMedicationRequestResource;
     this.makeEncounterResource = makeEncounterResource;
     this.makePrescriptionComposition = makePrescriptionComposition;
+    this.makeConditionResource = makeConditionResource;
   }
 
   public BundleResponse convertToPrescriptionBundle(PrescriptionRequest prescriptionRequest)
@@ -77,14 +77,24 @@ public class PrescriptionConverter {
                           .collect(Collectors.toList()))
               .orElseGet(ArrayList::new);
       List<MedicationRequest> medicationRequestList = new ArrayList<>();
+      List<Condition> medicationConditionList = new ArrayList<>();
       for (PrescriptionResource item : prescriptionRequest.getPrescriptions()) {
+        Condition condition =
+            item.getReason() != null
+                ? makeConditionResource.getCondition(
+                    item.getReason(), patient, prescriptionRequest.getAuthoredOn(), null)
+                : null;
         medicationRequestList.add(
             makeMedicationRequestResource.getMedicationResource(
                 prescriptionRequest.getAuthoredOn(),
                 item,
+                condition,
                 organization,
                 practitionerList,
                 patient));
+        if (condition != null) {
+          medicationConditionList.add(condition);
+        }
       }
       Encounter encounter =
           makeEncounterResource.getEncounter(
@@ -158,6 +168,12 @@ public class PrescriptionConverter {
                 .setFullUrl(
                     BundleResourceIdentifier.MEDICATION_REQUEST + "/" + medicationRequest.getId())
                 .setResource(medicationRequest));
+      }
+      for (Condition medicationCondition : medicationConditionList) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl(BundleResourceIdentifier.CONDITION + "/" + medicationCondition.getId())
+                .setResource(medicationCondition));
       }
       for (Binary binary : documentList) {
         entries.add(

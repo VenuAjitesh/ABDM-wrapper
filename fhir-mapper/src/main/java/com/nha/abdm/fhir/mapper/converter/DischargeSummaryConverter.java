@@ -121,14 +121,27 @@ public class DischargeSummaryConverter {
               ? makeFamilyMemberHistory(patient, dischargeSummaryRequest)
               : new ArrayList<>();
       List<MedicationRequest> medicationList = new ArrayList<>();
+      List<Condition> medicationConditionList = new ArrayList<>();
       for (PrescriptionResource prescriptionResource : dischargeSummaryRequest.getMedications()) {
+        Condition medicationCondition =
+            prescriptionResource.getReason() != null
+                ? makeConditionResource.getCondition(
+                    prescriptionResource.getReason(),
+                    patient,
+                    dischargeSummaryRequest.getAuthoredOn(),
+                    null)
+                : null;
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
                 dischargeSummaryRequest.getAuthoredOn(),
                 prescriptionResource,
+                medicationCondition,
                 organization,
                 practitionerList,
                 patient));
+        if (medicationCondition != null) {
+          medicationConditionList.add(medicationCondition);
+        }
       }
       List<DiagnosticReport> diagnosticReportList = new ArrayList<>();
       List<Observation> diagnosticObservationList = new ArrayList<>();
@@ -234,6 +247,12 @@ public class DischargeSummaryConverter {
             new Bundle.BundleEntryComponent()
                 .setFullUrl(BundleResourceIdentifier.MEDICAL_HISTORY + "/" + medicalHistory.getId())
                 .setResource(medicalHistory));
+      }
+      for (Condition medicationCondition : medicationConditionList) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl(BundleResourceIdentifier.CONDITION + "/" + medicationCondition.getId())
+                .setResource(medicationCondition));
       }
       for (FamilyMemberHistory familyMemberHistory : familyMemberHistoryList) {
         entries.add(

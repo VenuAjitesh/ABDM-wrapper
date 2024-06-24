@@ -28,4 +28,5 @@ public class PrescriptionResource {
   private String route;
   private String method;
   private String additionalInstructions;
+  private String reason;
 }

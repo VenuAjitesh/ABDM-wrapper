@@ -307,7 +307,7 @@ components:
             $ref: '#/components/schemas/Practitioner'
         organisation:
           $ref: '#/components/schemas/Organisation'
-        prescriptiona:
+        prescriptions:
           type: array
           items:
             $ref: '#/components/schemas/Medication'
@@ -339,10 +339,13 @@ components:
           facilityName: Predator_HIP
           facilityId: Predator_HIP
         prescriptions:
-          - medicine: Aspirin 75 mg oral tablet
+          - medicine: Dolo
             dosage: 1-0-1
-          - medicine: Disprin
-            dosage: 0-0-1
+            timing: 1-1-D
+            route: Oral
+            method: swallow
+            additionalInstructions: Take them after food
+            reason: Fever
         documents:
           - type: Prescription
             contentType: application/pdf
@@ -615,6 +618,13 @@ components:
             dateRange:
               from: 2018-04-27
               to: 2018-05-26
+        medications:
+          - medicine: Dolo
+            dosage: 1-0-1
+            timing: 1-1-D
+            route: Oral
+            method: swallow
+            additionalInstructions: Take them after food
         physicalExaminations:
           - observation: Height
             valueQuantity:
@@ -631,11 +641,6 @@ components:
         familyHistories:
           - relationship: Friend
             observation: Toxic
-        medications:
-          - medicine: Dolo
-            dosage: 1-0-1
-          - medicine: Disprin
-            dosage: 0-0-1
         diagnostics:
           - serviceName: BloodTest
             serviceCategory: Hematography
@@ -1010,6 +1015,8 @@ components:
           type: string
         additionalInstructions:
           type: string
+        reason:
+          type: string
       required:
         - medicine
         - dosage
@@ -1020,6 +1027,7 @@ components:
         route: Oral
         method: swallow
         additionalInstructions: Take them after food
+        reason: Fever
 
 
     FollowUp:
