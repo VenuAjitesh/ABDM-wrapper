@@ -14,4 +14,5 @@ public class BundleFieldIdentifier {
   public static final String BODY_MEASUREMENT = "bodyMeasurement";
   public static final String VITAL_SIGNS = "vitalSigns";
   public static final String SYSTEM = "system";
+  public static final String MEDICAL_CONDITION = "MedicalCondition";
 }

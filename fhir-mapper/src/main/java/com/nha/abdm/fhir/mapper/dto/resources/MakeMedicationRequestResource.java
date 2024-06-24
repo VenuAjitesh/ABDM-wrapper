@@ -2,9 +2,7 @@
 package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
-import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
-import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.*;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
 import java.util.*;
@@ -16,6 +14,7 @@ public class MakeMedicationRequestResource {
   public MedicationRequest getMedicationResource(
       String authoredOn,
       PrescriptionResource prescriptionResource,
+      Condition medicationCondition,
       Organization organization,
       List<Practitioner> practitioners,
       Patient patient)
@@ -41,7 +40,7 @@ public class MakeMedicationRequestResource {
     if (prescriptionResource.getDosage() != null) {
       Dosage dosage = new Dosage();
       dosage.setText(prescriptionResource.getDosage());
-      if (!prescriptionResource.getAdditionalInstructions().isBlank()) {
+      if (prescriptionResource.getAdditionalInstructions() != null) {
         dosage.addAdditionalInstruction(
             new CodeableConcept()
                 .setText(prescriptionResource.getAdditionalInstructions())
@@ -82,6 +81,23 @@ public class MakeMedicationRequestResource {
                         .setPeriodUnit(Timing.UnitsOfTime.valueOf(parts[2]))));
       }
       medicationRequest.setDosageInstruction(Collections.singletonList(dosage));
+    }
+    if (medicationCondition != null) {
+      medicationRequest.setReasonCode(
+          Collections.singletonList(
+              new CodeableConcept()
+                  .addCoding(
+                      new Coding()
+                          .setSystem(BundleUrlIdentifier.SNOMED_URL)
+                          .setCode(SnomedCodeIdentifier.SNOMED_UNKNOWN)
+                          .setDisplay(medicationCondition.getCode().getText()))
+                  .setText(medicationCondition.getCode().getText())));
+      medicationRequest.setReasonReference(
+          Collections.singletonList(
+              new Reference()
+                  .setReference(
+                      BundleResourceIdentifier.CONDITION + "/" + medicationCondition.getId())
+                  .setDisplay(BundleFieldIdentifier.MEDICAL_CONDITION)));
     }
     if (!practitioners.isEmpty()) {
       Practitioner practitioner = practitioners.get(0);

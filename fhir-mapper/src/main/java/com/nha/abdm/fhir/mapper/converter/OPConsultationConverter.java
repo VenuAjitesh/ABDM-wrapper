@@ -122,14 +122,27 @@ public class OPConsultationConverter {
               : new ArrayList<>();
       HashMap<Medication, MedicationRequest> medicationRequestMap = new HashMap<>();
       List<MedicationRequest> medicationList = new ArrayList<>();
+      List<Condition> medicationConditionList = new ArrayList<>();
       for (PrescriptionResource prescriptionResource : opConsultationRequest.getMedications()) {
+        Condition medicationCondition =
+            prescriptionResource.getReason() != null
+                ? makeConditionResource.getCondition(
+                    prescriptionResource.getReason(),
+                    patient,
+                    opConsultationRequest.getVisitDate(),
+                    null)
+                : null;
         medicationList.add(
             makeMedicationRequestResource.getMedicationResource(
                 opConsultationRequest.getVisitDate(),
                 prescriptionResource,
+                medicationCondition,
                 organization,
                 practitionerList,
                 patient));
+        if (medicationCondition != null) {
+          medicationConditionList.add(medicationCondition);
+        }
       }
       List<Appointment> followupList =
           opConsultationRequest.getFollowups() != null
@@ -255,6 +268,12 @@ public class OPConsultationConverter {
                 .setFullUrl(
                     BundleResourceIdentifier.MEDICATION_REQUEST + "/" + medicationRequest.getId())
                 .setResource(medicationRequest));
+      }
+      for (Condition medicationCondition : medicationConditionList) {
+        entries.add(
+            new Bundle.BundleEntryComponent()
+                .setFullUrl(BundleResourceIdentifier.CONDITION + "/" + medicationCondition.getId())
+                .setResource(medicationCondition));
       }
       for (Appointment followUp : followupList) {
         entries.add(
