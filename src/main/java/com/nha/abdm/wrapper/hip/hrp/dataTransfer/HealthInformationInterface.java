@@ -12,7 +12,10 @@ import java.security.spec.InvalidKeySpecException;
 public interface HealthInformationInterface {
 
   void healthInformation(HIPHealthInformationRequest data)
-      throws IllegalDataStateException, InvalidAlgorithmParameterException,
-          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+      throws IllegalDataStateException,
+          InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
           InvalidKeyException;
 }

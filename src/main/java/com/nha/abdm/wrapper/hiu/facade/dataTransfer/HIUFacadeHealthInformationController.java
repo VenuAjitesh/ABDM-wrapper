@@ -37,8 +37,11 @@ public class HIUFacadeHealthInformationController {
   @PostMapping({"/fetch-records"})
   public ResponseEntity<FacadeResponse> healthInformation(
       @RequestBody HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          IllegalDataStateException, ParseException {
+      throws InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          NoSuchProviderException,
+          IllegalDataStateException,
+          ParseException {
     FacadeResponse facadeResponse =
         hiuFacadeHealthInformationInterface.healthInformation(hiuClientHealthInformationRequest);
     return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());
@@ -53,8 +56,12 @@ public class HIUFacadeHealthInformationController {
   @GetMapping({"/status/{requestId}"})
   public ResponseEntity<HealthInformationResponse> getHealthInformationRequestStatus(
       @PathVariable("requestId") String requestId)
-      throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
-          InvalidKeySpecException, NoSuchProviderException, InvalidKeyException {
+      throws IllegalDataStateException,
+          InvalidCipherTextException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException {
     HealthInformationResponse healthInformationResponse =
         hiuFacadeHealthInformationInterface.getHealthInformation(requestId);
     HttpStatusCode httpStatusCode = healthInformationResponse.getHttpStatusCode();

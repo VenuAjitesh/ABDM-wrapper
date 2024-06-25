@@ -54,6 +54,7 @@ public class RequestLogService<T> {
     InitResponse data = (InitResponse) existingRecord.getRequestDetails().get("InitResponse");
     return data.getPatient().getId();
   }
+
   /**
    * Fetch of patientReferenceNumber from requestLogs.
    *
@@ -266,6 +267,7 @@ public class RequestLogService<T> {
       mongoTemplate.updateFirst(query, update, RequestLog.class);
     }
   }
+
   /**
    * <B>hipInitiatedLinking</B>
    *

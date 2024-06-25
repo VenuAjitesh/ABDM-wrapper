@@ -192,8 +192,11 @@ public class WorkflowManager {
   }
 
   public void healthInformation(HIPHealthInformationRequest hipHealthInformationRequest)
-      throws IllegalDataStateException, InvalidAlgorithmParameterException,
-          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+      throws IllegalDataStateException,
+          InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
           InvalidKeyException {
     log.debug(hipHealthInformationRequest.toString());
     healthInformationInterface.healthInformation(hipHealthInformationRequest);

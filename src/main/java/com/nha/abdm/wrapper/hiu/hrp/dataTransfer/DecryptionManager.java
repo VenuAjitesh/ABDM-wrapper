@@ -46,8 +46,11 @@ public class DecryptionManager {
       String hiuPrivateKey,
       String hipPublicKey,
       String encryptedData)
-      throws InvalidCipherTextException, NoSuchAlgorithmException, InvalidKeySpecException,
-          NoSuchProviderException, InvalidKeyException {
+      throws InvalidCipherTextException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException {
     byte[] xorOfRandom = xorOfRandom(hipNonce, hiuNonce);
     return decrypt(xorOfRandom, hiuPrivateKey, hipPublicKey, encryptedData);
   }
@@ -69,8 +72,11 @@ public class DecryptionManager {
 
   public String decrypt(
       byte[] xorOfRandom, String receiverPrivateKey, String senderPublicKey, String stringToDecrypt)
-      throws InvalidCipherTextException, NoSuchAlgorithmException, InvalidKeySpecException,
-          NoSuchProviderException, InvalidKeyException {
+      throws InvalidCipherTextException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException {
     String sharedKey =
         doECDH(
             getBytesForBase64String(receiverPrivateKey), getBytesForBase64String(senderPublicKey));
@@ -100,7 +106,9 @@ public class DecryptionManager {
   }
 
   private String doECDH(byte[] dataPrv, byte[] dataPub)
-      throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException,
+      throws NoSuchAlgorithmException,
+          NoSuchProviderException,
+          InvalidKeySpecException,
           InvalidKeyException {
     KeyAgreement ka =
         KeyAgreement.getInstance(CipherKeyManager.ALGORITHM, CipherKeyManager.PROVIDER);

@@ -48,8 +48,12 @@ public class EncryptionService {
   public EncryptionResponse encrypt(
       HIPHealthInformationRequest hipHealthInformationRequest,
       HealthInformationBundleResponse bundleResponse)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          InvalidKeySpecException, InvalidKeyException, IllegalDataStateException {
+      throws InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          NoSuchProviderException,
+          InvalidKeySpecException,
+          InvalidKeyException,
+          IllegalDataStateException {
     if (CollectionUtils.isEmpty(bundleResponse.getHealthInformationBundle())) {
       throw new IllegalDataStateException("Bundle response is null");
     }
@@ -107,7 +111,9 @@ public class EncryptionService {
 
   private String encrypt(
       byte[] xorOfRandom, String senderPrivateKey, String receiverPublicKey, String stringToEncrypt)
-      throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+      throws NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
           InvalidKeyException {
     // Generating shared secret
     String sharedKey =
@@ -141,7 +147,9 @@ public class EncryptionService {
   }
 
   private String doECDH(byte[] dataPrv, byte[] dataPub)
-      throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException,
+      throws NoSuchAlgorithmException,
+          NoSuchProviderException,
+          InvalidKeySpecException,
           InvalidKeyException {
     KeyAgreement ka =
         KeyAgreement.getInstance(CipherKeyManager.ALGORITHM, CipherKeyManager.PROVIDER);

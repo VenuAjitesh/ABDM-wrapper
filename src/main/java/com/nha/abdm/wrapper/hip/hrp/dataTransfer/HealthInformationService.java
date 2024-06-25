@@ -88,8 +88,11 @@ public class HealthInformationService implements HealthInformationInterface {
    */
   @Override
   public void healthInformation(HIPHealthInformationRequest hipHealthInformationRequest)
-      throws IllegalDataStateException, InvalidAlgorithmParameterException,
-          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+      throws IllegalDataStateException,
+          InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
           InvalidKeyException {
     OnHealthInformationRequest onHealthInformationRequest = null;
     RespRequest responseRequestId =
@@ -221,8 +224,12 @@ public class HealthInformationService implements HealthInformationInterface {
    */
   private ResponseEntity<GenericResponse> pushHealthInformation(
       HealthInformationBundleResponse healthInformationBundleResponse, String consentId)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
-          NoSuchProviderException, InvalidKeyException, IllegalDataStateException {
+      throws InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException,
+          IllegalDataStateException {
     try {
       log.debug("HealthInformationBundle : " + healthInformationBundleResponse);
       RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
@@ -261,8 +268,12 @@ public class HealthInformationService implements HealthInformationInterface {
       HIPNotifyRequest hipNotifyRequest,
       HIPHealthInformationRequest hipHealthInformationRequest,
       HealthInformationBundleResponse healthInformationBundleResponse)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
-          NoSuchProviderException, InvalidKeyException, IllegalDataStateException {
+      throws InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException,
+          IllegalDataStateException {
     EncryptionResponse encryptedData =
         encryptionService.encrypt(hipHealthInformationRequest, healthInformationBundleResponse);
 

@@ -51,6 +51,7 @@ public class PatientService {
     Patient existingRecord = this.patientRepo.findByAbhaAddress(abhaAddress);
     return existingRecord != null ? existingRecord.getPatientReference() : "";
   }
+
   /**
    * Fetch of patientDisplay using abhaAddress
    *
@@ -61,6 +62,7 @@ public class PatientService {
     Patient patient = patientRepo.findByAbhaAddress(abhaAddress);
     return patient != null ? patient.getPatientDisplay() : "";
   }
+
   /**
    * Fetch of abhaAddress using abhaAddress
    *

@@ -86,8 +86,11 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
   @Override
   public FacadeResponse healthInformation(
       HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          IllegalDataStateException, ParseException {
+      throws InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          NoSuchProviderException,
+          IllegalDataStateException,
+          ParseException {
     if (Objects.isNull(hiuClientHealthInformationRequest)) {
       return FacadeResponse.builder()
           .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
@@ -164,13 +167,18 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           .build();
     }
   }
+
   // Implementing the status check because, if the status is revoked after /fetch-records,
   // The HIU can still fetch the records from wrapper using requestId.
   // So returning the bundle only when the status is GRANTED.
   @Override
   public HealthInformationResponse getHealthInformation(String requestId)
-      throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
-          InvalidKeySpecException, NoSuchProviderException, InvalidKeyException {
+      throws IllegalDataStateException,
+          InvalidCipherTextException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException {
     RequestLog requestLog = logsRepo.findByClientRequestId(requestId);
     if (Objects.isNull(requestLog)) {
       throw new IllegalDataStateException("Request no found for request id: " + requestId);
@@ -259,8 +267,12 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
 
   private List<HealthInformationBundle> getDecryptedHealthInformation(
       List<HealthInformationPushRequest> healthInformationPushRequestList)
-      throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
-          InvalidKeySpecException, NoSuchProviderException, InvalidKeyException {
+      throws IllegalDataStateException,
+          InvalidCipherTextException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException {
     List<HealthInformationBundle> decryptedHealthInformationEntries = new ArrayList<>();
     for (HealthInformationPushRequest healthInformationPushRequest :
         healthInformationPushRequestList) {

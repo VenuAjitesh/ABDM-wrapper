@@ -16,10 +16,17 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 public interface HIUFacadeHealthInformationInterface {
   FacadeResponse healthInformation(
       HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          IllegalDataStateException, ParseException;
+      throws InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          NoSuchProviderException,
+          IllegalDataStateException,
+          ParseException;
 
   HealthInformationResponse getHealthInformation(String requestId)
-      throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
-          InvalidKeySpecException, NoSuchProviderException, InvalidKeyException;
+      throws IllegalDataStateException,
+          InvalidCipherTextException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
+          InvalidKeyException;
 }
