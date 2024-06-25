@@ -26,7 +26,6 @@ public class DischargeSummaryConverter {
   private final MakePractitionerResource makePractitionerResource;
   private final MakeConditionResource makeConditionResource;
   private final MakeObservationResource makeObservationResource;
-  private final MakeServiceRequestResource makeServiceRequestResource;
   private final MakeAllergyToleranceResource makeAllergyToleranceResource;
   private final MakeFamilyMemberResource makeFamilyMemberResource;
   private final MakeDocumentResource makeDocumentResource;
@@ -60,7 +59,6 @@ public class DischargeSummaryConverter {
     this.makePractitionerResource = makePractitionerResource;
     this.makeConditionResource = makeConditionResource;
     this.makeObservationResource = makeObservationResource;
-    this.makeServiceRequestResource = makeServiceRequestResource;
     this.makeAllergyToleranceResource = makeAllergyToleranceResource;
     this.makeFamilyMemberResource = makeFamilyMemberResource;
     this.makeDocumentResource = makeDocumentResource;

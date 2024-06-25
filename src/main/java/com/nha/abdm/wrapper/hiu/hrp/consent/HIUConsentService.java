@@ -332,6 +332,7 @@ public class HIUConsentService implements HIUConsentInterface {
         .error(ErrorResponse.builder().code(1000).message("Consents not found").build())
         .build();
   }
+
   // Displaying the hip details and the careContexts associated with consentId
   // Fetching the consents from request-logs,
   // Getting the abhaAddress using consentPatient repo
@@ -357,6 +358,7 @@ public class HIUConsentService implements HIUConsentInterface {
     }
     return buildConsentDetails(consentList);
   }
+
   // TODO
 
   /**

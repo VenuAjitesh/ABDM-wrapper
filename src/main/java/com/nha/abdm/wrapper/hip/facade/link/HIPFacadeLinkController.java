@@ -43,6 +43,7 @@ public class HIPFacadeLinkController {
       return new ResponseEntity<>(requestStatusResponse, HttpStatus.BAD_REQUEST);
     }
   }
+
   /**
    * <B>Facade</B> POST method to facade for linking careContexts i.e. hipInitiatedLinking.
    *

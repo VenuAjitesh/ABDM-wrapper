@@ -253,8 +253,11 @@ public class GatewayCallbackController {
   @PostMapping({"/v0.5/health-information/hip/request"})
   public ResponseEntity<GatewayCallbackResponse> healthInformation(
       @RequestBody HIPHealthInformationRequest hipHealthInformationRequest)
-      throws IllegalDataStateException, InvalidAlgorithmParameterException,
-          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+      throws IllegalDataStateException,
+          InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException,
+          InvalidKeySpecException,
+          NoSuchProviderException,
           InvalidKeyException {
     if (hipHealthInformationRequest != null) {
       workflowManager.healthInformation(hipHealthInformationRequest);

@@ -41,7 +41,6 @@ public class DiagnosticReportConverter {
       MakeDocumentResource makeDocumentResource,
       MakeObservationResource makeObservationResource,
       MakeDiagnosticLabResource makeDiagnosticLabResource,
-      MakeEncounterResource encounterResource,
       MakeEncounterResource makeEncounterResource,
       MakeDiagnosticComposition makeDiagnosticComposition) {
     this.makeOrganisationResource = makeOrganisationResource;

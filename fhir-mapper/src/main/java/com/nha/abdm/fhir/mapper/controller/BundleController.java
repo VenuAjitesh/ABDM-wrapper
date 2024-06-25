@@ -94,6 +94,7 @@ public class BundleController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
+
   /**
    * @param opConsultationRequest which has all basic details of the visit
    * @return FHIR bundle if no error found
@@ -196,6 +197,7 @@ public class BundleController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
+
   /**
    * @param dischargeSummaryRequest which has discharge details like the findings and observations
    * @return FHIR bundle if no error found
@@ -229,6 +231,7 @@ public class BundleController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
+
   /**
    * @param wellnessRecordRequest which has all the physical observations
    * @return FHIR bundle if no error found
