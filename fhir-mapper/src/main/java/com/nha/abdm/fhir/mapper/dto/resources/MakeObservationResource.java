@@ -3,7 +3,9 @@ package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.ObservationResource;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -13,10 +15,12 @@ import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeObservationResource {
+  @Autowired SnomedService snomedService;
   private static final Logger log = LoggerFactory.getLogger(MakeObservationResource.class);
 
   public Observation getObservation(
@@ -25,9 +29,16 @@ public class MakeObservationResource {
     HumanName patientName = patient.getName().get(0);
     Observation observation = new Observation();
     observation.setStatus(Observation.ObservationStatus.FINAL);
-    CodeableConcept typeCode = new CodeableConcept();
-    typeCode.setText(observationResource.getObservation());
-    observation.setCode(typeCode);
+    observation.setCode(
+        new CodeableConcept()
+            .setText(observationResource.getObservation())
+            .addCoding(
+                new Coding()
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL)
+                    .setCode(
+                        snomedService.getSnomedObservationCode(
+                            observationResource.getObservation()))
+                    .setDisplay(observationResource.getObservation())));
     observation.setSubject(
         new Reference()
             .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())

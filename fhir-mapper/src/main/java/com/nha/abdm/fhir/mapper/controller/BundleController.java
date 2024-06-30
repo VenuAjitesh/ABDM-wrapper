@@ -2,10 +2,12 @@
 package com.nha.abdm.fhir.mapper.controller;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.nha.abdm.fhir.mapper.common.constants.BundleIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.FacadeError;
 import com.nha.abdm.fhir.mapper.converter.*;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.*;
 import jakarta.validation.Valid;
 import java.text.ParseException;
@@ -27,6 +29,7 @@ public class BundleController {
   @Autowired DiagnosticReportConverter diagnosticReportConverter;
   @Autowired DischargeSummaryConverter dischargeSummaryConverter;
   @Autowired WellnessRecordConverter wellnessRecordConverter;
+  @Autowired SnomedService snomedService;
   FhirContext ctx = FhirContext.forR4();
 
   /**
@@ -37,7 +40,9 @@ public class BundleController {
   @PostMapping("/immunization")
   public Object createImmunizationBundle(
       @Validated @RequestBody ImmunizationRequest immunizationRequest) throws ParseException {
-    if (!immunizationRequest.getBundleType().equalsIgnoreCase("ImmunizationRecord")) {
+    if (!immunizationRequest
+        .getBundleType()
+        .equalsIgnoreCase(BundleIdentifier.IMMUNIZATION_RECORD)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -49,7 +54,8 @@ public class BundleController {
                                   + "'"
                                   + immunizationRequest.getBundleType()
                                   + "'"
-                                  + " required: ImmunizationRecord")
+                                  + " required:"
+                                  + BundleIdentifier.IMMUNIZATION_RECORD)
                           .build())
                   .build());
     }
@@ -70,7 +76,9 @@ public class BundleController {
   @PostMapping("/prescription")
   public ResponseEntity<Object> createPrescriptionBundle(
       @Valid @RequestBody PrescriptionRequest prescriptionRequest) throws ParseException {
-    if (!prescriptionRequest.getBundleType().equalsIgnoreCase("PrescriptionRecord")) {
+    if (!prescriptionRequest
+        .getBundleType()
+        .equalsIgnoreCase(BundleIdentifier.PRESCRIPTION_RECORD)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -82,7 +90,8 @@ public class BundleController {
                                   + "'"
                                   + prescriptionRequest.getBundleType()
                                   + "'"
-                                  + " required: PrescriptionRecord")
+                                  + " required: "
+                                  + BundleIdentifier.PRESCRIPTION_RECORD)
                           .build())
                   .build());
     }
@@ -104,7 +113,9 @@ public class BundleController {
   public ResponseEntity<Object> createOPConsultationBundle(
       @Valid @RequestBody OPConsultationRequest opConsultationRequest) throws ParseException {
     if (Objects.isNull(opConsultationRequest)
-        || !opConsultationRequest.getBundleType().equalsIgnoreCase("OPConsultRecord")) {
+        || !opConsultationRequest
+            .getBundleType()
+            .equalsIgnoreCase(BundleIdentifier.OP_CONSULTATION)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -116,7 +127,8 @@ public class BundleController {
                                   + "'"
                                   + opConsultationRequest.getBundleType()
                                   + "'"
-                                  + " required: OPConsultRecord")
+                                  + " required: "
+                                  + BundleIdentifier.OP_CONSULTATION)
                           .build())
                   .build());
     }
@@ -138,7 +150,9 @@ public class BundleController {
   public ResponseEntity<Object> createHealthDocumentBundle(
       @Valid @RequestBody HealthDocumentRecord healthDocumentRecord) throws ParseException {
     if (Objects.isNull(healthDocumentRecord)
-        || !healthDocumentRecord.getBundleType().equalsIgnoreCase("HealthDocumentRecord")) {
+        || !healthDocumentRecord
+            .getBundleType()
+            .equalsIgnoreCase(BundleIdentifier.HEALTH_DOCUMENT)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -150,7 +164,8 @@ public class BundleController {
                                   + "'"
                                   + healthDocumentRecord.getBundleType()
                                   + "'"
-                                  + " required: HealthDocumentRecord")
+                                  + " required: "
+                                  + BundleIdentifier.HEALTH_DOCUMENT)
                           .build())
                   .build());
     }
@@ -173,7 +188,9 @@ public class BundleController {
   public ResponseEntity<Object> createDiagnosticReportBundle(
       @Valid @RequestBody DiagnosticReportRequest diagnosticReportRequest) throws ParseException {
     if (Objects.isNull(diagnosticReportRequest)
-        || !diagnosticReportRequest.getBundleType().equalsIgnoreCase("DiagnosticReportRecord")) {
+        || !diagnosticReportRequest
+            .getBundleType()
+            .equalsIgnoreCase(BundleIdentifier.DIAGNOSTIC_REPORT)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -185,7 +202,8 @@ public class BundleController {
                                   + "'"
                                   + diagnosticReportRequest.getBundleType()
                                   + "'"
-                                  + " required: DiagnosticReportRecord")
+                                  + " required: "
+                                  + BundleIdentifier.DIAGNOSTIC_REPORT)
                           .build())
                   .build());
     }
@@ -207,7 +225,9 @@ public class BundleController {
   public ResponseEntity<Object> createDischargeSummaryBundle(
       @Valid @RequestBody DischargeSummaryRequest dischargeSummaryRequest) throws ParseException {
     if (Objects.isNull(dischargeSummaryRequest)
-        || !dischargeSummaryRequest.getBundleType().equalsIgnoreCase("DischargeSummaryRecord")) {
+        || !dischargeSummaryRequest
+            .getBundleType()
+            .equalsIgnoreCase(BundleIdentifier.DISCHARGE_SUMMARY_RECORD)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -219,7 +239,8 @@ public class BundleController {
                                   + "'"
                                   + dischargeSummaryRequest.getBundleType()
                                   + "'"
-                                  + " required: DischargeSummaryRecord")
+                                  + " required: "
+                                  + BundleIdentifier.DISCHARGE_SUMMARY_RECORD)
                           .build())
                   .build());
     }
@@ -241,7 +262,9 @@ public class BundleController {
   public ResponseEntity<Object> createWellnessBundle(
       @Valid @RequestBody WellnessRecordRequest wellnessRecordRequest) throws ParseException {
     if (Objects.isNull(wellnessRecordRequest)
-        || !wellnessRecordRequest.getBundleType().equalsIgnoreCase("WellnessRecord")) {
+        || !wellnessRecordRequest
+            .getBundleType()
+            .equalsIgnoreCase(BundleIdentifier.WELLNESS_RECORD)) {
       return ResponseEntity.badRequest()
           .body(
               FacadeError.builder()
@@ -253,7 +276,8 @@ public class BundleController {
                                   + "'"
                                   + wellnessRecordRequest.getBundleType()
                                   + "'"
-                                  + " required: WellnessRecord")
+                                  + " required: "
+                                  + BundleIdentifier.WELLNESS_RECORD)
                           .build())
                   .build());
     }

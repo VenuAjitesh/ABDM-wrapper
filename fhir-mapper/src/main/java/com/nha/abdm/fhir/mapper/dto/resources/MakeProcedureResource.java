@@ -5,14 +5,18 @@ import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.ProcedureResource;
 import java.text.ParseException;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeProcedureResource {
+  @Autowired SnomedService snomedService;
+
   public Procedure getProcedure(Patient patient, ProcedureResource procedureResource)
       throws ParseException {
     Procedure procedure = new Procedure();
@@ -31,7 +35,9 @@ public class MakeProcedureResource {
             .addCoding(
                 new Coding()
                     .setDisplay(procedureResource.getProcedureName())
-                    .setCode("261665006")
+                    .setCode(
+                        snomedService.getConditionProcedureCode(
+                            procedureResource.getProcedureName()))
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)));
     if (procedureResource.getOutcome() != null) {
       procedure.setOutcome(
@@ -40,7 +46,8 @@ public class MakeProcedureResource {
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("261665006")
+                      .setCode(
+                          snomedService.getConditionProcedureCode(procedureResource.getOutcome()))
                       .setDisplay(procedureResource.getOutcome())));
     }
     procedure.addReasonCode(
@@ -49,7 +56,9 @@ public class MakeProcedureResource {
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                    .setCode("261665006")
+                    .setCode(
+                        snomedService.getConditionProcedureCode(
+                            procedureResource.getProcedureReason()))
                     .setDisplay(procedureResource.getProcedureReason())));
     procedure.setPerformed((Utils.getFormattedDateTime(procedureResource.getDate())));
     return procedure;

@@ -5,16 +5,20 @@ import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.ImmunizationResource;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeImmunizationResource {
+  @Autowired SnomedService snomedService;
+
   public Immunization getImmunization(
       Patient patient,
       List<Practitioner> practitionerList,
@@ -43,7 +47,8 @@ public class MakeImmunizationResource {
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                    .setCode("609328004")
+                    .setCode(
+                        snomedService.getSnomedVaccineCode(immunizationResource.getVaccineName()))
                     .setDisplay(immunizationResource.getVaccineName())));
     immunization.setManufacturer(
         new Reference()

@@ -2,6 +2,7 @@
 package com.nha.abdm.fhir.mapper.dto.compositions;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleCompositionIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import java.text.ParseException;
@@ -33,8 +34,8 @@ public class MakeWellnessComposition {
     HumanName practitionerName = null;
     Composition composition = new Composition();
     composition.setStatus(Composition.CompositionStatus.FINAL);
-    composition.setType(new CodeableConcept().setText("Wellness Record"));
-    composition.setTitle("Wellness Record");
+    composition.setType(new CodeableConcept().setText(BundleCompositionIdentifier.WELLNESS_RECORD));
+    composition.setTitle(BundleCompositionIdentifier.WELLNESS_RECORD);
     List<Reference> authorList = new ArrayList<>();
     for (Practitioner practitioner : practitionerList) {
       practitionerName = practitioner.getName().get(0);
@@ -96,7 +97,7 @@ public class MakeWellnessComposition {
     List<Composition.SectionComponent> sectionComponentList = new ArrayList<>();
     if (Objects.nonNull(vitalSignsList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Vital Signs");
+      sectionComponent.setTitle(BundleCompositionIdentifier.VITAL_SIGNS);
       for (Observation observation : vitalSignsList) {
         sectionComponent.addEntry(
             new Reference()
@@ -106,7 +107,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(bodyMeasurementList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Body Measurement");
+      sectionComponent.setTitle(BundleCompositionIdentifier.BODY_MEASUREMENT);
       for (Observation observation : bodyMeasurementList) {
         sectionComponent.addEntry(
             new Reference()
@@ -117,7 +118,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(physicalActivityList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Physical Activity");
+      sectionComponent.setTitle(BundleCompositionIdentifier.PHYSICAL_ACTIVITY);
       for (Observation observation : physicalActivityList) {
         sectionComponent.addEntry(
             new Reference()
@@ -128,7 +129,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(generalAssessmentList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("General Assessment");
+      sectionComponent.setTitle(BundleCompositionIdentifier.GENERAL_ASSESSMENT);
       for (Observation observation : generalAssessmentList) {
         sectionComponent.addEntry(
             new Reference()
@@ -139,7 +140,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(womanHealthList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Women Health");
+      sectionComponent.setTitle(BundleCompositionIdentifier.WOMEN_HEALTH);
       for (Observation observation : womanHealthList) {
         sectionComponent.addEntry(
             new Reference()
@@ -149,7 +150,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(lifeStyleList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Lifestyle");
+      sectionComponent.setTitle(BundleCompositionIdentifier.LIFE_STYLE);
       for (Observation observation : lifeStyleList) {
         sectionComponent.addEntry(
             new Reference()
@@ -159,7 +160,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(otherObservationList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Other Observations");
+      sectionComponent.setTitle(BundleCompositionIdentifier.OTHER_OBSERVATIONS);
       for (Observation observation : otherObservationList) {
         sectionComponent.addEntry(
             new Reference()
@@ -170,7 +171,7 @@ public class MakeWellnessComposition {
     }
     if (Objects.nonNull(documentReferenceList)) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-      sectionComponent.setTitle("Document Reference");
+      sectionComponent.setTitle(BundleCompositionIdentifier.DOCUMENT_REFERENCE);
       for (DocumentReference documentReference : documentReferenceList) {
         sectionComponent.addEntry(
             new Reference()

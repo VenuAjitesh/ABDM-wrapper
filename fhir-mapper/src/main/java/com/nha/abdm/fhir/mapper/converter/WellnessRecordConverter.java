@@ -3,6 +3,7 @@ package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
 import com.nha.abdm.fhir.mapper.dto.compositions.MakeWellnessComposition;
@@ -210,7 +211,7 @@ public class WellnessRecordConverter {
       bundle.setMeta(makeBundleMetaResource.getMeta());
       bundle.setIdentifier(
           new Identifier()
-              .setSystem("https://ABDM_WRAPPER/bundle")
+              .setSystem(BundleUrlIdentifier.WRAPPER_URL)
               .setValue(wellnessRecordRequest.getCareContextReference()));
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       entries.add(

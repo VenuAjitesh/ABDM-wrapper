@@ -5,6 +5,7 @@ import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.SnomedCodeIdentifier;
 import com.nha.abdm.fhir.mapper.requests.helpers.FamilyObservationResource;
 import java.text.ParseException;
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class MakeFamilyMemberResource {
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                    .setCode("261665006")
+                    .setCode(SnomedCodeIdentifier.SNOMED_UNKNOWN)
                     .setDisplay(familyObservationResource.getRelationship()))
             .setText(familyObservationResource.getRelationship()));
     familyMemberHistory.addCondition(
@@ -42,7 +43,7 @@ public class MakeFamilyMemberResource {
                     .addCoding(
                         new Coding()
                             .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                            .setCode("261665006")
+                            .setCode(SnomedCodeIdentifier.SNOMED_UNKNOWN)
                             .setDisplay(familyObservationResource.getObservation()))
                     .setText(familyObservationResource.getObservation())));
     return familyMemberHistory;

@@ -2,9 +2,7 @@
 package com.nha.abdm.fhir.mapper.dto.compositions;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
-import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
-import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +31,11 @@ public class MakeImmunizationComposition {
     CodeableConcept typeCode = new CodeableConcept();
     Coding typeCoding = new Coding();
     typeCoding.setSystem(BundleUrlIdentifier.SNOMED_URL);
-    typeCoding.setCode("41000179103");
-    typeCoding.setDisplay("Immunization record");
+    typeCoding.setCode(BundleCompositionIdentifier.IMMUNIZATION_RECORD_CODE);
+    typeCoding.setDisplay(BundleCompositionIdentifier.IMMUNIZATION_RECORD);
     typeCode.addCoding(typeCoding);
     composition.setType(typeCode);
-    composition.setTitle("Immunization record");
+    composition.setTitle(BundleCompositionIdentifier.IMMUNIZATION_RECORD);
     if (Objects.nonNull(organization))
       composition.setCustodian(
           new Reference()
@@ -59,20 +57,20 @@ public class MakeImmunizationComposition {
             .setDisplay(patientName.getText()));
     composition.setDateElement(Utils.getFormattedDateTime(authoredOn));
     Composition.SectionComponent immunizationSection = new Composition.SectionComponent();
-    immunizationSection.setTitle("Immunizations");
+    immunizationSection.setTitle(BundleResourceIdentifier.IMMUNIZATION);
     immunizationSection.setCode(
         new CodeableConcept()
-            .setText("Immunizations")
+            .setText(BundleCompositionIdentifier.IMMUNIZATION_RECORD)
             .addCoding(
                 new Coding()
-                    .setCode("41000179103")
-                    .setDisplay("Immunization record")
+                    .setCode(BundleCompositionIdentifier.IMMUNIZATION_RECORD_CODE)
+                    .setDisplay(BundleCompositionIdentifier.IMMUNIZATION_RECORD)
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)));
     for (Immunization immunization : immunizationList) {
       Reference entryReference =
           new Reference()
               .setReference(BundleResourceIdentifier.IMMUNIZATION + "/" + immunization.getId())
-              .setType("Immunization");
+              .setType(BundleResourceIdentifier.IMMUNIZATION);
       immunizationSection.addEntry(entryReference);
     }
     composition.addSection(immunizationSection);
@@ -81,7 +79,7 @@ public class MakeImmunizationComposition {
           new Reference()
               .setReference(
                   BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId())
-              .setType("DocumentReference"));
+              .setType(BundleResourceIdentifier.DOCUMENT_REFERENCE));
     composition.setStatus(Composition.CompositionStatus.FINAL);
     Identifier identifier = new Identifier();
     identifier.setSystem(BundleUrlIdentifier.WRAPPER_URL);

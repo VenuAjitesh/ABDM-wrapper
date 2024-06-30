@@ -6,6 +6,7 @@ import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.SnomedCodeIdentifier;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.DiagnosticResource;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -13,10 +14,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeDiagnosticLabResource {
+  @Autowired SnomedService snomedService;
+
   public DiagnosticReport getDiagnosticReport(
       Patient patient,
       List<Practitioner> practitionerList,
@@ -38,7 +42,8 @@ public class MakeDiagnosticLabResource {
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.LOINC_URL)
-                    .setCode(SnomedCodeIdentifier.SNOMED_DIAGNOSTIC_LAB)
+                    .setCode(
+                        snomedService.getSnomedDiagnosticCode(diagnosticResource.getServiceName()))
                     .setDisplay(diagnosticResource.getServiceName())));
     diagnosticReport.setSubject(
         new Reference()
@@ -60,7 +65,9 @@ public class MakeDiagnosticLabResource {
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                    .setCode("261665006")
+                    .setCode(
+                        snomedService.getSnomedDiagnosticCode(
+                            diagnosticResource.getServiceCategory()))
                     .setDisplay(diagnosticResource.getServiceCategory())));
     for (Observation observation : observationList) {
       diagnosticReport.addResult(
@@ -68,14 +75,13 @@ public class MakeDiagnosticLabResource {
               .setReference(BundleResourceIdentifier.OBSERVATION + "/" + observation.getId()));
     }
     diagnosticReport.setConclusion(diagnosticResource.getConclusion());
-    diagnosticReport.setConclusion(diagnosticReport.getConclusion());
     diagnosticReport.addConclusionCode(
         new CodeableConcept()
             .setText(diagnosticResource.getConclusion())
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                    .setCode("261665006")
+                    .setCode(SnomedCodeIdentifier.SNOMED_UNKNOWN)
                     .setDisplay(diagnosticResource.getConclusion())));
     if (Objects.nonNull(diagnosticResource.getPresentedForm())) {
       Attachment attachment = new Attachment();

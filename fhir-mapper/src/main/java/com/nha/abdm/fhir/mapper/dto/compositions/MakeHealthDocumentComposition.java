@@ -2,9 +2,7 @@
 package com.nha.abdm.fhir.mapper.dto.compositions;
 
 import com.nha.abdm.fhir.mapper.Utils;
-import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
-import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
-import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +28,14 @@ public class MakeHealthDocumentComposition {
     meta.addProfile(ResourceProfileIdentifier.PROFILE_HEALTH_DOCUMENT_RECORD);
     composition.setMeta(meta);
     Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
-    sectionComponent.setTitle("OPD Records");
+    sectionComponent.setTitle(BundleCompositionIdentifier.RECORD_ARTIFACT);
     CodeableConcept typeCode = new CodeableConcept();
     Coding typeCoding = new Coding();
     typeCoding.setSystem(BundleUrlIdentifier.SNOMED_URL);
-    typeCoding.setCode("419891008");
-    typeCoding.setDisplay("Record artifact");
+    typeCoding.setCode(BundleCompositionIdentifier.RECORD_ARTIFACT_CODE);
+    typeCoding.setDisplay(BundleCompositionIdentifier.RECORD_ARTIFACT);
     typeCode.addCoding(typeCoding);
-    typeCode.setText("Record artifact");
+    typeCode.setText(BundleCompositionIdentifier.RECORD_ARTIFACT);
     composition.setType(typeCode);
     sectionComponent.setCode(typeCode);
     for (DocumentReference documentReference : documentReferenceList) {
@@ -47,7 +45,7 @@ public class MakeHealthDocumentComposition {
                   BundleResourceIdentifier.DOCUMENT_REFERENCE + "/" + documentReference.getId()));
     }
     composition.addSection(sectionComponent);
-    composition.setTitle("Health Document");
+    composition.setTitle(BundleCompositionIdentifier.HEALTH_DOCUMENT);
     composition.setEncounter(
         new Reference().setReference(BundleResourceIdentifier.ENCOUNTER + "/" + encounter.getId()));
     List<Reference> authorList = new ArrayList<>();

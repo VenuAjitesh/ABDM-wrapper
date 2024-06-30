@@ -3,6 +3,7 @@ package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.common.helpers.ErrorResponse;
@@ -194,7 +195,7 @@ public class DischargeSummaryConverter {
       bundle.setMeta(makeBundleMetaResource.getMeta());
       bundle.setIdentifier(
           new Identifier()
-              .setSystem("https://ABDM_WRAPPER/bundle")
+              .setSystem(BundleUrlIdentifier.WRAPPER_URL)
               .setValue(dischargeSummaryRequest.getCareContextReference()));
       entries.add(
           new Bundle.BundleEntryComponent()
@@ -237,7 +238,8 @@ public class DischargeSummaryConverter {
       for (AllergyIntolerance allergyIntolerance : allergieList) {
         entries.add(
             new Bundle.BundleEntryComponent()
-                .setFullUrl("Allergies/" + allergyIntolerance.getId())
+                .setFullUrl(
+                    BundleResourceIdentifier.ALLERGY_INTOLERANCE + "/" + allergyIntolerance.getId())
                 .setResource(allergyIntolerance));
       }
       for (Condition medicalHistory : medicalHistoryList) {

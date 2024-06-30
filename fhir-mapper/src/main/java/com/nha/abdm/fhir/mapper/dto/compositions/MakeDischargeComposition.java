@@ -2,6 +2,7 @@
 package com.nha.abdm.fhir.mapper.dto.compositions;
 
 import com.nha.abdm.fhir.mapper.Utils;
+import com.nha.abdm.fhir.mapper.common.constants.BundleCompositionIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import java.text.ParseException;
@@ -38,11 +39,11 @@ public class MakeDischargeComposition {
     CodeableConcept typeCode = new CodeableConcept();
     Coding typeCoding = new Coding();
     typeCoding.setSystem(BundleUrlIdentifier.SNOMED_URL);
-    typeCoding.setCode("373942005");
-    typeCoding.setDisplay("Discharge summary");
+    typeCoding.setCode(BundleCompositionIdentifier.DISCHARGE_SUMMARY_CODE);
+    typeCoding.setDisplay(BundleCompositionIdentifier.DISCHARGE_SUMMARY);
     typeCode.addCoding(typeCoding);
     composition.setType(typeCode);
-    composition.setTitle("Discharge summary");
+    composition.setTitle(BundleCompositionIdentifier.DISCHARGE_SUMMARY);
     List<Reference> authorList = new ArrayList<>();
     for (Practitioner practitioner : practitionerList) {
       practitionerName = practitioner.getName().get(0);
@@ -111,12 +112,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Chief Complaints")
+              .setText(BundleResourceIdentifier.CHIEF_COMPLAINTS)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("422843007")
-                      .setDisplay("Chief complaint section")));
+                      .setCode(BundleCompositionIdentifier.CHIEF_COMPLAINTS_CODE)
+                      .setDisplay(BundleCompositionIdentifier.CHIEF_COMPLAINTS)));
       for (Condition chiefComplaint : chiefComplaintList) {
         sectionComponent.addEntry(
             new Reference()
@@ -129,12 +130,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Physical Examination")
+              .setText(BundleResourceIdentifier.PHYSICAL_EXAMINATION)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("425044008")
-                      .setDisplay("Physical exam section")));
+                      .setCode(BundleCompositionIdentifier.PHYSICAL_EXAMINATION_CODE)
+                      .setDisplay(BundleCompositionIdentifier.PHYSICAL_EXAMINATION)));
       for (Observation physicalObservation : physicalObservationList) {
         sectionComponent.addEntry(
             new Reference()
@@ -149,12 +150,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Allergy Section")
+              .setText(BundleCompositionIdentifier.ALLERGY_RECORD)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("722446000")
-                      .setDisplay("Allergy record")));
+                      .setCode(BundleCompositionIdentifier.ALLERGY_RECORD_CODE)
+                      .setDisplay(BundleCompositionIdentifier.ALLERGY_RECORD)));
       for (AllergyIntolerance allergyIntolerance : allergieList) {
         sectionComponent.addEntry(
             new Reference()
@@ -169,12 +170,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Past medical history section")
+              .setText(BundleCompositionIdentifier.PAST_MEDICAL_HISTORY)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("1003642006")
-                      .setDisplay("Past medical history section")));
+                      .setCode(BundleCompositionIdentifier.PAST_MEDICAL_CODE)
+                      .setDisplay(BundleCompositionIdentifier.PAST_MEDICAL_HISTORY)));
       for (Condition medicalHistory : medicalHistoryList) {
         sectionComponent.addEntry(
             new Reference()
@@ -187,12 +188,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Family History")
+              .setText(BundleResourceIdentifier.FAMILY_HISTORY)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("422432008")
-                      .setDisplay("Family history section")));
+                      .setCode(BundleCompositionIdentifier.FAMILY_HISTORY_SECTION_CODE)
+                      .setDisplay(BundleCompositionIdentifier.FAMILY_HISTORY_SECTION)));
       for (FamilyMemberHistory familyMemberHistory : familyMemberHistoryList) {
         sectionComponent.addEntry(
             new Reference()
@@ -205,12 +206,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Medication history section")
+              .setText(BundleResourceIdentifier.MEDICAL_HISTORY)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("1003606003")
-                      .setDisplay("Medication history section")));
+                      .setCode(BundleCompositionIdentifier.MEDICAL_HISTORY_SECTION_CODE)
+                      .setDisplay(BundleCompositionIdentifier.MEDICAL_HISTORY_SECTION)));
       for (MedicationRequest medicationRequest : medicationRequestList) {
         sectionComponent.addEntry(
             new Reference()
@@ -226,12 +227,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Diagnostic studies report")
+              .setText(BundleCompositionIdentifier.DIAGNOSTIC_STUDIES_REPORT)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("721981007")
-                      .setDisplay("Diagnostic studies report")));
+                      .setCode(BundleCompositionIdentifier.DIAGNOSTIC_STUDIES_REPORT_CODE)
+                      .setDisplay(BundleCompositionIdentifier.DIAGNOSTIC_STUDIES_REPORT)));
       for (DiagnosticReport diagnosticReport : diagnosticReportList) {
         sectionComponent.addEntry(
             new Reference()
@@ -244,12 +245,12 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("History of past procedure section")
+              .setText(BundleCompositionIdentifier.HISTORY_PAST_PROCEDURE)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                      .setCode("1003640003")
-                      .setDisplay("History of past procedure section")));
+                      .setCode(BundleCompositionIdentifier.HISTORY_PAST_PROCEDURE_CODE)
+                      .setDisplay(BundleCompositionIdentifier.HISTORY_PAST_PROCEDURE)));
       for (Procedure procedure : procedureList) {
         sectionComponent.addEntry(
             new Reference()
@@ -261,7 +262,7 @@ public class MakeDischargeComposition {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
-              .setText("Document Reference")
+              .setText(BundleResourceIdentifier.DOCUMENT_REFERENCE)
               .addCoding(
                   new Coding()
                       .setSystem(BundleUrlIdentifier.SNOMED_URL)

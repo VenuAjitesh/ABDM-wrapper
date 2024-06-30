@@ -3,6 +3,7 @@ package com.nha.abdm.fhir.mapper.converter;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.*;
 import com.nha.abdm.fhir.mapper.dto.compositions.MakeImmunizationComposition;
 import com.nha.abdm.fhir.mapper.dto.resources.*;
@@ -112,7 +113,7 @@ public class ImmunizationConverter {
       List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
       bundle.setIdentifier(
           new Identifier()
-              .setSystem("https://ABDM_WRAPPER/bundle")
+              .setSystem(BundleUrlIdentifier.WRAPPER_URL)
               .setValue(immunizationRequest.getCareContextReference()));
       entries.add(
           new Bundle.BundleEntryComponent()
