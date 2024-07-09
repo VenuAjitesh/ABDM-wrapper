@@ -3,15 +3,20 @@ package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.DateRange;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import java.text.ParseException;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeConditionResource {
+  @Autowired SnomedService snomedService;
+
   public Condition getCondition(
       String conditionDetails, Patient patient, String recordedDate, DateRange dateRange)
       throws ParseException {
@@ -19,7 +24,14 @@ public class MakeConditionResource {
     Condition condition = new Condition();
     condition.setId(UUID.randomUUID().toString());
 
-    condition.setCode(new CodeableConcept().setText(conditionDetails));
+    condition.setCode(
+        new CodeableConcept()
+            .addCoding(
+                new Coding()
+                    .setDisplay(conditionDetails)
+                    .setCode(snomedService.getConditionProcedureCode(conditionDetails))
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL))
+            .setText(conditionDetails));
     condition.setMeta(
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())

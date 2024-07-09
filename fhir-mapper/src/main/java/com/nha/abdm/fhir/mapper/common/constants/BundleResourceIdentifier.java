@@ -20,7 +20,7 @@ public class BundleResourceIdentifier {
   public static final String PROCEDURE = "Procedure";
   public static final String FAMILY_HISTORY = "FamilyHistory";
   public static final String MEDICAL_HISTORY = "MedicalHistory";
-  public static final String IMMUNIZATION = "IMMUNIZATION";
+  public static final String IMMUNIZATION = "Immunization";
   public static final String OTHER_OBSERVATIONS = "OtherObservations";
   public static final String REFERRAL = "Referral";
   public static final String FOLLOW_UP = "FollowUp";
@@ -31,4 +31,5 @@ public class BundleResourceIdentifier {
   public static final String PHYSICAL_ACTIVITY = "PhysicalActivity";
   public static final String BODY_MEASUREMENT = "BodyMeasurement";
   public static final String VITAL_SIGNS = "VitalSigns";
+  public static final String MEDICATIONS = "Medications";
 }

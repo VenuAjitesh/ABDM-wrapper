@@ -3,14 +3,18 @@ package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.*;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
 import java.util.*;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeMedicationRequestResource {
+  @Autowired SnomedService snomedService;
+
   public MedicationRequest getMedicationResource(
       String authoredOn,
       PrescriptionResource prescriptionResource,
@@ -35,7 +39,8 @@ public class MakeMedicationRequestResource {
             .addCoding(
                 new Coding()
                     .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                    .setCode("261665006")
+                    .setCode(
+                        snomedService.getSnomedMedicineCode(prescriptionResource.getMedicine()))
                     .setDisplay(prescriptionResource.getMedicine())));
     if (prescriptionResource.getDosage() != null) {
       Dosage dosage = new Dosage();
@@ -47,7 +52,7 @@ public class MakeMedicationRequestResource {
                 .addCoding(
                     new Coding()
                         .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                        .setCode("261665006")
+                        .setCode(SnomedCodeIdentifier.SNOMED_UNKNOWN)
                         .setDisplay(prescriptionResource.getAdditionalInstructions())));
       }
       if (prescriptionResource.getRoute() != null) {
@@ -57,7 +62,9 @@ public class MakeMedicationRequestResource {
                 .addCoding(
                     new Coding()
                         .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                        .setCode("261665006")
+                        .setCode(
+                            snomedService.getSnomedMedicineRouteCode(
+                                prescriptionResource.getRoute()))
                         .setDisplay(prescriptionResource.getRoute())));
       }
       if (prescriptionResource.getMethod() != null) {
@@ -67,7 +74,9 @@ public class MakeMedicationRequestResource {
                 .addCoding(
                     new Coding()
                         .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                        .setCode("261665006")
+                        .setCode(
+                            snomedService.getSnomedMedicineRouteCode(
+                                prescriptionResource.getRoute()))
                         .setDisplay(prescriptionResource.getMethod())));
       }
       if (prescriptionResource.getTiming() != null) {
@@ -89,7 +98,9 @@ public class MakeMedicationRequestResource {
                   .addCoding(
                       new Coding()
                           .setSystem(BundleUrlIdentifier.SNOMED_URL)
-                          .setCode(SnomedCodeIdentifier.SNOMED_UNKNOWN)
+                          .setCode(
+                              snomedService.getConditionProcedureCode(
+                                  medicationCondition.getCode().getText()))
                           .setDisplay(medicationCondition.getCode().getText()))
                   .setText(medicationCondition.getCode().getText())));
       medicationRequest.setReasonReference(

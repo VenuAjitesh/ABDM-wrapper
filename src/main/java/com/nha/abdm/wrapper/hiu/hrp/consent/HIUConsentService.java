@@ -147,9 +147,11 @@ public class HIUConsentService implements HIUConsentInterface {
       if (Objects.nonNull(requestLog.getResponseDetails())
           && Objects.nonNull(
               requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE))) {
+        log.info("Got: "+FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE);
         return consentOnNotifyResponse(requestLog);
       }
       if (requestLog.getStatus().equals(RequestStatus.CONSENT_NOTIFY_ERROR)) {
+        log.info("Got: "+RequestStatus.CONSENT_NOTIFY_ERROR);
         return consentOnNotifyResponse(requestLog);
       }
 
@@ -157,6 +159,7 @@ public class HIUConsentService implements HIUConsentInterface {
       if (Objects.nonNull(requestLog.getResponseDetails())
           && Objects.nonNull(
               requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_STATUS_RESPONSE))) {
+        log.info("Got: "+FieldIdentifiers.CONSENT_ON_STATUS_RESPONSE);
         return consentOnStatusResponse(requestLog);
       }
 
@@ -167,6 +170,7 @@ public class HIUConsentService implements HIUConsentInterface {
           && Objects.nonNull(requestLog.getResponseDetails())
           && (Objects.nonNull(
               requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_INIT_RESPONSE)))) {
+        log.info("Got: "+FieldIdentifiers.CONSENT_ON_INIT_RESPONSE);
         return fetchConsentStatus(requestLog);
       }
 
@@ -204,6 +208,7 @@ public class HIUConsentService implements HIUConsentInterface {
   @Override
   public void hiuOnNotify(OnNotifyRequest onNotifyRequest) {
     try {
+      log.info("Initiating hiu/on-notify");
       ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(consentHiuOnNotifyPath, onNotifyRequest);
       // If something goes wrong while acknowledging notification from gateway, then we can just log
@@ -235,6 +240,7 @@ public class HIUConsentService implements HIUConsentInterface {
   public ConsentResponse fetchConsent(
       FetchConsentRequest fetchConsentRequest, RequestLog requestLog) {
     try {
+      log.info("Initiating Fetching consent");
       fetchConsentRequest.setRequestId(UUID.randomUUID().toString());
       ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(fetchConsentPath, fetchConsentRequest);

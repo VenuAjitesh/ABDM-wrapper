@@ -3,17 +3,22 @@ package com.nha.abdm.fhir.mapper.dto.resources;
 
 import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
+import com.nha.abdm.fhir.mapper.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.ResourceProfileIdentifier;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.ServiceRequestResource;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeServiceRequestResource {
+  @Autowired SnomedService snomedService;
+
   public ServiceRequest getServiceRequest(
       Patient patient,
       List<Practitioner> practitionerList,
@@ -32,7 +37,16 @@ public class MakeServiceRequestResource {
         new Meta()
             .setLastUpdated(Utils.getCurrentTimeStamp())
             .addProfile(ResourceProfileIdentifier.PROFILE_SERVICE_REQUEST));
-    serviceRequest.setCode(new CodeableConcept().setText(serviceRequestResource.getDetails()));
+    serviceRequest.setCode(
+        new CodeableConcept()
+            .addCoding(
+                new Coding()
+                    .setDisplay(serviceRequestResource.getDetails())
+                    .setCode(
+                        snomedService.getConditionProcedureCode(
+                            serviceRequestResource.getDetails()))
+                    .setSystem(BundleUrlIdentifier.SNOMED_URL))
+            .setText(serviceRequestResource.getDetails()));
     serviceRequest.setSubject(
         new Reference()
             .setReference(BundleResourceIdentifier.PATIENT + "/" + patient.getId())

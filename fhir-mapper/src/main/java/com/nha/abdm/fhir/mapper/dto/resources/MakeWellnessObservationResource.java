@@ -4,16 +4,20 @@ package com.nha.abdm.fhir.mapper.dto.resources;
 import com.nha.abdm.fhir.mapper.common.constants.BundleFieldIdentifier;
 import com.nha.abdm.fhir.mapper.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.common.helpers.FieldIdentifiers;
+import com.nha.abdm.fhir.mapper.database.mongo.services.SnomedService;
 import com.nha.abdm.fhir.mapper.requests.helpers.WellnessObservationResource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MakeWellnessObservationResource {
+  @Autowired SnomedService snomedService;
+
   public Observation getObservation(
       Patient patient,
       List<Practitioner> practitionerList,
@@ -24,44 +28,10 @@ public class MakeWellnessObservationResource {
     observation.setStatus(Observation.ObservationStatus.FINAL);
     CodeableConcept typeCode = new CodeableConcept();
     Coding coding = new Coding();
-    switch (type) {
-      case BundleFieldIdentifier.VITAL_SIGNS:
-        coding.setSystem(FieldIdentifiers.getVitals(BundleFieldIdentifier.SYSTEM));
-        coding.setCode(FieldIdentifiers.getVitals(observationResource.getObservation()));
-        coding.setDisplay(observationResource.getObservation());
-        typeCode.addCoding(coding);
-        break;
-      case BundleFieldIdentifier.BODY_MEASUREMENT:
-        coding.setSystem(FieldIdentifiers.getBodyMeasurement(BundleFieldIdentifier.SYSTEM));
-        coding.setCode(FieldIdentifiers.getBodyMeasurement(observationResource.getObservation()));
-        coding.setDisplay(observationResource.getObservation());
-        typeCode.addCoding(coding);
-        break;
-      case BundleFieldIdentifier.PHYSICAL_ACTIVITY:
-        coding.setSystem(FieldIdentifiers.getPhysicalActivity(BundleFieldIdentifier.SYSTEM));
-        coding.setCode(FieldIdentifiers.getPhysicalActivity(observationResource.getObservation()));
-        coding.setDisplay(observationResource.getObservation());
-        typeCode.addCoding(coding);
-        break;
-      case BundleFieldIdentifier.GENERAL_ASSESSMENT:
-        coding.setSystem(FieldIdentifiers.getGeneralAssessment(BundleFieldIdentifier.SYSTEM));
-        coding.setCode(FieldIdentifiers.getGeneralAssessment(observationResource.getObservation()));
-        coding.setDisplay(observationResource.getObservation());
-        typeCode.addCoding(coding);
-        break;
-      case BundleFieldIdentifier.WOMAN_HEALTH:
-        coding.setSystem(FieldIdentifiers.getWomanHealth(BundleFieldIdentifier.SYSTEM));
-        coding.setCode(FieldIdentifiers.getWomanHealth(observationResource.getObservation()));
-        coding.setDisplay(observationResource.getObservation());
-        typeCode.addCoding(coding);
-        break;
-      case BundleFieldIdentifier.LIFE_STYLE:
-        coding.setSystem(FieldIdentifiers.getLifeStyle(BundleFieldIdentifier.SYSTEM));
-        coding.setCode(FieldIdentifiers.getLifeStyle(observationResource.getObservation()));
-        coding.setDisplay(observationResource.getObservation());
-        typeCode.addCoding(coding);
-        break;
-    }
+    coding.setSystem(FieldIdentifiers.getVitals(BundleFieldIdentifier.SYSTEM));
+    coding.setCode(snomedService.getSnomedObservationCode(observationResource.getObservation()));
+    coding.setDisplay(observationResource.getObservation());
+    typeCode.addCoding(coding);
 
     typeCode.setText(observationResource.getObservation());
     observation.setCode(typeCode);
