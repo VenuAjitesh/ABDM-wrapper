@@ -17,7 +17,7 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - '27017:27017'
+      - '27018:27017'
     volumes:
       - mongodb_vol:/data/db
       - ./import_snomed.sh:/docker-entrypoint-initdb.d/import_snomed.sh
