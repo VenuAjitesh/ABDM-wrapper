@@ -74,6 +74,7 @@ public class MakeDiagnosticLabResource {
           new Reference()
               .setReference(BundleResourceIdentifier.OBSERVATION + "/" + observation.getId()));
     }
+    diagnosticReport.setIssued(encounter.getPeriod().getStart());
     diagnosticReport.setConclusion(diagnosticResource.getConclusion());
     diagnosticReport.addConclusionCode(
         new CodeableConcept()

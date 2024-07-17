@@ -27,7 +27,8 @@ public class Utils {
     if (dateTimeString.length() <= 10) {
       return new DateTimeType(dateTimeString);
     } else {
-      return (DateTimeType) new DateTimeType(ISO_DATE_TIME_FORMAT.parse(dateTimeString));
+      return (DateTimeType)
+          new DateTimeType(ISO_DATE_TIME_FORMAT.parse(dateTimeString)).setTimeZoneZulu(true);
     }
   }
 
