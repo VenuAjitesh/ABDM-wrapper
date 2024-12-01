@@ -3,9 +3,13 @@ plugins {
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.diffplug.spotless' version '6.25.0' //changing to latest version from 6.12.0
+    id 'jacoco'
 }
-group = 'com.nha.abdm.wrapper'
+group = 'in.nha.abdm.wrapper'
 version = '1.0-SNAPSHOT'
+jacoco {
+    toolVersion = "0.8.8"
+}
 subprojects {
     spotless {
         java {
@@ -20,7 +24,6 @@ afterEvaluate {
     if (spotless) {
         tasks.withType(JavaCompile) {
             finalizedBy(spotless)
-
         }
 
         tasks.withType(GroovyCompile) {
@@ -40,6 +43,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-test'
     implementation group: 'log4j', name: 'log4j', version: '1.2.17'
     implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.37.3'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
@@ -52,11 +56,14 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.66'
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.5'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'com.auth0:java-jwt:4.2.1'
+    testImplementation 'org.mockito:mockito-core:5.13.0'
 }
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
 spotless {
@@ -74,3 +81,22 @@ spotless {
         licenseHeader '/* (C) $YEAR */' // or licenseHeaderFile
     }
 }
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.9
+            }
+        }
+    }
+}
+test.finalizedBy jacocoTestCoverageVerification

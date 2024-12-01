@@ -19,11 +19,11 @@ Submits a request to fetch health information
 ### Example
 ```java
 // Import classes:
-import com.nha.abdm.wrapper.client.invoker.ApiClient;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.invoker.Configuration;
-import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.DataTransferApi;
+import in.nha.abdm.wrapper.client.invoker.ApiClient;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.invoker.Configuration;
+import in.nha.abdm.wrapper.client.invoker.models.*;
+import in.nha.abdm.wrapper.client.api.DataTransferApi;
 
 public class Example {
   public static void main(String[] args) {
@@ -83,11 +83,11 @@ Get status of Health Information request.
 ### Example
 ```java
 // Import classes:
-import com.nha.abdm.wrapper.client.invoker.ApiClient;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.invoker.Configuration;
-import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.DataTransferApi;
+import in.nha.abdm.wrapper.client.invoker.ApiClient;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.invoker.Configuration;
+import in.nha.abdm.wrapper.client.invoker.models.*;
+import in.nha.abdm.wrapper.client.api.DataTransferApi;
 
 public class Example {
   public static void main(String[] args) {

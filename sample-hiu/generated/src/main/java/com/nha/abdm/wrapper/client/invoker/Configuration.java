@@ -11,7 +11,7 @@
  */
 
 
-package com.nha.abdm.wrapper.client.invoker;
+package in.nha.abdm.wrapper.client.invoker;
 
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-21T21:07:52.071456600+05:30[Asia/Calcutta]")
 public class Configuration {

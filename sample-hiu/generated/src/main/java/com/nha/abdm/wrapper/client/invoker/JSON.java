@@ -11,7 +11,7 @@
  */
 
 
-package com.nha.abdm.wrapper.client.invoker;
+package in.nha.abdm.wrapper.client.invoker;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -93,27 +93,27 @@ public class JSON {
         gsonBuilder.registerTypeAdapter(OffsetDateTime.class, offsetDateTimeTypeAdapter);
         gsonBuilder.registerTypeAdapter(LocalDate.class, localDateTypeAdapter);
         gsonBuilder.registerTypeAdapter(byte[].class, byteArrayAdapter);
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentCareContext.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentRequest.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentRequestIdentifier.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentRequester.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentStatus.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentStatusConsentDetails.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentStatusConsentDetailsConsentInner.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentStatusInitConsentRequest.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ConsentStatusResponse.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.DateRange.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ErrorResponse.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.FacadeResponse.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Frequency.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.HealthInformationBundle.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.HealthInformationResponse.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.IdRequest.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.InitConsentRequest.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Permission.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Purpose.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentCareContext.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentRequestIdentifier.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentRequester.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentStatus.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentStatusConsentDetails.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentStatusConsentDetailsConsentInner.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentStatusInitConsentRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ConsentStatusResponse.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.DateRange.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.ErrorResponse.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.FacadeResponse.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.Frequency.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.HealthInformationBundle.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.HealthInformationResponse.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.IdRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.InitConsentRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.Permission.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new in.nha.abdm.wrapper.client.model.Purpose.CustomTypeAdapterFactory());
         gson = gsonBuilder.create();
     }
 

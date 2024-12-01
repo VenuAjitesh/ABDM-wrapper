@@ -31,7 +31,7 @@ openApiGenerate {
     generatorName.set("java")
     inputSpec.set("$rootDir/specs/hiu-facade.yaml")
     outputDir.set("$rootDir/generated")
-    apiPackage.set("com.nha.abdm.wrapper.client.api")
-    invokerPackage.set("com.nha.abdm.wrapper.client.invoker")
-    modelPackage.set("com.nha.abdm.wrapper.client.model")
+    apiPackage.set("in.nha.abdm.wrapper.client.api")
+    invokerPackage.set("in.nha.abdm.wrapper.client.invoker")
+    modelPackage.set("in.nha.abdm.wrapper.client.model")
 }

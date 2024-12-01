@@ -11,10 +11,10 @@
  */
 
 
-package com.nha.abdm.wrapper.client.invoker.auth;
+package in.nha.abdm.wrapper.client.invoker.auth;
 
-import com.nha.abdm.wrapper.client.invoker.Pair;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.invoker.Pair;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
 
 import java.net.URI;
 import java.util.Map;
