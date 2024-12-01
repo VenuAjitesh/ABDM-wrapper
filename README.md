@@ -1,3 +1,4 @@
+<!-- DO NOT REMOVE - contributor_list:data:start:["VenuAjitesh", "atulai-sg", "NHA-ABDM", "raunaqp"]:end -->
 # ABDM Wrapper
 The Ayushman Bharat Digital Mission (ABDM) is a government initiative that aims to develop a digital health infrastructure for India. An overview of ABDM can be found [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/ABDM-Overview). The ABDM aims to improve the efficiency and transparency of healthcare data transfer between patients, medical institutions, and healthcare service providers. It also allows patients to securely store their medical information and share with others as needed.
 The National Health Authority (NHA) is implementing Ayushman Bharat Digital Mission (ABDM) to create a digital health ecosystem for the country. ABDM intends to support different healthcare facilities like clinics, diagnostic centers, hospitals, laboratories and pharmacies in adopting the ABDM ecosystem to make available the benefits of digital health for all the citizens of India.
@@ -160,3 +161,19 @@ Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Frequently-Faced
 
 ## Developer Guide
 Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Developer-guide) to get more details on this.
+
+<!-- prettier-ignore-start -->
+<!-- DO NOT REMOVE - contributor_list:start -->
+## 👥 Contributors
+
+
+- **[@VenuAjitesh](https://github.com/VenuAjitesh)**
+
+- **[@atulai-sg](https://github.com/atulai-sg)**
+
+- **[@NHA-ABDM](https://github.com/NHA-ABDM)**
+
+- **[@raunaqp](https://github.com/raunaqp)**
+
+<!-- DO NOT REMOVE - contributor_list:end -->
+<!-- prettier-ignore-end -->
