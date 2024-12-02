@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface SnomedVaccineRepo extends JpaRepository<SnomedVaccine, String> {
   @Query(
       value =
-          "SELECT * FROM \"snomed_vaccine\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%')",
+          "SELECT * FROM \"snomed_vaccine\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%' LIMIT 20)",
       nativeQuery = true)
   List<SnomedVaccine> findByDisplay(@Param("display") String display);
 }

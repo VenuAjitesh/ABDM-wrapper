@@ -13,7 +13,7 @@ public interface SnomedConditionProcedureRepo
     extends JpaRepository<SnomedConditionProcedure, String> {
   @Query(
       value =
-          "SELECT * FROM \"snomed_condition_procedure\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%')",
+          "SELECT * FROM \"snomed_condition_procedure\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%' LIMIT 20)",
       nativeQuery = true)
   List<SnomedConditionProcedure> findByDisplay(@Param("display") String display);
 }

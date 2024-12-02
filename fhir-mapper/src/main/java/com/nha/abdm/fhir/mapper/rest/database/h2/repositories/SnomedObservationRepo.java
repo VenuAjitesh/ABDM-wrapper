@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface SnomedObservationRepo extends JpaRepository<SnomedObservation, String> {
   @Query(
       value =
-          "SELECT * FROM \"snomed_observation\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%')",
+          "SELECT * FROM \"snomed_observation\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%' LIMIT 20)",
       nativeQuery = true)
   List<SnomedObservation> findByDisplay(@Param("display") String display);
 }
