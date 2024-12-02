@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "localhost:8082/consent-init",
+			"name": "consent-init",
 			"event": [
 				{
 					"listen": "test",
@@ -37,7 +37,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"consent\": {\r\n        \"purpose\": {\r\n            \"text\": \"string\",\r\n            \"code\": \"CAREMGT\"\r\n        },\r\n        \"patient\": {\r\n            \"id\": \"ajitesh6x@sbx\"\r\n        },\r\n        \"careContexts\": [\r\n                {\r\n                    \"careContextReference\": \"visit-ajiteshx-5-23/03/2024\",\r\n                    \"patientReference\": \"ajiteshx\"\r\n                }\r\n            ],\r\n            \"hip\":{\r\n                \"id\":\"Demo_Ajitesh_HIP\"\r\n            },\r\n        \"hiu\": {\r\n            // \"id\": \"NIT-N-Ajitesh\"\r\n            \"id\": \"Demo_Ajitesh_HIP\"\r\n        },\r\n        \"requester\": {\r\n            \"name\": \"Dr. Venu AJitesh\",\r\n            \"identifier\": {\r\n                \"type\": \"REGNO\",\r\n                \"value\": \"MH1001\",\r\n                \"system\": \"https://www.mciindia.org\"\r\n            }\r\n        },\r\n        \"hiTypes\": [\r\n            \"DiagnosticReport\",\r\n            \"DischargeSummary\",\r\n            \"HealthDocumentRecord\",\r\n            \"ImmunizationRecord\",\r\n            \"OPConsultation\",\r\n            \"Prescription\",\r\n            \"WellnessRecord\"\r\n        ],\r\n        \"permission\": {\r\n            \"accessMode\": \"VIEW\",\r\n            \"dateRange\": {\r\n                \"from\": \"2023-02-16T12:45:18.548Z\",\r\n                \"to\": \"2024-03-15T11:43:18.548Z\"\r\n            },\r\n            \"dataEraseAt\": \"2025-07-28T09:36:34.171Z\",\r\n            \"frequency\": {\r\n                \"unit\": \"HOUR\",\r\n                \"value\": 1,\r\n                \"repeats\": 0\r\n            }\r\n        }\r\n    }\r\n}",
+					"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"consent\": {\r\n        \"purpose\": {\r\n            \"text\": \"Care Management\",\r\n            \"code\": \"CAREMGT\",\r\n            \"refUri\": \"wrapper\"\r\n        },\r\n        \"patient\": {\r\n            \"id\": \"jain.nitesh123@sbx\"\r\n        },\r\n        // \"careContexts\": [\r\n        //         {\r\n        //             \"careContextReference\": \"visit-ajiteshx-5-23/03/2024\",\r\n        //             \"patientReference\": \"ajiteshx\"\r\n        //         }\r\n        //     ],\r\n        //     \"hip\":{\r\n        //         \"id\":\"Demo_Ajitesh_HIP\"\r\n        //     },\r\n        \"hiu\": {\r\n            // \"id\": \"NIT-N-Ajitesh\"\r\n            \"id\": \"abdm-dnp\"\r\n        },\r\n        \"requester\": {\r\n            \"name\": \"Dr. Venu AJitesh\",\r\n            \"identifier\": {\r\n                \"type\": \"REGNO\",\r\n                \"value\": \"MH1001\",\r\n                \"system\": \"https://www.mciindia.org\"\r\n            }\r\n        },\r\n        \"hiTypes\": [\r\n            \"DiagnosticReport\",\r\n            \"DischargeSummary\",\r\n            \"HealthDocumentRecord\",\r\n            \"ImmunizationRecord\",\r\n            \"OPConsultation\",\r\n            \"Prescription\",\r\n            \"WellnessRecord\"\r\n        ],\r\n        \"permission\": {\r\n            \"accessMode\": \"VIEW\",\r\n            \"dateRange\": {\r\n                \"from\": \"2023-02-16T12:45:18.548Z\",\r\n                \"to\": \"2024-09-07T11:43:19.548Z\"\r\n            },\r\n            \"dataEraseAt\": \"2025-07-28T07:44:20.171Z\",\r\n            \"frequency\": {\r\n                \"unit\": \"HOUR\",\r\n                \"value\": 1,\r\n                \"repeats\": 0\r\n            }\r\n        }\r\n    }\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -45,14 +45,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/v1/consent-init",
+					"raw": "http://localhost:8082/v3/consent-init",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8082",
 					"path": [
-						"v1",
+						"v3",
 						"consent-init"
 					]
 				}
@@ -60,21 +60,33 @@
 			"response": []
 		},
 		{
-			"name": "localhost:8082/v1/consent-status",
+			"name": "consent-status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "http://localhost:8082/v1/consent-status/{{clientRequestId}}",
+					"raw": "http://localhost:8082/v3/consent-status/8e3e2242-cea7-4806-bf93-1b720e7798c4",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8082",
 					"path": [
-						"v1",
+						"v3",
 						"consent-status",
-						"{{clientRequestId}}"
+						"8e3e2242-cea7-4806-bf93-1b720e7798c4"
 					]
 				}
 			},
@@ -314,7 +326,7 @@
 			]
 		},
 		{
-			"name": "localhost:8082/v1/health-information/fetch-records",
+			"name": "fetch-records",
 			"event": [
 				{
 					"listen": "test",
@@ -344,7 +356,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"requestId\":\"{{$guid}}\",\r\n    \"consentId\":\"5ff378fc-d378-4770-830d-d8cd3359e297\"\r\n}",
+					"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n    \"consentId\": \"cbeed37b-52db-4521-b895-92e5572aac2a\",\r\n    \"requesterId\": \"abdm-dnp\"\r\n}\r\n\r\n\r\ncurl --location 'http://localhost:8082/v3/health-information/fetch-records' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n    \"requestId\": \"1a2e7e70-545c-4484-adb0-0f0be02d5d4f\",\r\n    \"consentId\": \"cbeed37b-52db-4521-b895-92e5572aac2a\",\r\n    \"requesterId\": \"Predator_HIP\"\r\n}\r\n'\r\n\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -352,14 +364,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/v1/health-information/fetch-records",
+					"raw": "http://localhost:8082/v3/health-information/fetch-records",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8082",
 					"path": [
-						"v1",
+						"v3",
 						"health-information",
 						"fetch-records"
 					]
@@ -368,22 +380,22 @@
 			"response": []
 		},
 		{
-			"name": "localhost:8082/v1/health-information/status/",
+			"name": "fetch records status",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8082/v1/health-information/status/2f30529e-d2e1-4e9e-9e72-efe17b061dac",
+					"raw": "http://localhost:8082/v3/health-information/status/ec9f97c5-4bd2-4080-b611-6bc7fd81c7a7",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8082",
 					"path": [
-						"v1",
+						"v3",
 						"health-information",
 						"status",
-						"2f30529e-d2e1-4e9e-9e72-efe17b061dac"
+						"ec9f97c5-4bd2-4080-b611-6bc7fd81c7a7"
 					]
 				}
 			},
