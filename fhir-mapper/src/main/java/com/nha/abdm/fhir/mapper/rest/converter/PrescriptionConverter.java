@@ -15,7 +15,6 @@ import com.nha.abdm.fhir.mapper.rest.requests.PrescriptionRequest;
 import com.nha.abdm.fhir.mapper.rest.requests.helpers.PrescriptionResource;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +65,10 @@ public class PrescriptionConverter {
 
       List<Practitioner> practitionerList =
           Optional.ofNullable(prescriptionRequest.getPractitioners())
-                  .orElse(Collections.emptyList())
-                  .stream()
-                  .map(StreamUtils.wrapException(
-                          makePractitionerResource::getPractitioner))
-
-                  .toList();
+              .orElse(Collections.emptyList())
+              .stream()
+              .map(StreamUtils.wrapException(makePractitionerResource::getPractitioner))
+              .toList();
       List<MedicationRequest> medicationRequestList = new ArrayList<>();
       List<Condition> medicationConditionList = new ArrayList<>();
       for (PrescriptionResource item : prescriptionRequest.getPrescriptions()) {

@@ -130,7 +130,7 @@ public class DiagnosticReportConverter {
                             patient,
                             organization,
                             documentResource,
-                                BundleCompositionIdentifier.DIAGNOSTIC_STUDIES_REPORT_CODE,
+                            BundleCompositionIdentifier.DIAGNOSTIC_STUDIES_REPORT_CODE,
                             documentResource.getType());
                       }))
               .toList();
