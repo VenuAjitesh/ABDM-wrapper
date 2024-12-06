@@ -5,6 +5,7 @@ import com.nha.abdm.fhir.mapper.Utils;
 import com.nha.abdm.fhir.mapper.rest.common.constants.BundleCompositionIdentifier;
 import com.nha.abdm.fhir.mapper.rest.common.constants.BundleResourceIdentifier;
 import com.nha.abdm.fhir.mapper.rest.common.constants.BundleUrlIdentifier;
+import com.nha.abdm.fhir.mapper.rest.common.constants.ErrorCode;
 import com.nha.abdm.fhir.mapper.rest.common.helpers.BundleResponse;
 import com.nha.abdm.fhir.mapper.rest.common.helpers.DocumentResource;
 import com.nha.abdm.fhir.mapper.rest.common.helpers.ErrorResponse;
@@ -16,10 +17,14 @@ import com.nha.abdm.fhir.mapper.rest.requests.helpers.*;
 import java.text.ParseException;
 import java.util.*;
 import org.hl7.fhir.r4.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OPConsultationConverter {
+  private static final Logger log = LoggerFactory.getLogger(OPConsultationConverter.class);
   private final MakeOrganisationResource makeOrganisationResource;
   private final MakeBundleMetaResource makeBundleMetaResource;
 
@@ -302,6 +307,15 @@ public class OPConsultationConverter {
       bundle.setEntry(entries);
       return BundleResponse.builder().bundle(bundle).build();
     } catch (Exception e) {
+      if (e instanceof InvalidDataAccessResourceUsageException) {
+        log.error(e.getMessage());
+        return BundleResponse.builder()
+            .error(
+                new ErrorResponse(
+                    ErrorCode.DB_ERROR,
+                    " JDBCException Generic SQL Related Error, kindly check logs."))
+            .build();
+      }
       return BundleResponse.builder()
           .error(ErrorResponse.builder().code("1000").message(e.getMessage()).build())
           .build();
