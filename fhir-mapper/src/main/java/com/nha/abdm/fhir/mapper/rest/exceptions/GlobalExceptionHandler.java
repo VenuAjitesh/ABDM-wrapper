@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,7 +56,10 @@ public class GlobalExceptionHandler {
     if (cause instanceof InvalidFormatException) {
       InvalidFormatException invalidFormatException = (InvalidFormatException) cause;
       Class<?> targetType = invalidFormatException.getTargetType();
-      errorMessage = "Invalid input: Unable to map value to " + targetType.getSimpleName();
+      errorMessage =
+          "Invalid input: Unable to map value to "
+              + targetType.getSimpleName()
+              + ", Kindly check base64 data";
     } else if (cause instanceof JsonMappingException) {
       errorMessage = "Invalid JSON structure. " + getParseExceptionMessage(cause);
     } else if (cause instanceof JsonParseException) {
@@ -72,6 +76,22 @@ public class GlobalExceptionHandler {
             .build();
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+  @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+  public ResponseEntity<FacadeError> handleNotAcceptable(HttpMediaTypeNotAcceptableException ex) {
+    log.error("406 Not Acceptable: " + ex.getMessage());
+
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            ErrorCode.PARSE_ERROR,
+            "The requested media type is not supported. Please check the 'Accept' header and base64 data if present");
+    return new ResponseEntity<>(
+        FacadeError.builder()
+            .description("Issue with base64 data or contentType/accept")
+            .error(errorResponse)
+            .build(),
+        HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(ParseException.class)
