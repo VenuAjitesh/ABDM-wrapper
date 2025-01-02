@@ -16,7 +16,7 @@ public interface SnomedEncounterRepo extends JpaRepository<SnomedEncounter, Stri
   //      nativeQuery = true)
   @Query(
       value =
-          "SELECT * FROM \"snomed_encounter\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%')",
+          "SELECT * FROM \"snomed_encounter\" sp WHERE sp.\"display\" ILIKE CONCAT('%', :display, '%') LIMIT 20",
       nativeQuery = true)
   List<SnomedEncounter> findByDisplay(@Param("display") String display);
 }

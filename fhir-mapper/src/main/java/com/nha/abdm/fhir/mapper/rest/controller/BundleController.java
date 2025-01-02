@@ -2,10 +2,7 @@
 package com.nha.abdm.fhir.mapper.rest.controller;
 
 import ca.uhn.fhir.context.FhirContext;
-import com.nha.abdm.fhir.mapper.rest.common.constants.BundleIdentifier;
-import com.nha.abdm.fhir.mapper.rest.common.constants.ErrorCode;
 import com.nha.abdm.fhir.mapper.rest.common.helpers.BundleResponse;
-import com.nha.abdm.fhir.mapper.rest.common.helpers.ErrorResponse;
 import com.nha.abdm.fhir.mapper.rest.common.helpers.FacadeError;
 import com.nha.abdm.fhir.mapper.rest.converter.*;
 import com.nha.abdm.fhir.mapper.rest.database.h2.services.SnomedService;
@@ -15,6 +12,7 @@ import java.text.ParseException;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +45,10 @@ public class BundleController {
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
+          .contentType(MediaType.APPLICATION_JSON)
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
@@ -66,8 +66,10 @@ public class BundleController {
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
+          .contentType(MediaType.APPLICATION_JSON)
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
@@ -85,8 +87,10 @@ public class BundleController {
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
+          .contentType(MediaType.APPLICATION_JSON)
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
@@ -104,8 +108,10 @@ public class BundleController {
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
+          .contentType(MediaType.APPLICATION_JSON)
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
@@ -124,8 +130,10 @@ public class BundleController {
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
-          .body(FacadeError.builder().error(bundleResponse.getError()));
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
@@ -143,8 +151,10 @@ public class BundleController {
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
+          .contentType(MediaType.APPLICATION_JSON)
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 
@@ -155,15 +165,17 @@ public class BundleController {
    */
   @PostMapping("/wellness-record")
   public ResponseEntity<Object> createWellnessBundle(
-      @Valid @RequestBody WellnessRecordRequest wellnessRecordRequest) throws ParseException {
+      @Valid @RequestBody WellnessRecordRequest wellnessRecordRequest) {
 
     BundleResponse bundleResponse =
         wellnessRecordConverter.getWellnessBundle(wellnessRecordRequest);
 
     if (Objects.nonNull(bundleResponse.getError()))
       return ResponseEntity.badRequest()
+          .contentType(MediaType.APPLICATION_JSON)
           .body(FacadeError.builder().error(bundleResponse.getError()).build());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(MediaType.APPLICATION_JSON)
         .body(ctx.newJsonParser().encodeResourceToString(bundleResponse.getBundle()));
   }
 }

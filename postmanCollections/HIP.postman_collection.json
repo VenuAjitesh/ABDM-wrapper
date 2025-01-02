@@ -10,37 +10,16 @@
 			"name": "HIP Initiated",
 			"item": [
 				{
-					"name": "LinkRecords",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var verifyResponse = JSON.parse(responseBody);\r",
-									"if(verifyResponse!=null && verifyResponse.clientRequestId!=null)\r",
-									"pm.environment.set(\"clientRequestId\",  verifyResponse.clientRequestId);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
+					"name": "link-carecontexts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n\t\"requesterId\":\"Demo_Ajitesh_HIP\",\r\n    // \"requesterId\":\"Predator_HIP\",\r\n    // \"requesterId\":\"NIT-N-Ajitesh\",\r\n    \"abhaAddress\":\"ajitesh6x@sbx\",\r\n    //   \"authMode\":\"MOBILE_OTP\",\r\n    \"authMode\":\"DEMOGRAPHICS\",\r\n    \"hiTypes\": [\r\n            \"DiagnosticReport\",\r\n            \"DischargeSummary\",\r\n            \"HealthDocumentRecord\",\r\n            \"ImmunizationRecord\",\r\n            \"OPConsultation\",\r\n            \"Prescription\",\r\n            \"WellnessRecord\"\r\n        ],\r\n\t\"patient\": {\r\n            \"careContexts\": [\r\n                {\r\n                    \"referenceNumber\": \"visit-ajitesh6x@sbx 30/05/2024\",\r\n                    \"display\": \"ajitesh@sbx OP-on 27/05/2024\"\r\n                }\r\n            ]\r\n\t}\r\n}\r\n\r\n\r\n\r\n",
+							"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n    \"requesterId\": \"abdm-dnp\",\r\n    \"abhaAddress\": \"ajitesh91x@sbx\",\r\n    \"careContexts\": [\r\n        {\r\n            \"referenceNumber\": \"test visit 13-09 DiagnosticReport\",\r\n            \"display\": \"{{$isoTimestamp}}\",\r\n            \"hiType\": \"DiagnosticReport\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -48,14 +27,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/v1/link-carecontexts",
+							"raw": "http://localhost:8082/v3/link-carecontexts",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8082",
 							"path": [
-								"v1",
+								"v3",
 								"link-carecontexts"
 							]
 						}
@@ -63,50 +42,21 @@
 					"response": []
 				},
 				{
-					"name": "localhost:8080/getStatus",
+					"name": "get care context status",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8082/v1/link-status/{{clientRequestId}}",
+							"raw": "http://localhost:8082/v3/link-status/f162c0a7-9fee-4efd-a691-c4053a1042e9",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8082",
 							"path": [
-								"v1",
+								"v3",
 								"link-status",
-								"{{clientRequestId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "localhost:8080/verifyOtp",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"loginHint\": \"hipLinking\",\r\n    \"requestId\":\"{{clientRequestId}}\", //RequestId which is used for tracking the linking.\r\n    \"authCode\":\"951421\" //OTP\r\n}\r\n\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8082/v1/verify-otp",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8082",
-							"path": [
-								"v1",
-								"verify-otp"
+								"f162c0a7-9fee-4efd-a691-c4053a1042e9"
 							]
 						}
 					},
@@ -115,13 +65,13 @@
 			]
 		},
 		{
-			"name": "localhost:8080/add-patient",
+			"name": "deepLinking",
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[{\r\n    \"name\":\"Govada Venu Ajitesh\",\r\n\t\"abhaAddress\":\"91348838487828@sbx\",\r\n    \"patientReference\":\"91348838487828\",\r\n\t\"gender\":\"M\",\r\n\t\"dateOfBirth\":\"2001-04-27\",\r\n    \"patientDisplay\": \"Venu Ajitesh\",\r\n    \"patientMobile\":\"9999999999\"}\r\n]\r\n",
+					"raw": "{\r\n    \"notification\": {\r\n        \"phoneNo\": \"9999999999\",\r\n        \"hip\": {\r\n            \"name\": \"Max Health\",\r\n            \"id\": \"demo-hip-Ajitesh\"\r\n        }\r\n    }\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -129,14 +79,44 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/v1/add-patients",
+					"raw": "http://localhost:8082/v3/sms/notify",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8082",
 					"path": [
-						"v1",
+						"v3",
+						"sms",
+						"notify"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add-patient",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n    \"name\":\"Govada Venu Ajitesh\",\r\n\t\"abhaAddress\":\"jain.nitesh123@sbx\",\r\n    \"patientReference\":\"nitesh\",\r\n\t\"gender\":\"M\",\r\n\t\"dateOfBirth\":\"1940-04-24\",\r\n    \"patientDisplay\": \"Venu Ajitesh\",\r\n    \"patientMobile\":\"9999999999\",\r\n    \"hipId\":\"abdm-dnp\"\r\n    }\r\n]\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v3/add-patients",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v3",
 						"add-patients"
 					]
 				}
@@ -144,13 +124,16 @@
 			"response": []
 		},
 		{
-			"name": "deepLinking",
+			"name": "getPatient",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"requestId\": \"{{$guid}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"notification\": {\r\n        \"phoneNo\": \"9293245554\",\r\n        \"hip\": {\r\n            \"name\": \"Max Health\",\r\n            \"id\": \"Predator_HIP\"\r\n        }\r\n    }\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -158,16 +141,22 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/v1/sms/notify",
+					"raw": "http://localhost:8082/v3/patient/ajiteshx@sbx?hipId=abdm-dnp",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8082",
 					"path": [
-						"v1",
-						"sms",
-						"notify"
+						"v3",
+						"patient",
+						"ajiteshx@sbx"
+					],
+					"query": [
+						{
+							"key": "hipId",
+							"value": "abdm-dnp"
+						}
 					]
 				}
 			},

@@ -229,7 +229,6 @@ public class SnomedService {
     return text.trim().split("\\s+").length;
   }
 
-
   private static Map<CharSequence, Integer> createFrequencyMap(String text) {
     String[] tokens = text.toLowerCase().split("\\s+");
     Map<CharSequence, Integer> frequencyMap = new HashMap<>();
@@ -248,7 +247,12 @@ public class SnomedService {
         list.stream()
             .filter(type::isInstance)
             .map(type::cast)
-            .filter(obj -> hasValidWordDifference(input, obj.getDisplay())) // filtering the difference in words not more the input +=2
+            .filter(
+                obj ->
+                    hasValidWordDifference(
+                        input,
+                        obj.getDisplay())) // filtering the difference in words not more the input
+            // +=2
             .collect(
                 Collectors.toMap(
                     obj -> obj,

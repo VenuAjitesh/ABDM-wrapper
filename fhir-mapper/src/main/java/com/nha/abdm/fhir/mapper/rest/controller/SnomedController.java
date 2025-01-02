@@ -19,6 +19,7 @@ public class SnomedController {
 
   /**
    * Returns all the available snomed codes
+   *
    * @param resource
    * @return
    */

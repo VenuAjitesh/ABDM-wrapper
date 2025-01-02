@@ -440,7 +440,7 @@ components:
         careContextReference:
           type: string
           example: visist 21-03-2024
-        authoredOn:
+        visitDate:
           type: string
           format: date
           example: 2024-05-20
@@ -468,12 +468,12 @@ components:
         - patient
         - practitioners
         - careContextReference
-        - authoredOn
+        - visitDate
         - diagnostics
       example:
-        bundleType: DiagnosticReport
+        bundleType: DiagnosticReportRecord
         careContextReference: visist 21-03-2024
-        authoredOn: 2024-05-20
+        visitDate: 2024-05-20
         patient:
           name: Venu Ajitesh
           patientReference: ajitesh6x
@@ -814,6 +814,8 @@ components:
           enum:
             - male
             - female
+            - other
+            - unknown
         birthDate:
           type: string
           format: date
