@@ -11,7 +11,7 @@
  */
 
 
-package com.nha.abdm.wrapper.client.model;
+package in.nha.abdm.wrapper.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.nha.abdm.wrapper.client.invoker.JSON;
+import in.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
  * ConsentRequestIdentifier

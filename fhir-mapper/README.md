@@ -25,7 +25,7 @@ System Requirements:
 
 Recommended RAM: Systems with more than 8 GB RAM
 ### Bringing up the application
-- If you have installed docker and docker compose then you can bring the application using: `docker compose -f docker-compose-fhir up --build`
+- If you have installed docker and docker compose then you can bring the application using: `docker compose -f docker-compose-fhir.yaml up --build`
 * If you have chosen to install Java and gradle components, then here is how you can bring the service up:
   - Go to root of this repository and start fhir-mapper by running `gradle bootrun`
 - Using any of the above approaches the server will be running on port `8085`

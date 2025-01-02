@@ -1,9 +1,9 @@
 package nha.abdm.hiu;
 
-import com.nha.abdm.wrapper.client.api.ConsentApi;
-import com.nha.abdm.wrapper.client.api.DataTransferApi;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.model.*;
+import in.nha.abdm.wrapper.client.api.ConsentApi;
+import in.nha.abdm.wrapper.client.api.DataTransferApi;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.model.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;

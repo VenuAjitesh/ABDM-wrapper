@@ -3,10 +3,9 @@ package com.nha.abdm.fhir.mapper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Date;
 import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.InstantType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,8 +17,10 @@ public class Utils {
   private static final SimpleDateFormat DATE_ONLY_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
-  public static Date getCurrentTimeStamp() throws ParseException {
-    return Date.from(Instant.now().atOffset(ZoneOffset.UTC).toInstant());
+  public static InstantType getCurrentTimeStamp() throws ParseException {
+    InstantType instantType = new InstantType();
+    instantType.setToCurrentTimeInLocalTimeZone();
+    return (InstantType) InstantType.withCurrentTime().setTimeZoneZulu(true);
   }
 
   public static DateTimeType getFormattedDateTime(String dateTimeString) throws ParseException {
@@ -27,7 +28,8 @@ public class Utils {
     if (dateTimeString.length() <= 10) {
       return new DateTimeType(dateTimeString);
     } else {
-      return (DateTimeType) new DateTimeType(ISO_DATE_TIME_FORMAT.parse(dateTimeString));
+      return (DateTimeType)
+          new DateTimeType(ISO_DATE_TIME_FORMAT.parse(dateTimeString)).setTimeZoneZulu(true);
     }
   }
 

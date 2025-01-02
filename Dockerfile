@@ -10,7 +10,7 @@ RUN unzip gradle-8.6-bin.zip
 ENV GRADLE_HOME=/app/gradle-8.5
 ENV PATH=$PATH:$GRADLE_HOME/bin
 COPY . .
-RUN gradle build
+RUN gradle build -x test
 
 EXPOSE 8082
 

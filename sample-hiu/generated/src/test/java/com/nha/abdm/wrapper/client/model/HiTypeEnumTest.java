@@ -11,7 +11,7 @@
  */
 
 
-package com.nha.abdm.wrapper.client.model;
+package in.nha.abdm.wrapper.client.model;
 
 import com.google.gson.annotations.SerializedName;
 import org.junit.jupiter.api.Disabled;

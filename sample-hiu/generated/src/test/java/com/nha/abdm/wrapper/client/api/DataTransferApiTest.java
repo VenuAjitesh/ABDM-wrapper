@@ -11,12 +11,12 @@
  */
 
 
-package com.nha.abdm.wrapper.client.api;
+package in.nha.abdm.wrapper.client.api;
 
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.model.FacadeResponse;
-import com.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest;
-import com.nha.abdm.wrapper.client.model.HealthInformationResponse;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.model.FacadeResponse;
+import in.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest;
+import in.nha.abdm.wrapper.client.model.HealthInformationResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

@@ -11,25 +11,25 @@
  */
 
 
-package com.nha.abdm.wrapper.client.api;
+package in.nha.abdm.wrapper.client.api;
 
-import com.nha.abdm.wrapper.client.invoker.ApiCallback;
-import com.nha.abdm.wrapper.client.invoker.ApiClient;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.invoker.ApiResponse;
-import com.nha.abdm.wrapper.client.invoker.Configuration;
-import com.nha.abdm.wrapper.client.invoker.Pair;
-import com.nha.abdm.wrapper.client.invoker.ProgressRequestBody;
-import com.nha.abdm.wrapper.client.invoker.ProgressResponseBody;
+import in.nha.abdm.wrapper.client.invoker.ApiCallback;
+import in.nha.abdm.wrapper.client.invoker.ApiClient;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.invoker.ApiResponse;
+import in.nha.abdm.wrapper.client.invoker.Configuration;
+import in.nha.abdm.wrapper.client.invoker.Pair;
+import in.nha.abdm.wrapper.client.invoker.ProgressRequestBody;
+import in.nha.abdm.wrapper.client.invoker.ProgressResponseBody;
 
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 
 
-import com.nha.abdm.wrapper.client.model.FacadeResponse;
-import com.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest;
-import com.nha.abdm.wrapper.client.model.HealthInformationResponse;
+import in.nha.abdm.wrapper.client.model.FacadeResponse;
+import in.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest;
+import in.nha.abdm.wrapper.client.model.HealthInformationResponse;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

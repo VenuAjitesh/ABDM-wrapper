@@ -11,7 +11,7 @@
  */
 
 
-package com.nha.abdm.wrapper.client.model;
+package in.nha.abdm.wrapper.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.nha.abdm.wrapper.client.model.ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner;
+import in.nha.abdm.wrapper.client.model.ConsentStatusConsentDetailsConsentInnerConsentArtefactsInner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.nha.abdm.wrapper.client.invoker.JSON;
+import in.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
  * ConsentStatusConsentDetailsConsentInner

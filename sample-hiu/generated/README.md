@@ -80,11 +80,11 @@ Please follow the [installation](#installation) instruction and execute the foll
 ```java
 
 // Import classes:
-import com.nha.abdm.wrapper.client.invoker.ApiClient;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.invoker.Configuration;
-import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.ConsentApi;
+import in.nha.abdm.wrapper.client.invoker.ApiClient;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.invoker.Configuration;
+import in.nha.abdm.wrapper.client.invoker.models.*;
+import in.nha.abdm.wrapper.client.api.ConsentApi;
 
 public class Example {
   public static void main(String[] args) {

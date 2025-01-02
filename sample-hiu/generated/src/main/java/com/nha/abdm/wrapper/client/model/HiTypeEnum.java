@@ -11,7 +11,7 @@
  */
 
 
-package com.nha.abdm.wrapper.client.model;
+package in.nha.abdm.wrapper.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;

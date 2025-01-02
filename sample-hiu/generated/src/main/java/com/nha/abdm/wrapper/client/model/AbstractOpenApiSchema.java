@@ -11,9 +11,9 @@
  */
 
 
-package com.nha.abdm.wrapper.client.model;
+package in.nha.abdm.wrapper.client.model;
 
-import com.nha.abdm.wrapper.client.invoker.ApiException;
+import in.nha.abdm.wrapper.client.invoker.ApiException;
 import java.util.Objects;
 import java.lang.reflect.Type;
 import java.util.Map;
