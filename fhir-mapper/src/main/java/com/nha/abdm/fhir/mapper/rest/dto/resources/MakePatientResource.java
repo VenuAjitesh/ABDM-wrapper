@@ -6,6 +6,7 @@ import com.nha.abdm.fhir.mapper.rest.common.constants.BundleUrlIdentifier;
 import com.nha.abdm.fhir.mapper.rest.common.constants.ResourceProfileIdentifier;
 import com.nha.abdm.fhir.mapper.rest.common.helpers.PatientResource;
 import java.text.ParseException;
+import java.util.Locale;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,9 @@ public class MakePatientResource {
     Patient patient = new Patient();
     patient.addName(new HumanName().setText(patientResource.getName()));
     if (patientResource.getGender() != null) {
-      patient.setGender(Enumerations.AdministrativeGender.fromCode(patientResource.getGender()));
+      patient.setGender(
+          Enumerations.AdministrativeGender.fromCode(
+              patientResource.getGender().toLowerCase(Locale.ROOT)));
     }
     if (patientResource.getBirthDate() != null) {
       patient.setBirthDate(Utils.getFormattedDateTime(patientResource.getBirthDate()).getValue());
