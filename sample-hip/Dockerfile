@@ -1,17 +1,15 @@
-FROM maven:3.8.7-eclipse-temurin-17-focal
-VOLUME /tmp
+FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
-RUN apt-get install -y curl
-RUN curl -L https://services.gradle.org/distributions/gradle-8.5-bin.zip -o gradle-8.6-bin.zip
-RUN apt-get update
-RUN apt-get install -y unzip
-RUN unzip gradle-8.6-bin.zip
-ENV GRADLE_HOME=/app/gradle-8.5
-ENV PATH=$PATH:$GRADLE_HOME/bin
-COPY . .
+COPY --chown=gradle:gradle . .
 
-RUN gradle build
+RUN gradle compileJava build
+
+
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8081
 
-ENTRYPOINT java -jar /app/build/libs/*-SNAPSHOT.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]

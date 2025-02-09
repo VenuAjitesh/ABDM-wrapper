@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  sample-hip:
+      build:
+        context: sample-hip
+        dockerfile: ./Dockerfile
+      image: sample-hip
+      ports:
+        - '8081:8081'
+      volumes:
+        - /home/nhadmin/NHA/FHIR:/FHIR
+      networks:
+        - docker_network
+
+      
+  abdm-wrapper:
+    build: .
+    image: abdm-wrapper
+    ports:
+      - '8082:8082'
+    depends_on:
+      - mongodb
+    networks:
+      - docker_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_vol:/data/db
+    networks:
+      - docker_network
+
+volumes:
+  mongodb_vol:
+
+networks:
+  docker_network:
+    driver: bridge
