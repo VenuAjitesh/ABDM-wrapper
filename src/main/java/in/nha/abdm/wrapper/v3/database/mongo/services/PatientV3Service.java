@@ -18,6 +18,7 @@ import in.nha.abdm.wrapper.v3.common.models.FacadeV3Response;
 import in.nha.abdm.wrapper.v3.hip.HIPV3Client;
 import in.nha.abdm.wrapper.v3.hip.hrp.link.hipInitiated.requests.LinkRecordsV3Request;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -175,6 +176,7 @@ public class PatientV3Service {
                       modifiedContext.setReferenceNumber(careContextRequest.getReferenceNumber());
                       modifiedContext.setDisplay(careContextRequest.getDisplay());
                       modifiedContext.setHiType(careContextRequest.getHiType());
+                      modifiedContext.setLinked(true);
                       return modifiedContext;
                     })
                 .collect(Collectors.toList());
@@ -399,12 +401,32 @@ public class PatientV3Service {
    */
   public List<CareContext> getSameCareContexts(
       String abhaAddress, String hipId, List<CareContext> careContexts) {
+
     Patient patient = patientRepo.findByAbhaAddress(abhaAddress, hipId);
     if (patient == null) {
-      return null;
+      return Collections.emptyList();
     }
+
     List<CareContext> existingCareContexts = patient.getCareContexts();
-    if (existingCareContexts == null) return null;
+    if (existingCareContexts == null) return Collections.emptyList();
+
+    boolean allNew =
+        careContexts.stream()
+            .allMatch(
+                context ->
+                    existingCareContexts.stream()
+                        .noneMatch(
+                            existingContext ->
+                                context
+                                        .getReferenceNumber()
+                                        .equals(existingContext.getReferenceNumber())
+                                    && context.getHiType().equals(existingContext.getHiType())
+                                    && existingContext.isLinked()));
+
+    if (allNew) {
+      return Collections.emptyList();
+    }
+
     return existingCareContexts.stream()
         .filter(
             existingContext ->
@@ -415,7 +437,7 @@ public class PatientV3Service {
                                     .getReferenceNumber()
                                     .equals(existingContext.getReferenceNumber())
                                 && context.getHiType().equals(existingContext.getHiType())
-                                && context.isLinked()))
+                                && existingContext.isLinked()))
         .collect(Collectors.toList());
   }
 

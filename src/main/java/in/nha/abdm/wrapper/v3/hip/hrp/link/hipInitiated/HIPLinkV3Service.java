@@ -99,7 +99,7 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
             linkRecordsV3Request.getRequesterId(),
             linkRecordsV3Request.getCareContexts());
 
-    if (Objects.nonNull(sameCareContexts)) {
+    if (sameCareContexts != null && !sameCareContexts.isEmpty()) {
       return hipContextNotify(linkRecordsV3Request, patient, sameCareContexts);
     }
 
@@ -351,24 +351,26 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
             RequestStatus.LINK_TOKEN_REQUEST_ERROR);
         return;
       }
-
       linkTokenService.saveLinkToken(
           onGenerateTokenResponse.getAbhaAddress(),
           onGenerateTokenResponse.getLinkToken(),
           Objects.requireNonNull(headers.getFirst(GatewayConstants.X_HIP_ID)));
       // Fetching the GenerateLinkToken request
-      RequestLog RequestLog =
+      log.info("fetching logs from requestlog for link token");
+      RequestLog requestLog =
           requestLogV3Service.getLogsByAbhaAddress(
               onGenerateTokenResponse.getAbhaAddress(),
               Objects.requireNonNull(headers.get(GatewayConstants.X_HIP_ID)).toString());
-      if (Objects.isNull(RequestLog)) {
+      if (Objects.isNull(requestLog)) {
+        log.error("Request log not found for on-linkToken generation to initiate linking");
         return;
       }
+      log.info("RequestLog: " + requestLog);
 
       LinkRecordsV3Request linkRecordsV3Request =
           (LinkRecordsV3Request)
-              RequestLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
-
+              requestLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
+      log.info("Initiating careContext Linking");
       FacadeV3Response facadeV3Response = addCareContexts(linkRecordsV3Request);
     } catch (WebClientResponseException.BadRequest ex) {
       Object error = BadRequestHandler.getError(ex);
@@ -411,7 +413,7 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
               .hip(ConsentHIP.builder().id(linkRecordsV3Request.getRequesterId()).build())
               .hiTypes(Collections.singletonList(careContext.getHiType()))
               .date(Utils.getCurrentTimeStamp())
-              .careContexts(
+              .careContext(
                   ConsentCareContexts.builder()
                       .careContextReference(careContext.getReferenceNumber())
                       .patientReference(patient.getPatientReference())

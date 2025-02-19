@@ -54,4 +54,5 @@ openApiGenerate {
 	apiPackage.set("com.nha.abdm.wrapper.client.api")
 	invokerPackage.set("com.nha.abdm.wrapper.client.invoker")
 	modelPackage.set("com.nha.abdm.wrapper.client.model")
+	skipValidateSpec = true
 }

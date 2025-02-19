@@ -1107,6 +1107,10 @@ components:
                 - MOBILE
                 - NDHM_HEALTH_NUMBER
                 - HEALTH_ID
+                - ABHA_NUMBER
+                - ABHA_ADDRESS
+                - abhaAddress
+            x-enum-ignore-case: true
         PatientV3Consent:
             type: object
             properties:

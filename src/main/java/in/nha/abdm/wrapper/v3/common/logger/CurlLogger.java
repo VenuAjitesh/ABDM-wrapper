@@ -29,26 +29,37 @@ public class CurlLogger implements HandlerInterceptor {
     StringBuilder curlCommand = new StringBuilder("curl --location '");
     curlCommand.append(uri).append("' \\");
 
-    gatewayHeaders.forEach(
-        (name, values) ->
-            values.forEach(
-                value ->
-                    curlCommand
-                        .append("--header '")
-                        .append(name)
-                        .append(": ")
-                        .append(value)
-                        .append("' \\")));
-    customHeaders.forEach(
-        (name, values) ->
-            values.forEach(
-                value ->
-                    curlCommand
-                        .append("--header '")
-                        .append(name)
-                        .append(": ")
-                        .append(value)
-                        .append("' \\")));
+    if (gatewayHeaders != null) {
+      gatewayHeaders.forEach(
+          (name, values) -> {
+            if (values != null) {
+              values.forEach(
+                  value ->
+                      curlCommand
+                          .append("--header '")
+                          .append(name)
+                          .append(": ")
+                          .append(value)
+                          .append("' \\"));
+            }
+          });
+    }
+
+    if (customHeaders != null) {
+      customHeaders.forEach(
+          (name, values) -> {
+            if (values != null) {
+              values.forEach(
+                  value ->
+                      curlCommand
+                          .append("--header '")
+                          .append(name)
+                          .append(": ")
+                          .append(value)
+                          .append("' \\"));
+            }
+          });
+    }
 
     if (!requestBody.isEmpty()) {
       curlCommand.append("--data-raw '").append(requestBody).append("' \\");

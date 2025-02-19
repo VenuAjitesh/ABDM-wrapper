@@ -442,7 +442,7 @@ public class HipLinkService implements HipLinkInterface {
             .hip(ConsentHIP.builder().id(linkRecordsRequest.getRequesterId()).build())
             .hiTypes(linkRecordsRequest.getHiTypes())
             .date(Utils.getCurrentTimeStamp())
-            .careContexts(
+            .careContext(
                 ConsentCareContexts.builder()
                     .careContextReference(careContextReference)
                     .patientReference(patientReference)
