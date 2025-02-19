@@ -153,6 +153,19 @@ Wrapper has in 3 modules:
    * Health information exchange
 
 ---
+## FHIR MAPPER
+- The Microservice is used to generate simple JSON to FHIR structures
+- kindly refer for code and documentation [here](fhir-mapper)
+---
+## Documentation
+- Below-mentioned docs are present [here](docs/)
+    * Wrapper Doc
+    * Wrapper API Doc
+    * V1 to V3 Migration Doc
+    * Technical Doc
+
+---
+
 ## Helper Applications
 This repository offers few helper sample applications: 
 - **Sample HIP**
