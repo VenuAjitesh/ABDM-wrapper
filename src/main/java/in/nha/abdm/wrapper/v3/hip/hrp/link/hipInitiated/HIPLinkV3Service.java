@@ -356,7 +356,6 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
           onGenerateTokenResponse.getLinkToken(),
           Objects.requireNonNull(headers.getFirst(GatewayConstants.X_HIP_ID)));
       // Fetching the GenerateLinkToken request
-      log.info("fetching logs from requestlog for link token");
       RequestLog requestLog =
           requestLogV3Service.getLogsByAbhaAddress(
               onGenerateTokenResponse.getAbhaAddress(),

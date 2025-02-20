@@ -124,55 +124,37 @@ public class ConsentV3Service implements ConsentV3Interface {
     HIPNotification hipNotification = hipNotifyRequest.getNotification();
     RespRequest responseRequestId =
         RespRequest.builder().requestId(headers.getFirst(GatewayConstants.REQUEST_ID)).build();
-    if (hipNotification.getStatus().equalsIgnoreCase("REVOKED"))
+    if (hipNotification.getStatus().equalsIgnoreCase("REVOKED")) {
       return updateConsentStatus(hipNotification, headers);
-    if (patientService.isCareContextPresent(
-        hipNotification.getConsentDetail().getCareContexts(),
-        headers.getFirst(GatewayConstants.X_HIP_ID))) {
-      Consent consent =
-          Consent.builder()
-              .grantedOn(headers.getFirst(GatewayConstants.TIMESTAMP))
-              .lastUpdatedOn(headers.getFirst(GatewayConstants.TIMESTAMP))
-              .status(hipNotification.getStatus())
-              .consentDetail(hipNotification.getConsentDetail())
-              .signature(hipNotification.getSignature())
-              .build();
-
-      patientService.addConsent(
-          hipNotification.getConsentDetail().getPatient().getId(),
-          consent,
-          headers.getFirst(GatewayConstants.X_HIP_ID));
-      consentCareContextsService.saveConsentContextsMapping(
-          hipNotification.getConsentDetail().getConsentId(),
-          consent.getConsentDetail().getCareContexts());
-
-      // Save the consent patient mapping because on health information request gateway doesn't
-      // provide the patient abhaAddress
-      consentPatientService.saveConsentPatientMapping(
-          consent.getConsentDetail().getConsentId(),
-          hipNotification.getConsentDetail().getPatient().getId(),
-          GatewayConstants.HIP,
-          headers.getFirst(GatewayConstants.X_HIP_ID));
-      log.info(
-          "successfully saved consent in consent-patient: "
-              + consent.getConsentDetail().getConsentId());
-
-    } else {
-      ErrorResponse errorResponse = new ErrorResponse();
-      errorResponse.setMessage("care contexts provided : Does not match");
-      errorResponse.setCode(GatewayConstants.ERROR_CODE);
-      log.error("care contexts provided : Does not match");
-      ConsentAcknowledgement consentAcknowledgement =
-          ConsentAcknowledgement.builder()
-              .consentId(hipNotifyRequest.getNotification().getConsentId())
-              .status("ERROR")
-              .build();
-      return HIPOnNotifyRequest.builder()
-          .error(errorResponse)
-          .acknowledgement(consentAcknowledgement)
-          .response(responseRequestId)
-          .build();
     }
+    Consent consent =
+        Consent.builder()
+            .grantedOn(headers.getFirst(GatewayConstants.TIMESTAMP))
+            .lastUpdatedOn(headers.getFirst(GatewayConstants.TIMESTAMP))
+            .status(hipNotification.getStatus())
+            .consentDetail(hipNotification.getConsentDetail())
+            .signature(hipNotification.getSignature())
+            .build();
+
+    patientService.addConsent(
+        hipNotification.getConsentDetail().getPatient().getId(),
+        consent,
+        headers.getFirst(GatewayConstants.X_HIP_ID));
+    consentCareContextsService.saveConsentContextsMapping(
+        hipNotification.getConsentDetail().getConsentId(),
+        consent.getConsentDetail().getCareContexts());
+
+    // Save the consent patient mapping because on health information request gateway doesn't
+    // provide the patient abhaAddress
+    consentPatientService.saveConsentPatientMapping(
+        consent.getConsentDetail().getConsentId(),
+        hipNotification.getConsentDetail().getPatient().getId(),
+        GatewayConstants.HIP,
+        headers.getFirst(GatewayConstants.X_HIP_ID));
+    log.info(
+        "successfully saved consent in consent-patient: "
+            + consent.getConsentDetail().getConsentId());
+
     ConsentAcknowledgement dataAcknowledgement =
         ConsentAcknowledgement.builder()
             .status("OK")

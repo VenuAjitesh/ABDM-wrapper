@@ -183,7 +183,9 @@ public class LinkV3Service implements LinkV3Interface {
     String linkRefNumber = confirmResponse.getConfirmation().getLinkRefNumber();
 
     String abhaAddress = requestLogV3Service.getPatientId(linkRefNumber);
-    String patientReference = requestLogV3Service.getPatientReference(linkRefNumber);
+    String patientReference =
+        patientV3Service.getPatientReference(
+            abhaAddress, headers.getFirst(GatewayConstants.X_HIP_ID));
     Patient patientWithAbha =
         patientRepo.findByAbhaAddress(abhaAddress, headers.getFirst(GatewayConstants.X_HIP_ID));
 
@@ -233,7 +235,6 @@ public class LinkV3Service implements LinkV3Interface {
       if (requestStatusResponse.getError() == null) {
         Map<String, List<CareContext>> groupedByHiType =
             careContexts.stream().collect(Collectors.groupingBy(CareContext::getHiType));
-        String finalDisplay = display;
         List<PatientCareContextHIType> patients =
             groupedByHiType.entrySet().stream()
                 .map(
@@ -246,12 +247,14 @@ public class LinkV3Service implements LinkV3Interface {
                                       CareContext.builder()
                                           .display(context.getDisplay())
                                           .referenceNumber(context.getReferenceNumber())
+                                          .isLinked(true)
+                                          .hiType(hiType)
                                           .build())
-                              .collect(Collectors.toList());
+                              .toList();
 
                       return PatientCareContextHIType.builder()
                           .referenceNumber(patientReference)
-                          .display(finalDisplay)
+                          .display(display)
                           .hiType(hiType == null ? "HealthDocumentRecord" : hiType)
                           .count(careContexts.size())
                           .careContexts(careContexts)
