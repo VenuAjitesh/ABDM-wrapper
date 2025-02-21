@@ -1,0 +1,1677 @@
+openapi: 3.0.3
+info:
+    title: Swagger HIP Facade - OpenAPI 3.0
+    description: >
+        This is a set of interfaces based on the OpenAPI 3.0 specification for a
+        wrapper client
+
+
+        **NOTE**: The URLs that contain hipBase URL are the callback requests made
+        to the facility by the wrapper.
+    version: 3.0.0
+servers:
+    - url: http://localhost:8082/v1
+    - url: http://localhost:8082/v3
+paths:
+    /add-patients:
+        put:
+            tags:
+                - patients
+                - Patients
+            summary: Insert or Update a list of patients
+            description: >
+                Insert or Update a list of patients
+
+
+
+                The patient is uniquely identified by the abhaAddress and the hipId,
+                this API updates the patient details too.
+            operationId: upsertPatients
+            requestBody:
+                description: Insert or update a list of patients in the wrapper database
+                content:
+                    application/json:
+                        schema:
+                            type: array
+                            items:
+                                $ref: "#/components/schemas/Patient"
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeResponse"
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeV3Response"
+                            example:
+                                message: Successfully upserted 1 patient
+                "400":
+                    description: Invalid request body supplied
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /sms/notify:
+        post:
+            tags:
+                - patients
+                - Deep Linking
+            summary: Sending sms to patient via ABDM
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SmsV3Notify"
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeResponse"
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeV3Response"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeErrorV3Response"
+                            example:
+                                message: Failed while sending sms
+                                httpStatusCode: BAD_REQUEST
+                                errors:
+                                    - error:
+                                          code: 1000
+                                          message: Error thrown by gateway while SmsV3Notify
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+            description:
+                This API is used to send an SMS via ABDM to the patient for
+                generation of ABHA address .
+    /patient-discover:
+        post:
+            tags:
+                - patients
+            summary: Discover patient's accounts
+            description: >
+                Request for patient care context discover, made by CM for a specific
+                HIP. It is expected that HIP will subsequently return either zero or one
+                patient record with (potentially masked) associated care contexts
+                  1. **At least one of the verified identifier matches**
+                  2. **Name (fuzzy), gender matches**
+                  3. **If YoB was given, age band(+-2) matches**
+                  4. **If unverified identifiers were given, one of them matches**
+                  5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**
+                  6. **If there would be still more than one patients (after ranking) error would be returned**
+                  7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**
+                  8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation**
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/PatientDiscoveryRequest"
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Patient"
+                "400":
+                    description: |
+                        **Causes:**
+                          * Empty verified identifiers.
+                          * Format mismatch of any of attributes.
+                            | type   | Format/Allowed Values|
+                            | ------- | ----------------    |
+                            | gender  | M/F/O/U |
+                            | MOBILE  | valid mobile number with proper country code |
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "401":
+                    description: |
+                        **Causes:**
+                          * Unauthorized request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "500":
+                    description: |
+                        **Causes:**
+                          * Downstream system(s) is down.
+                          * Unhandled exceptions.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+    /patient-care-contexts:
+        post:
+            tags:
+                - patients
+            summary: Gets Care Contexts of the given patient id
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CareContextRequest"
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Patient"
+                "400":
+                    description: Invalid request body supplied
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /share/profile:
+        post:
+            tags:
+                - patients
+            summary: Sharing patient details with a facility via scan and share
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ShareProfileRequest"
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ProfileAcknowledgement"
+                "400":
+                    description: Invalid request body supplied
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /verify/otp:
+        post:
+            tags:
+                - discovery
+            summary: The Verification of otp in discovery flow
+            requestBody:
+                description: Verifies OTP
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                loginHint:
+                                    type: string
+                                    description: Hint for the type of authentication being performed
+                                requestId:
+                                    type: string
+                                    description: Unique identifier for the request
+                                authCode:
+                                    type: string
+                                    description: Authentication code to be verified
+                                linkRefNumber:
+                                    type: string
+                                    description: Unique id corresponding to the OTP request
+                            required:
+                                - loginHint
+                                - linkRefNumber
+                                - authCode
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusResponse"
+                "400":
+                    description: Invalid request body supplied
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /request/otp:
+        post:
+            tags:
+                - discovery
+            summary: The Initiating of otp in discovery flow
+            requestBody:
+                description: requesting for OTP
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                abhaAddress:
+                                    type: string
+                                    description: Hint for the abhaAddress of the patient
+                                requestId:
+                                    type: string
+                                    description: Unique identifier for the request
+                                patientReference:
+                                    type: string
+                                    description: patient reference for the particular facility
+                            required:
+                                - abhaAddress
+                                - requestId
+                                - patientReference
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusResponse"
+                "400":
+                    description: Invalid request body supplied
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /verify-otp:
+        post:
+            tags:
+                - link
+            summary: Verify OTP for link auth modes Mobile and Aadhaar
+            description: Verify OTP for link auth modes Mobile and Aadhaar
+            operationId: verifyOTP
+            requestBody:
+                description: Verifies OTP
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                loginHint:
+                                    type: string
+                                    enum:
+                                        - hipLinking
+                                    example: hipLinking
+                                requestId:
+                                    type: string
+                                authCode:
+                                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeResponse"
+                "400":
+                    description: Invalid request body supplied
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /link-carecontexts:
+        post:
+            tags:
+                - link
+                - HIP Initiated Linking
+            summary: Links care contexts for a given patient's abha address
+            description: Links care contexts for a given patient's abha address
+            operationId: linkCareContexts
+            requestBody:
+                description: Links Care Contexts
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                requestId:
+                                    type: string
+                                requesterId:
+                                    type: string
+                                abhaAddress:
+                                    type: string
+                                authMode:
+                                    type: string
+                                    enum:
+                                        - DEMOGRAPHICS
+                                        - MOBILE_OTP
+                                        - AADHAAR_OTP
+                                    example: DEMOGRAPHICS
+                                hiTypes:
+                                    type: array
+                                    items:
+                                        type: string
+                                        enum:
+                                            - DiagnosticReport
+                                            - DischargeSummary
+                                            - HealthDocumentRecord
+                                            - ImmunizationRecord
+                                            - OPConsultation
+                                            - Prescription
+                                            - WellnessRecord
+                                patient:
+                                    $ref: "#/components/schemas/PatientWithCareContext"
+                            $ref: "#/components/schemas/LinkRecordsV3Request"
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeResponse"
+                "202":
+                    description: Accepted
+                    content:
+                        "*/*":
+                            schema:
+                                $ref: "#/components/schemas/FacadeV3Response"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeErrorV3Response"
+                            example:
+                                message: Unable to generate linkToken
+                                httpStatusCode: BAD_REQUEST
+                                errors:
+                                    - error:
+                                          code: 1000
+                                          message: Error Thrown by gateway while generating LinkToken
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+                "503":
+                    description: >
+                        **Causes: while fetching the patient details when they are not
+                        present in wrapper** 
+                          * HIP service is down
+                          * Firewall blocking the connection
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ServiceUnavailable"
+    /link-status/{requestId}:
+        get:
+            tags:
+                - link
+                - HIP Initiated Linking
+            summary: Get status of Link request.
+            parameters:
+                - in: path
+                  name: requestId
+                  schema:
+                      type: string
+                  required: true
+                  description: Request Id of the link care context request.
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusV3Response"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeErrorV3Response"
+                            example:
+                                message: Failed to link careContexts
+                                httpStatusCode: BAD_REQUEST
+                                errors:
+                                    - error:
+                                          code: 1000
+                                          message: Error thrown by gateway while linking careContexts
+                "404":
+                    description: Address not found
+                "422":
+                    description: Validation exception
+    /patient/{abhaAddress}:
+        get:
+            tags:
+                - Patients
+            summary: Get Patient details in a facility
+            parameters:
+                - in: path
+                  name: abhaAddress
+                  schema:
+                      type: string
+                  required: true
+                  description: abhaAddress of the patient
+                - name: hipId
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                  description: facilityName in which user is being registered.
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PatientV3Consent"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FacadeErrorV3Response"
+                            example:
+                                errors:
+                                    - error:
+                                          code: 1000
+                                          message: Patient not found in facility provided
+    /hipBaseUrl/patient-discover:
+        post:
+            tags:
+                - User Initiated Linking
+            summary: Discover patient's accounts
+            description: >
+                Request for patient care context discover, made by CM for a specific
+                HIP. It is expected that HIP will subsequently return either zero or one
+                patient record with (potentially masked) associated care contexts
+                  1. **At least one of the verified identifier matches**
+                  2. **Name (fuzzy), gender matches**
+                  3. **If YoB was given, age band(+-2) matches**
+                  4. **If unverified identifiers were given, one of them matches**
+                  5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**
+                  6. **If there would be still more than one patients (after ranking) error would be returned**
+                  7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**
+                  8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation**
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/PatientDiscoveryV3Request"
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Patient"
+                "400":
+                    description: |
+                        **Causes:**
+                          * Empty verified identifiers.
+                          * Format mismatch of any of attributes.
+                            | type   | Format/Allowed Values|
+                            | ------- | ----------------    |
+                            | gender  | M/F/O/U |
+                            | MOBILE  | valid mobile number with proper country code |
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error:
+                                    code: 1000
+                                    message: Patient not found
+    /hipBaseUrl/patient-care-contexts:
+        post:
+            tags:
+                - User Initiated Linking
+            summary: Gets Care Contexts of the given patient id
+            description:
+                If the patient already exists, this api will be requested to
+                facility for the care contexts
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CareContextV3Request"
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Patient"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error:
+                                    code: 1000
+                                    message: Care contexts not found
+    /hipBaseUrl/request/otp:
+        post:
+            tags:
+                - User Initiated Linking
+            summary: The Initiating of otp in discovery flow
+            description: >
+                Since the care contexts are under facility and the patient is trying to
+                link them, the facility needs to send an SMS to the mobile number of the
+                patient.
+
+                In response you have to send an linkReference number which is an unique
+                id for validating the OTP
+            requestBody:
+                description: requesting for OTP
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                requestId:
+                                    type: string
+                                    description: Unique identifier for the request
+                                    example: ff219ebf-1959-4514-9d28-839b677d6fc6
+                                abhaAddress:
+                                    type: string
+                                    description: Hint for the abhaAddress of the patient
+                                    example: ajitesh6x@sbx
+                                patientReference:
+                                    type: string
+                                    description: patient reference for the particular facility
+                                    example: APOLLO_12334
+                            required:
+                                - abhaAddress
+                                - requestId
+                                - patientReference
+            responses:
+                "202":
+                    description: ACCEPTED
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusV3Response"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusErrorV3Response"
+                            example:
+                                requestId: ff219ebf-1959-4514-9d28-839b677d6fc6
+                                status: FAILURE
+                                error:
+                                    code: 1000
+                                    message: Unable to send OTP
+                "404":
+                    description: Address not found
+    /hipBaseUrl/verify/otp:
+        post:
+            tags:
+                - User Initiated Linking
+            summary: The Verification of otp in discovery flow
+            requestBody:
+                description: Verifies OTP
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                requestId:
+                                    type: string
+                                    description: Unique identifier for the request
+                                    example: ff219ebf-1959-4514-9d28-839b677d6fc6
+                                loginHint:
+                                    type: string
+                                    description: Hint for the type of authentication being performed
+                                    example: Discovery otp verify
+                                authCode:
+                                    type: string
+                                    description: Authentication code to be verified
+                                    example: 123456
+                                linkRefNumber:
+                                    type: string
+                                    description: Unique id corresponding to the OTP request
+                                    example: ff219ebf-1959-4514-9d28-839b677d6fc7
+                            required:
+                                - loginHint
+                                - linkRefNumber
+                                - authCode
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusV3Response"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RequestStatusErrorV3Response"
+                            example:
+                                requestId: ff219ebf-1959-4514-9d28-839b677d6fc6
+                                status: FAILURE
+                                error:
+                                    code: 1000
+                                    message: Incorrect OTP
+                "404":
+                    description: Address not found
+    /hipBaseUrl/share/profile:
+        post:
+            tags:
+                - Profile Share
+            summary: Sharing patient details with a facility via scan and share
+            description: >
+                This API is requested to the facility during the share 
+
+                profile by user, the facility needs to save the patient into
+
+                their system if not found.
+
+
+
+                wrapper has generated  a token number, if the facility intend to use the
+                same token its fine or else, the facility can generate a token and
+                respond back to wrapper.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ShareProfileV3Request"
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ProfileV3Acknowledgement"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error:
+                                    code: 1000
+                                    message: Unable to generate or handle token requests
+                "404":
+                    description: Address not found
+    /hipBaseUrl/health-information:
+        post:
+            tags:
+                - Data Transfer
+            summary: Requesting of FHIR bundle for the careContexts
+            description: >
+                When the user is requesting for the records, the wrapper forwards the
+                carecontext details and hipId, in return wrapper accepts the Stringified
+                FHIR bundle.
+
+
+
+                If a single care context has multiple records you can send them in the
+                array of healthInformationBundle with same care context reference.
+            operationId: DataTransfer
+            requestBody:
+                description: DataTransfer
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                hipId:
+                                    type: string
+                                    example: Predator_HIP
+                                careContextsWithV3PatientReferences:
+                                    type: array
+                                    items:
+                                        $ref: "#/components/schemas/careContextsWithV3PatientReferences"
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    healthInformationBundle:
+                                        $ref: "#/components/schemas/healthInformationV3Response"
+                "400":
+                    description: Invalid request body supplied
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error:
+                                    code: 1000
+                                    message: Unable to generate FHIR bundle
+                "404":
+                    description: Address not found
+components:
+    schemas:
+        Patient:
+            type: object
+            properties:
+                abhaAddress:
+                    type: string
+                    example: ajitesh6x@sbx
+                name:
+                    type: string
+                    example: Venu Ajitesh
+                gender:
+                    type: string
+                    enum:
+                        - M
+                        - F
+                        - O
+                        - U
+                    example: M
+                dateOfBirth:
+                    type: string
+                    example: 2003-09-23
+                patientReference:
+                    type: string
+                    example: APOLLO_12334
+                patientDisplay:
+                    type: string
+                    example: Venu Ajitesh
+                patientMobile:
+                    type: string
+                    example: 9999999999
+                careContexts:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CareContext"
+                hipId:
+                    type: string
+                    example: Predator_HIP
+            required:
+                - abhaAddress
+                - name
+                - dateOfBirth
+                - gender
+                - patientReference
+                - patientDisplay
+                - patientMobile
+                - hipId
+        CareContextRequest:
+            type: object
+            properties:
+                abhaAddress:
+                    type: string
+                hipId:
+                    type: string
+        PatientWithCareContext:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ABHA Address
+                    example: ajitesh6x@sbx
+                referenceNumber:
+                    type: string
+                    example: APOLLO_12334
+                careContexts:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CareContext"
+        CareContext:
+            type: object
+            properties:
+                referenceNumber:
+                    type: string
+                    example: ff219ebf-1959-4514-9d28-839b677d6fc6
+                display:
+                    type: string
+                    example: Visit OP 20-06-2024
+                hiType:
+                    type: string
+                    example: Prescription
+        RequestStatusResponse:
+            type: object
+            properties:
+                linkRefNumber:
+                    type: string
+                requestId:
+                    type: string
+                status:
+                    type: string
+                error:
+                    $ref: "#/components/schemas/ErrorResponse"
+        FacadeResponse:
+            type: object
+            properties:
+                clientRequestId:
+                    type: string
+                code:
+                    type: integer
+                message:
+                    type: string
+                error:
+                    $ref: "#/components/schemas/ErrorResponse"
+        ErrorResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    example: 1000
+                message:
+                    type: string
+                    example: Consent not found
+        SmsNotify:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                    format: uuid
+                timestamp:
+                    type: string
+                    format: date-time
+                notification:
+                    type: object
+                    properties:
+                        phoneNo:
+                            type: string
+                        hip:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                id:
+                                    type: string
+        ShareProfileRequest:
+            type: object
+            properties:
+                token:
+                    type: string
+                    description: The token associated with the profile share
+                hipId:
+                    type: string
+                    description: The facility associated with the profile share
+                profile:
+                    $ref: "#/components/schemas/ProfileShare"
+        ProfileAcknowledgement:
+            type: object
+            properties:
+                status:
+                    type: string
+                    description: The status of the profile acknowledgement
+                healthId:
+                    type: string
+                    description: The health ID associated with the acknowledgement
+                tokenNumber:
+                    type: string
+                    description: The token number associated with the acknowledgement
+        ProfileShare:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                    description: The request ID associated with the profile share
+                timestamp:
+                    type: string
+                    description: The timestamp of the profile share
+                intent:
+                    $ref: "#/components/schemas/ProfileIntent"
+                location:
+                    $ref: "#/components/schemas/ProfileLocation"
+                profile:
+                    $ref: "#/components/schemas/PatientProfile"
+        ProfileIntent:
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: The type of profile intent
+        ProfileLocation:
+            type: object
+            properties:
+                latitude:
+                    type: string
+                    description: The latitude of the profile location
+                longitude:
+                    type: string
+                    description: The longitude of the profile location
+        PatientProfile:
+            type: object
+            properties:
+                hipCode:
+                    type: string
+                    description: The HIP code associated with the patient profile
+                patient:
+                    $ref: "#/components/schemas/PatientDetails"
+        PatientDetails:
+            type: object
+            properties:
+                healthId:
+                    type: string
+                    description: The health ID of the patient
+                healthIdNumber:
+                    type: string
+                    description: The health ID number of the patient
+                name:
+                    type: string
+                    description: The name of the patient
+                gender:
+                    type: string
+                    description: The gender of the patient
+                address:
+                    $ref: "#/components/schemas/PatientAddress"
+                yearOfBirth:
+                    type: string
+                    description: The year of birth of the patient
+                dayOfBirth:
+                    type: string
+                    description: The day of birth of the patient
+                monthOfBirth:
+                    type: string
+                    description: The month of birth of the patient
+                identifiers:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/PatientVerifiedIdentifiers"
+        PatientAddress:
+            type: object
+            properties:
+                line:
+                    type: string
+                    description: The line of the patient address
+                district:
+                    type: string
+                    description: The district of the patient address
+                state:
+                    type: string
+                    description: The state of the patient address
+                pincode:
+                    type: string
+                    description: The pincode of the patient address
+        PatientVerifiedIdentifiers:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: The value of the verified identifier
+                type:
+                    type: string
+                    description: The type of the verified identifier
+        PatientDiscoveryRequest:
+            type: object
+            required:
+                - requestId
+                - timestamp
+                - transactionId
+                - patient
+            properties:
+                requestId:
+                    type: string
+                    format: uuid
+                    description: a nonce, unique for each HTTP request.
+                    example: 499a5a4a-7dda-4f20-9b67-e24589627061
+                timestamp:
+                    $ref: "#/components/schemas/TimestampSchema"
+                transactionId:
+                    type: string
+                    format: uuid
+                    description:
+                        correlation-Id for patient discovery and subsequent care context
+                        linkage
+                patient:
+                    type: object
+                    required:
+                        - id
+                        - verifiedIdentifiers
+                        - name
+                        - gender
+                        - yearOfBirth
+                    properties:
+                        id:
+                            type: string
+                            example: <patient-id>@<consent-manager-id>
+                            description: Identifier of patient at consent manager
+                        verifiedIdentifiers:
+                            type: array
+                            items:
+                                $ref: "#/components/schemas/Identifier"
+                            xml:
+                                name: verifiedIdentifiers
+                                wrapped: true
+                        unverifiedIdentifiers:
+                            type: array
+                            items:
+                                $ref: "#/components/schemas/Identifier"
+                            xml:
+                                name: unverifiedIdentifiers
+                                wrapped: true
+                        name:
+                            type: string
+                            example: chandler bing
+                        gender:
+                            $ref: "#/components/schemas/PatientGender"
+                        yearOfBirth:
+                            type: integer
+                            example: 2000
+                hipId:
+                    type: string
+            xml:
+                name: PatientDiscoveryRequest
+        PatientGender:
+            type: string
+            enum:
+                - M
+                - F
+                - O
+                - U
+        TimestampSchema:
+            type: string
+            format: date-time
+            description: Date time format in UTC, includes miliseconds YYYY-MM-DDThh:mm:ss.vZ
+        Identifier:
+            type: object
+            properties:
+                type:
+                    $ref: "#/components/schemas/IdentifierType"
+                value:
+                    type: string
+                    example: "+919800083232"
+            xml:
+                name: Identifier
+        IdentifierType:
+            type: string
+            enum:
+                - MR
+                - MOBILE
+                - NDHM_HEALTH_NUMBER
+                - HEALTH_ID
+                - ABHA_NUMBER
+                - ABHA_ADDRESS
+                - abhaAddress
+            x-enum-ignore-case: true
+        PatientV3Consent:
+            type: object
+            properties:
+                abhaAddress:
+                    type: string
+                    example: ajitesh6x@sbx
+                name:
+                    type: string
+                    example: Venu Ajitesh
+                gender:
+                    type: string
+                    enum:
+                        - M
+                        - F
+                        - O
+                        - U
+                    example: M
+                dateOfBirth:
+                    type: string
+                    example: 2003-09-23
+                patientReference:
+                    type: string
+                    example: APOLLO_12334
+                patientDisplay:
+                    type: string
+                    example: Venu Ajitesh
+                patientMobile:
+                    type: string
+                    example: 9999999999
+                careContexts:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CareContext"
+                consent:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ConsentV3Request"
+        healthInformationV3FhirBundle:
+            type: object
+            properties:
+                careContextReference:
+                    type: string
+                    example: OP visit 20-06-2024
+                bundleContent:
+                    type: string
+                    example: stringified FHIR bundle
+            required:
+                - careContextReference
+                - bundleContent
+        careContextsWithV3PatientReferences:
+            type: object
+            properties:
+                patientReference:
+                    type: string
+                    example: APOLLO_12334
+                careContextReference:
+                    type: string
+                    example: ff219ebf-1959-4514-9d28-839b677d6fc6
+        CareContextV3Request:
+            type: object
+            properties:
+                abhaAddress:
+                    type: string
+                    example: ajitesh6x@sbx
+                hipId:
+                    type: string
+                    example: Predator_HIP
+        RequestStatusV3Response:
+            type: object
+            properties:
+                linkRefNumber:
+                    type: string
+                    example: ff219ebf-1959-4514-9d28-839b677d6fc6
+                requestId:
+                    type: string
+                    example: ff219ebf-1959-4514-9d28-839b677d6fc7
+                status:
+                    type: string
+                    example: SUCCESS
+        RequestStatusErrorV3Response:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                    example: ff219ebf-1959-4514-9d28-839b677d6fc7
+                status:
+                    type: string
+                error:
+                    $ref: "#/components/schemas/ErrorResponse"
+        SmsV3Notify:
+            type: object
+            properties:
+                notification:
+                    type: object
+                    properties:
+                        phoneNo:
+                            type: string
+                            example: 9999999999
+                        hip:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    example: predator
+                                id:
+                                    type: string
+                                    example: Predator_HIP
+        ShareProfileV3Request:
+            type: object
+            properties:
+                Token:
+                    type: string
+                    example: 2
+                    description: The Token associated with the profile share
+                hipId:
+                    type: string
+                    example: Predator_HIP
+                    description: The facility associated with the profile share
+                context:
+                    type: string
+                    example: COUNTER_001
+                    description: The counter where the Token is scanned
+                patient:
+                    $ref: "#/components/schemas/PatientV3Details"
+        ProfileV3Acknowledgement:
+            type: object
+            properties:
+                status:
+                    type: string
+                    example: SUCCESS
+                    description: The status of the profile acknowledgement
+                abhaAddress:
+                    type: string
+                    example: ajitesh6x@sbx
+                    description: The health ID associated with the acknowledgement
+                profile:
+                    $ref: "#/components/schemas/TokenProfile"
+        TokenProfile:
+            type: object
+            properties:
+                context:
+                    type: string
+                    example: COUNTER_001
+                    description: The counter where the Token is scanned
+                TokenNumber:
+                    type: string
+                    example: 6
+                expiry:
+                    type: string
+                    example: 1800
+                    description: The expiry of the Token in seconds
+        PatientV3Details:
+            type: object
+            properties:
+                abhaAddress:
+                    type: string
+                    description: The health ID of the patient
+                    example: ajitesh6x@sbx
+                abhaNumber:
+                    type: string
+                    description: The health ID number of the patient
+                    example: 91-1234-1234-1234
+                name:
+                    type: string
+                    description: The name of the patient
+                    example: Venu Ajitesh
+                gender:
+                    type: string
+                    description: The gender of the patient
+                    example: M
+                address:
+                    $ref: "#/components/schemas/PatientV3Address"
+                yearOfBirth:
+                    type: string
+                    description: The year of birth of the patient
+                    example: 2020
+                dayOfBirth:
+                    type: string
+                    description: The day of birth of the patient
+                    example: 5
+                monthOfBirth:
+                    type: string
+                    description: The month of birth of the patient
+                    example: 5
+                identifiers:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/PatientV3VerifiedIdentifiers"
+        PatientV3Address:
+            type: object
+            properties:
+                line:
+                    type: string
+                    description: The line of the patient address
+                district:
+                    type: string
+                    description: The district of the patient address
+                state:
+                    type: string
+                    description: The state of the patient address
+                pincode:
+                    type: string
+                    description: The pincode of the patient address
+        PatientV3VerifiedIdentifiers:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: The value of the verified identifier
+                    example: 9999999999
+                type:
+                    type: string
+                    description: The type of the verified identifier
+                    example: MOBILE
+        ConsentV3Request:
+            type: object
+            properties:
+                ConsentV3Purpose:
+                    $ref: "#/components/schemas/ConsentV3Purpose"
+                patient:
+                    $ref: "#/components/schemas/ConsentV3IdRequest"
+                hip:
+                    $ref: "#/components/schemas/ConsentV3IdRequest"
+                careContexts:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ConsentV3CareContext"
+                hiu:
+                    $ref: "#/components/schemas/ConsentV3IdRequest"
+                requester:
+                    $ref: "#/components/schemas/ConsentV3Requester"
+                hiTypes:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/HiTypeEnum"
+                    example:
+                        - OPConsultation
+                        - Prescription
+                ConsentV3Permission:
+                    $ref: "#/components/schemas/ConsentV3Permission"
+            required:
+                - ConsentV3Purpose
+                - patient
+                - hiu
+                - requester
+                - hiTypes
+                - ConsentV3Permission
+        ConsentV3Purpose:
+            type: object
+            properties:
+                text:
+                    type: string
+                    example: Diagnosis
+                code:
+                    type: string
+                    example: CAREMGT
+                refUri:
+                    type: string
+                    example: wrapper
+                    description: refUri is an reference URL, it can be your facilty base url too.
+        ConsentV3IdRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: Predator_HIU
+        ConsentV3CareContext:
+            type: object
+            properties:
+                patientReference:
+                    type: string
+                    example: APOLLO_12334
+                careContextReference:
+                    type: string
+                    example: ea4c5168-6419-4188-b076-f0e274bedfe3
+        ConsentV3Requester:
+            type: object
+            properties:
+                name:
+                    type: string
+                identifier:
+                    $ref: "#/components/schemas/ConsentV3RequestIdentifier"
+        ConsentV3RequestIdentifier:
+            type: object
+            properties:
+                type:
+                    type: string
+                    example: REGNO
+                value:
+                    type: string
+                    example: MH1001
+                system:
+                    type: string
+                    example: https://www.mciindia.org
+        ConsentV3Permission:
+            type: object
+            properties:
+                accessMode:
+                    type: string
+                    enum:
+                        - VIEW
+                        - STORE
+                        - QUERY
+                        - STREAM
+                dateRange:
+                    $ref: "#/components/schemas/DateRange"
+                dataEraseAt:
+                    type: string
+                    description: Data related to this consent to be deleted on this date
+                    example: 2024-03-26T10:25:26.274Z
+                frequency:
+                    $ref: "#/components/schemas/Frequency"
+        DateRange:
+            type: object
+            properties:
+                from:
+                    type: string
+                    example: 2021-09-25T12:52:34.925
+                to:
+                    type: string
+                    example: 2023-11-15T12:52:34.925
+        HIUClientHealthInformationV3Request:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                    example: a1s2c932-2f70-3ds3-a3b5-2sfd46b12a18d
+                consentId:
+                    type: string
+                    example: ff219ebf-1959-4514-9d28-839b677d6fc6
+                    description: The id of the consent which has been granted
+                hipId:
+                    type: string
+                    example: Predator_HIP
+            required:
+                - requestId
+                - consentId
+                - hipId
+        healthInformationV3Response:
+            type: object
+            properties:
+                status:
+                    type: string
+                    example: Accepted
+                httpStatusCode:
+                    type: string
+                    example: 202
+                decryptedHealthInformationEntries:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/HealthInformationBundle"
+        HealthInformationBundle:
+            type: object
+            properties:
+                careContextReference:
+                    type: string
+                    example: ea4c5168-6419-4188-b076-f0e274bedfe3
+                bundleContent:
+                    type: string
+                    example: stringified FHIR bundle
+        HiTypeEnum:
+            type: string
+            enum:
+                - OPConsultation
+                - Prescription
+                - DischargeSummary
+                - DiagnosticReport
+                - ImmunizationRecord
+                - HealthDocumentRecord
+                - WellnessRecord
+                - Invoice
+        ConsentStatusV3Response:
+            type: object
+            properties:
+                status:
+                    type: string
+                    example: GRANTED
+                error:
+                    type: string
+                httpStatusCode:
+                    type: string
+                consent:
+                    $ref: "#/components/schemas/ConsentStatus"
+        ConsentStatus:
+            type: object
+            properties:
+                status:
+                    type: string
+                    example: GRANTED
+                httpStatusCode:
+                    type: string
+                    example: 202
+                initConsentV3Request:
+                    type: object
+                    properties:
+                        consent:
+                            $ref: "#/components/schemas/ConsentV3Request"
+                consentDetails:
+                    type: object
+                    properties:
+                        grantedOn:
+                            type: string
+                        dateRange:
+                            $ref: "#/components/schemas/DateRange"
+                        dataEraseAt:
+                            type: string
+                        hiTypes:
+                            type: array
+                            items:
+                                type: string
+                        consent:
+                            type: array
+                            items:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                                    consentArtefacts:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id:
+                                                    type: string
+                                                lastUpdated:
+                                                    type: string
+                                                hipId:
+                                                    type: string
+                                                careContextReference:
+                                                    type: array
+                                                    items:
+                                                        type: string
+        Frequency:
+            type: object
+            properties:
+                unit:
+                    type: string
+                    enum:
+                        - HOUR
+                        - WEEK
+                        - DAY
+                        - MONTH
+                        - YEAR
+                value:
+                    type: integer
+                repeats:
+                    type: integer
+        PatientDiscoveryV3Request:
+            type: object
+            required:
+                - requestId
+                - timestamp
+                - transactionId
+                - patient
+            properties:
+                hipId:
+                    type: string
+                transactionId:
+                    type: string
+                    format: uuid
+                    description:
+                        correlation-Id for patient discovery and subsequent care context
+                        linkage
+                patient:
+                    type: object
+                    required:
+                        - id
+                        - verifiedIdentifiers
+                        - name
+                        - gender
+                        - yearOfBirth
+                    properties:
+                        id:
+                            type: string
+                            example: <patient-id>@<consent-manager-id>
+                            description: Identifier of patient at consent manager
+                        verifiedIdentifiers:
+                            type: array
+                            items:
+                                $ref: "#/components/schemas/Identifier"
+                            xml:
+                                name: verifiedIdentifiers
+                                wrapped: true
+                        unverifiedIdentifiers:
+                            type: array
+                            items:
+                                $ref: "#/components/schemas/Identifier"
+                            xml:
+                                name: unverifiedIdentifiers
+                                wrapped: true
+                        name:
+                            type: string
+                            example: chandler bing
+                        gender:
+                            $ref: "#/components/schemas/PatientGender"
+                        yearOfBirth:
+                            type: integer
+                            example: 2000
+            xml:
+                name: PatientDiscoveryV3Request
+        FacadeV3Response:
+            type: object
+            properties:
+                clientRequestId:
+                    type: string
+                    format: uuid
+                    description: a nonce, unique for each HTTP request.
+                    example: 499a5a4a-7dda-4f20-9b67-e24589627061
+                httpStatusCode:
+                    type: string
+                    example: ACCEPTED
+                message:
+                    type: string
+                    example: CareContext request accepted by the gateway
+        FacadeErrorV3Response:
+            type: object
+            properties:
+                errors:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ErrorV3Response"
+        ErrorV3Response:
+            type: object
+            properties:
+                error:
+                    $ref: "#/components/schemas/ErrorResponse"
+        LinkRecordsV3Request:
+            required:
+                - abhaAddress
+                - careContexts
+                - requestId
+                - requesterId
+            type: object
+            properties:
+                requestId:
+                    type: string
+                    example: 740401f2-e347-4507-84a4-462a63ebb7c6
+                requesterId:
+                    type: string
+                    example: Predator_HIP
+                abhaAddress:
+                    type: string
+                    example: ajitesh6x@sbx
+                careContexts:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CareContext"
+        ServiceUnavailable:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: Patient details not found
+                errors:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ErrorV3Response"
+                    example:
+                        errors:
+                            - error:
+                                  code: 1000
+                                  message:
+                                      HIP is currently unreachable for sharing patient details. Please try
+                                      again later.

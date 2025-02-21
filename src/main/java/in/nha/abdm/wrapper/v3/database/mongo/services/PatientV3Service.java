@@ -9,6 +9,7 @@ import in.nha.abdm.wrapper.v1.common.Utils;
 import in.nha.abdm.wrapper.v1.common.exceptions.IllegalDataStateException;
 import in.nha.abdm.wrapper.v1.common.models.CareContext;
 import in.nha.abdm.wrapper.v1.common.models.Consent;
+import in.nha.abdm.wrapper.v1.common.models.ConsentDetail;
 import in.nha.abdm.wrapper.v1.hip.HIPPatient;
 import in.nha.abdm.wrapper.v1.hip.hrp.database.mongo.repositories.PatientRepo;
 import in.nha.abdm.wrapper.v1.hip.hrp.database.mongo.tables.Patient;
@@ -17,9 +18,7 @@ import in.nha.abdm.wrapper.v1.hiu.hrp.consent.requests.ConsentCareContexts;
 import in.nha.abdm.wrapper.v3.common.models.FacadeV3Response;
 import in.nha.abdm.wrapper.v3.hip.HIPV3Client;
 import in.nha.abdm.wrapper.v3.hip.hrp.link.hipInitiated.requests.LinkRecordsV3Request;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -175,6 +174,7 @@ public class PatientV3Service {
                       modifiedContext.setReferenceNumber(careContextRequest.getReferenceNumber());
                       modifiedContext.setDisplay(careContextRequest.getDisplay());
                       modifiedContext.setHiType(careContextRequest.getHiType());
+                      modifiedContext.setLinked(true);
                       return modifiedContext;
                     })
                 .collect(Collectors.toList());
@@ -194,13 +194,14 @@ public class PatientV3Service {
     log.info("Successfully Added Patient careContexts");
   }
 
-  public void addConsent(String abhaAddress, Consent consent, String hipId)
-      throws IllegalDataStateException {
+  public void addConsent(String abhaAddress, Consent consent, String hipId) {
     log.info("{} Consent : {}", abhaAddress, consent.toString());
     Patient patient = patientRepo.findByAbhaAddress(abhaAddress, hipId);
-    if (patient == null) {
-      throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
+    if (Objects.isNull(patient)) {
+      log.warn("Patient not found in database: " + abhaAddress);
+      patient = getPatient(abhaAddress, hipId);
     }
+
     List<Consent> consents = patient.getConsents();
     if (!CollectionUtils.isEmpty(consents)) {
       for (Consent storedConsent : consents) {
@@ -208,20 +209,81 @@ public class PatientV3Service {
             .getConsentDetail()
             .getConsentId()
             .equals(consent.getConsentDetail().getConsentId())) {
-          String message =
-              String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
-          log.warn(message);
+          log.warn("Consent {} already exists for patient {}.", consent, abhaAddress);
           return;
         }
       }
     }
+
+    Set<String> existingCareContexts =
+        Optional.ofNullable(patient.getCareContexts()).orElse(Collections.emptyList()).stream()
+            .map(CareContext::getReferenceNumber)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+    List<CareContext> newCareContexts =
+        Optional.ofNullable(consent.getConsentDetail())
+            .map(ConsentDetail::getCareContexts)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(Objects::nonNull)
+            .filter(
+                careContext ->
+                    careContext.getCareContextReference() != null
+                        && !existingCareContexts.contains(careContext.getCareContextReference()))
+            .map(
+                careContext ->
+                    CareContext.builder()
+                        .referenceNumber(careContext.getCareContextReference())
+                        .display(
+                            "Added careContext from consent: "
+                                + consent.getConsentDetail().getConsentId())
+                        .isLinked(true)
+                        .hiType("HealthDocumentRecord")
+                        .build())
+            .collect(Collectors.toList());
+
+    Query updateQuery =
+        new Query(
+            Criteria.where(FieldIdentifiers.ABHA_ADDRESS)
+                .is(abhaAddress)
+                .and(FieldIdentifiers.HIP_ID)
+                .is(hipId)
+                .and(FieldIdentifiers.CARE_CONTEXTS + ".referenceNumber")
+                .in(
+                    consent.getConsentDetail().getCareContexts().stream()
+                        .map(ConsentCareContexts::getCareContextReference)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()))
+                .and(FieldIdentifiers.CARE_CONTEXTS + ".isLinked")
+                .is(false));
+    Update updateExistingCareContexts =
+        new Update()
+            .filterArray(
+                "elem.referenceNumber",
+                new Document(
+                    "$in",
+                    consent.getConsentDetail().getCareContexts().stream()
+                        .map(ConsentCareContexts::getCareContextReference)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())))
+            .set(FieldIdentifiers.CARE_CONTEXTS + ".$[elem].isLinked", true);
+    mongoTemplate.updateMulti(updateQuery, updateExistingCareContexts, Patient.class);
+
     Query query =
         new Query(
             Criteria.where(FieldIdentifiers.ABHA_ADDRESS)
                 .is(abhaAddress)
                 .and(FieldIdentifiers.HIP_ID)
                 .is(hipId));
+
     Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
+
+    if (!newCareContexts.isEmpty()) {
+      log.info("Adding new careContexts from consent: {}", newCareContexts);
+      update.addToSet(FieldIdentifiers.CARE_CONTEXTS).each(newCareContexts);
+    }
+
     mongoTemplate.updateFirst(query, update, Patient.class);
   }
 
@@ -255,36 +317,64 @@ public class PatientV3Service {
     MongoCollection<Document> collection =
         mongoTemplate.getCollection(FieldIdentifiers.TABLE_PATIENT);
     List<WriteModel<Document>> updates = new ArrayList<>();
+
     for (Patient patient : patients) {
       Document filter =
           new Document()
               .append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress())
               .append(FieldIdentifiers.HIP_ID, patient.getHipId());
-      Document document =
-          new Document()
-              .append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress())
-              .append(FieldIdentifiers.NAME, patient.getName())
-              .append(FieldIdentifiers.GENDER, patient.getGender())
-              .append(FieldIdentifiers.DATE_OF_BIRTH, patient.getDateOfBirth())
-              .append(FieldIdentifiers.PATIENT_REFERENCE, patient.getPatientReference())
-              .append(FieldIdentifiers.PATIENT_DISPLAY, patient.getPatientDisplay())
-              .append(FieldIdentifiers.HIP_ID, patient.getHipId())
-              .append(FieldIdentifiers.PATIENT_MOBILE, patient.getPatientMobile());
 
-      Document update = new Document("$set", document);
+      Document document = new Document();
+      if (patient.getName() != null) {
+        document.append(FieldIdentifiers.NAME, patient.getName());
+      }
+      if (patient.getGender() != null) {
+        document.append(FieldIdentifiers.GENDER, patient.getGender());
+      }
+      if (patient.getDateOfBirth() != null) {
+        document.append(FieldIdentifiers.DATE_OF_BIRTH, patient.getDateOfBirth());
+      }
+      if (patient.getPatientReference() != null) {
+        document.append(FieldIdentifiers.PATIENT_REFERENCE, patient.getPatientReference());
+      }
+      if (patient.getPatientDisplay() != null) {
+        document.append(FieldIdentifiers.PATIENT_DISPLAY, patient.getPatientDisplay());
+      }
+      if (patient.getPatientMobile() != null) {
+        document.append(FieldIdentifiers.PATIENT_MOBILE, patient.getPatientMobile());
+      }
 
-      updates.add(new UpdateOneModel<>(filter, update, new UpdateOptions().upsert(true)));
+      document.append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress());
+      document.append(FieldIdentifiers.HIP_ID, patient.getHipId());
+
+      Document update = new Document();
+      if (!document.isEmpty()) {
+        update.append("$set", document);
+      }
+
+      if (patient.getCareContexts() != null && !patient.getCareContexts().isEmpty()) {
+        update.append(
+            "$addToSet",
+            new Document(
+                FieldIdentifiers.CARE_CONTEXTS, new Document("$each", patient.getCareContexts())));
+      }
+      if (!update.isEmpty()) {
+        updates.add(new UpdateOneModel<>(filter, update, new UpdateOptions().upsert(true)));
+      }
     }
 
-    BulkWriteResult bulkWriteResult = collection.bulkWrite(updates);
-    int updatedPatientCount =
-        bulkWriteResult.getUpserts().size() > 0
-            ? bulkWriteResult.getUpserts().size()
-            : bulkWriteResult.getModifiedCount();
+    if (!updates.isEmpty()) {
+      BulkWriteResult bulkWriteResult = collection.bulkWrite(updates);
+      int updatedPatientCount =
+          bulkWriteResult.getUpserts().size() > 0
+              ? bulkWriteResult.getUpserts().size()
+              : bulkWriteResult.getModifiedCount();
 
-    return FacadeV3Response.builder()
-        .message(String.format("Successfully upserted %d patients", updatedPatientCount))
-        .build();
+      return FacadeV3Response.builder()
+          .message(String.format("Successfully upserted %d patients", updatedPatientCount))
+          .build();
+    }
+    return FacadeV3Response.builder().message("No updates were performed").build();
   }
 
   /**
@@ -399,12 +489,32 @@ public class PatientV3Service {
    */
   public List<CareContext> getSameCareContexts(
       String abhaAddress, String hipId, List<CareContext> careContexts) {
+
     Patient patient = patientRepo.findByAbhaAddress(abhaAddress, hipId);
     if (patient == null) {
-      return null;
+      return Collections.emptyList();
     }
+
     List<CareContext> existingCareContexts = patient.getCareContexts();
-    if (existingCareContexts == null) return null;
+    if (existingCareContexts == null) return Collections.emptyList();
+
+    boolean allNew =
+        careContexts.stream()
+            .allMatch(
+                context ->
+                    existingCareContexts.stream()
+                        .noneMatch(
+                            existingContext ->
+                                context
+                                        .getReferenceNumber()
+                                        .equals(existingContext.getReferenceNumber())
+                                    && context.getHiType().equals(existingContext.getHiType())
+                                    && existingContext.isLinked()));
+
+    if (allNew) {
+      return Collections.emptyList();
+    }
+
     return existingCareContexts.stream()
         .filter(
             existingContext ->
@@ -415,7 +525,7 @@ public class PatientV3Service {
                                     .getReferenceNumber()
                                     .equals(existingContext.getReferenceNumber())
                                 && context.getHiType().equals(existingContext.getHiType())
-                                && context.isLinked()))
+                                && existingContext.isLinked()))
         .collect(Collectors.toList());
   }
 
@@ -450,6 +560,7 @@ public class PatientV3Service {
         patient.setPatientReference(hipPatient.getPatientReference());
         patient.setPatientMobile(hipPatient.getPatientMobile());
         patient.setHipId(hipId);
+        patient.setCareContexts(hipPatient.getCareContexts());
         patientRepo.save(patient);
         return patient;
       }

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class PatientNotification {
-  private ConsentCareContexts careContexts;
+  private ConsentCareContexts careContext;
   private List<String> hiTypes;
   private PatientId patient;
   private String date;

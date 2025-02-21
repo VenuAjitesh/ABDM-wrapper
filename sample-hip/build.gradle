@@ -1,0 +1,58 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.2'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.openapi.generator' version '6.6.0'
+}
+
+group = 'com.nha.abdm.hip.sample'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+	implementation 'io.gsonfire:gson-fire:1.8.5'
+
+	implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+	implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+	implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
+	implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
+}
+
+
+tasks.named("compileJava") {
+	dependsOn("openApiGenerate")
+}
+tasks.named('test') {
+	useJUnitPlatform()
+}
+sourceSets {
+	main {
+		java {
+			srcDirs += "$buildDir/generated/src/main/java"
+		}
+	}
+}
+
+openApiGenerate {
+	generatorName.set("java")
+	inputSpec.set("$rootDir/specs/mergedSpec.yaml")
+	outputDir.set("$buildDir/generated")
+	apiPackage.set("com.nha.abdm.wrapper.client.api")
+	invokerPackage.set("com.nha.abdm.wrapper.client.invoker")
+	modelPackage.set("com.nha.abdm.wrapper.client.model")
+	skipValidateSpec = true
+}

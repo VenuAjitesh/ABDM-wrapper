@@ -118,7 +118,7 @@ curl --location 'https: //dev.abdm.gov.in/api/hiecm/gateway/v3/bridge-services' 
 - All the API related to Wrapper and FHIR are available [here](https://venuajitesh.github.io/ABDM-wrapper/)
 ---
 ## Bring the application up.
-1. Communication with ABDM gateway
+1. **Communication with ABDM gateway**
    * Provide clientId and clientSecret in [application.properties](src/main/resources/application.properties)
    * If you have installed docker and docker compose then you can bring the application using: `docker-compose up --build`
    * If you have chosen to install separate components, then here is how you can bring the services up:
@@ -131,6 +131,11 @@ curl --location 'https: //dev.abdm.gov.in/api/hiecm/gateway/v3/bridge-services' 
       - useProxySettings=true
       - proxyHost=your proxy server ip
       - proxyPort=your proxy server port
+
+3. **For testing the whole application in Docker**
+   * can bring the application using: `docker compose -f 'docker-compose-all.yaml up --build`
+   * This command runs Wrapper, Sample-HIP, MongoDB
+   * Sample-HIP acts as an test facility to complete the functionalities.
 ---
 ## Modules in wrapper:
 Wrapper has in 3 modules:
@@ -148,6 +153,19 @@ Wrapper has in 3 modules:
    * Health information exchange
 
 ---
+## FHIR MAPPER
+- The Microservice is used to generate simple JSON to FHIR structures
+- kindly refer for code and documentation [here](fhir-mapper)
+---
+## Documentation
+- Below-mentioned docs are present [here](docs/)
+    * Wrapper Doc
+    * Wrapper API Doc
+    * V1 to V3 Migration Doc
+    * Technical Doc
+
+---
+
 ## Helper Applications
 This repository offers few helper sample applications: 
 - **Sample HIP**

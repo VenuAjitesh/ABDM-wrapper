@@ -143,7 +143,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
       patient.setCareContexts(hipPatient.getCareContexts());
     }
     log.info("Updating patient into DB : {}", patient.getAbhaAddress());
-    patientV3Service.upsertPatients(Arrays.asList(patient));
+    patientV3Service.upsertPatients(List.of(patient));
   }
 
   private void processCareContexts(
