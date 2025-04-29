@@ -111,7 +111,7 @@ public class MakeOpComposition {
       List<Observation> otherObservationList,
       List<DocumentReference> documentReferenceList) {
     List<Composition.SectionComponent> sectionComponentList = new ArrayList<>();
-    if (Objects.nonNull(chiefComplaintList)) {
+    if (chiefComplaintList != null && !chiefComplaintList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -129,7 +129,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(physicalObservationList)) {
+    if (Objects.nonNull(physicalObservationList) && !physicalObservationList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -149,7 +149,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(allergieList)) {
+    if (Objects.nonNull(allergieList) && !allergieList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -169,7 +169,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(medicalHistoryList)) {
+    if (Objects.nonNull(medicalHistoryList) && !medicalHistoryList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -187,7 +187,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(familyMemberHistoryList)) {
+    if (Objects.nonNull(familyMemberHistoryList) && !familyMemberHistoryList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -205,7 +205,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(investigationAdviceList)) {
+    if (Objects.nonNull(investigationAdviceList) && !investigationAdviceList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -223,7 +223,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(medicationList)) {
+    if (Objects.nonNull(medicationList) && !medicationList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -236,11 +236,12 @@ public class MakeOpComposition {
       for (MedicationRequest medication : medicationList) {
         sectionComponent.addEntry(
             new Reference()
-                .setReference(BundleResourceIdentifier.FAMILY_HISTORY + "/" + medication.getId()));
+                .setReference(
+                    BundleResourceIdentifier.MEDICATION_REQUEST + "/" + medication.getId()));
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(followupList)) {
+    if (Objects.nonNull(followupList) && !followupList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -257,7 +258,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(procedureList)) {
+    if (Objects.nonNull(procedureList) && !procedureList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -274,7 +275,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(referralList)) {
+    if (Objects.nonNull(referralList) && !referralList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -291,7 +292,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(otherObservationList)) {
+    if (Objects.nonNull(otherObservationList) && !otherObservationList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
@@ -309,7 +310,7 @@ public class MakeOpComposition {
       }
       sectionComponentList.add(sectionComponent);
     }
-    if (Objects.nonNull(documentReferenceList)) {
+    if (Objects.nonNull(documentReferenceList) && !documentReferenceList.isEmpty()) {
       Composition.SectionComponent sectionComponent = new Composition.SectionComponent();
       sectionComponent.setCode(
           new CodeableConcept()
