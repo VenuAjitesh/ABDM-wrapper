@@ -455,12 +455,10 @@ public class OPConsultationConverter {
   private List<AllergyIntolerance> makeAllergiesList(
       Patient patient,
       List<Practitioner> practitionerList,
-      OPConsultationRequest opConsultationRequest)
-      throws ParseException {
-    return Optional.ofNullable(opConsultationRequest.getAllergies())
-        .orElse(Collections.emptyList())
-        .stream()
-        .filter(allergy -> allergy.isBlank() && allergy.isEmpty())
+      OPConsultationRequest opConsultationRequest) {
+
+    return Optional.ofNullable(opConsultationRequest.getAllergies()).orElse(List.of()).stream()
+        .filter(allergy -> allergy != null && !allergy.isBlank())
         .map(
             StreamUtils.wrapException(
                 allergy ->
