@@ -23,6 +23,8 @@ public class FieldIdentifiers {
   public static final String ENTITY = "entity";
   public static final String ENTITY_TYPE = "entityType";
   public static final String LAST_UPDATED = "lastUpdated";
+  public static final String CREATED_ON = "createdOn";
+  public static final String MODULE = "module";
   public static final String LINK_TOKEN_REQUEST_ID = "linkTokenRequestId";
 
   // Patient table.

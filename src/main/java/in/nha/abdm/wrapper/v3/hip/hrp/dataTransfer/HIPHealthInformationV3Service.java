@@ -7,6 +7,7 @@ import in.nha.abdm.wrapper.v1.common.exceptions.IllegalDataStateException;
 import in.nha.abdm.wrapper.v1.common.models.RespRequest;
 import in.nha.abdm.wrapper.v1.common.requests.*;
 import in.nha.abdm.wrapper.v1.common.responses.ErrorResponse;
+import in.nha.abdm.wrapper.v1.common.responses.ErrorV3Response;
 import in.nha.abdm.wrapper.v1.common.responses.GenericResponse;
 import in.nha.abdm.wrapper.v1.hip.hrp.consent.requests.HIPNotifyRequest;
 import in.nha.abdm.wrapper.v1.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
@@ -27,6 +28,7 @@ import in.nha.abdm.wrapper.v1.hiu.hrp.consent.requests.ConsentCareContexts;
 import in.nha.abdm.wrapper.v3.common.RequestV3Manager;
 import in.nha.abdm.wrapper.v3.common.exceptions.BadRequestHandler;
 import in.nha.abdm.wrapper.v3.common.models.GenericV3Response;
+import in.nha.abdm.wrapper.v3.config.ErrorHandler;
 import in.nha.abdm.wrapper.v3.database.mongo.services.ConsentPatientV3Service;
 import in.nha.abdm.wrapper.v3.database.mongo.services.PatientV3Service;
 import in.nha.abdm.wrapper.v3.database.mongo.services.RequestLogV3Service;
@@ -146,20 +148,32 @@ public class HIPHealthInformationV3Service implements HIPHealthInformationV3Inte
     // Acknowledge to gateway that health information request has been received.
     healthInformationAcknowledgementRequest(
         hipHealthInformationRequest, onHealthInformationRequest, headers);
+    try {
+      // Sending the data to HIU only if there is no errors
+      if (Objects.isNull(onHealthInformationRequest.getError())) {
+        // Prepare health information bundle request which needs to be sent to HIU.
+        HealthInformationBundleResponse healthInformationBundleResponse =
+            fetchHealthInformationBundle(hipHealthInformationRequest, headers);
+        // Push the health information to HIU.
+        List<ResponseEntity<GenericResponse>> pushHealthInformationResponse =
+            pushHealthInformation(healthInformationBundleResponse, consentId, headers);
+        // Notify Gateway that health information was pushed to HIU.
+        healthInformationPushNotify(
+            hipHealthInformationRequest, consentId, pushHealthInformationResponse, headers);
+      } else {
+        // Sending BAD_REQUEST since there are some errors earlier
+        healthInformationPushNotify(
+            hipHealthInformationRequest,
+            consentId,
+            Collections.singletonList(new ResponseEntity<>(HttpStatus.BAD_REQUEST)),
+            headers);
+      }
+    } catch (Exception e) {
+      List<ErrorV3Response> errors = ErrorHandler.getErrors(e.getMessage());
+      log.debug(errors);
+      requestLogV3Service.updateConsentStatus(consentId, errors, RequestStatus.DATA_TRANSFER_ERROR);
 
-    // Sending the data to HIU only if there is no errors
-    if (Objects.isNull(onHealthInformationRequest.getError())) {
-      // Prepare health information bundle request which needs to be sent to HIU.
-      HealthInformationBundleResponse healthInformationBundleResponse =
-          fetchHealthInformationBundle(hipHealthInformationRequest, headers);
-      // Push the health information to HIU.
-      List<ResponseEntity<GenericResponse>> pushHealthInformationResponse =
-          pushHealthInformation(healthInformationBundleResponse, consentId, headers);
-      // Notify Gateway that health information was pushed to HIU.
-      healthInformationPushNotify(
-          hipHealthInformationRequest, consentId, pushHealthInformationResponse, headers);
-    } else {
-      // Sending BAD_REQUEST since there are some errors earlier
+      // Notify Gateway that health information was pushed to HIU with BAD_REQUEST status.
       healthInformationPushNotify(
           hipHealthInformationRequest,
           consentId,
@@ -212,27 +226,30 @@ public class HIPHealthInformationV3Service implements HIPHealthInformationV3Inte
   private HealthInformationBundleResponse fetchHealthInformationBundle(
       HIPHealthInformationRequest hipHealthInformationRequest, HttpHeaders headers)
       throws IllegalDataStateException {
-    ConsentCareContextMapping existingLog =
+    ConsentCareContextMapping existingConsentLog =
         consentCareContextsService.findMappingByConsentId(
             hipHealthInformationRequest.getHiRequest().getConsent().getId());
-    HIPNotifyRequest hipNotifyRequest =
-        (HIPNotifyRequest)
-            requestLogV3Service
-                .findByConsentId(
-                    hipHealthInformationRequest.getHiRequest().getConsent().getId(),
-                    GatewayConstants.HIP,
-                    headers.getFirst(GatewayConstants.X_HIP_ID))
-                .getRequestDetails()
-                .get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
-    String hipId = hipNotifyRequest.getNotification().getConsentDetail().getHip().getId();
+    RequestLog existingLog =
+        requestLogV3Service.findByConsentId(
+            hipHealthInformationRequest.getHiRequest().getConsent().getId(),
+            GatewayConstants.HIP,
+            headers.getFirst(GatewayConstants.X_HIP_ID));
     if (existingLog == null) {
+      throw new IllegalDataStateException("Request log not found for consent id");
+    }
+    HIPNotifyRequest hipNotifyRequest =
+        (HIPNotifyRequest) existingLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
+    String hipId = hipNotifyRequest.getNotification().getConsentDetail().getHip().getId();
+    if (existingConsentLog == null) {
       throw new IllegalDataStateException("consent id not found in db");
     }
     HealthInformationBundleRequest healthInformationBundleRequest =
         HealthInformationBundleRequest.builder()
             .hipId(hipId)
-            .careContextsWithPatientReferences(existingLog.getCareContexts())
+            .careContextsWithPatientReferences(existingConsentLog.getCareContexts())
             .build();
+    requestLogV3Service.updateConsentStatus(
+        existingConsentLog.getConsentId(), null, RequestStatus.FETCHING_BUNDLE);
     log.debug(
         "Health information bundle request HIP : " + healthInformationBundleRequest.toString());
     return hipClient.healthInformationBundleRequest(healthInformationBundleRequest).getBody();
@@ -298,6 +315,9 @@ public class HIPHealthInformationV3Service implements HIPHealthInformationV3Inte
     EncryptionResponse encryptedData =
         encryptionService.encrypt(hipHealthInformationRequest, healthInformationBundleResponse);
 
+    requestLogV3Service.updateConsentStatus(
+        hipNotifyRequest.getNotification().getConsentId(), null, RequestStatus.ENCRYPTION_SUCCESS);
+
     HealthInformationDhPublicKey receiverDhPublicKey =
         hipHealthInformationRequest.getHiRequest().getKeyMaterial().getDhPublicKey();
 
@@ -362,7 +382,8 @@ public class HIPHealthInformationV3Service implements HIPHealthInformationV3Inte
       HIPHealthInformationRequest hipHealthInformationRequest,
       String consentId,
       List<ResponseEntity<GenericResponse>> pushHealthInformationResponse,
-      HttpHeaders headers) {
+      HttpHeaders headers)
+      throws IllegalDataStateException {
     boolean allSuccess =
         pushHealthInformationResponse.stream()
             .allMatch(response -> response.getStatusCode().is2xxSuccessful());
@@ -370,13 +391,14 @@ public class HIPHealthInformationV3Service implements HIPHealthInformationV3Inte
     String healthInformationStatus = allSuccess ? "DELIVERED" : "ERRORED";
     String sessionStatus = allSuccess ? "TRANSFERRED" : "FAILED";
 
+    RequestLog existingLog =
+        requestLogV3Service.findByConsentId(
+            consentId, GatewayConstants.HIP, headers.getFirst(GatewayConstants.X_HIP_ID));
+    if (existingLog == null) {
+      throw new IllegalDataStateException("Request log not found for consent id: " + consentId);
+    }
     HIPNotifyRequest hipNotifyRequest =
-        (HIPNotifyRequest)
-            requestLogV3Service
-                .findByConsentId(
-                    consentId, GatewayConstants.HIP, headers.getFirst(GatewayConstants.X_HIP_ID))
-                .getRequestDetails()
-                .get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
+        (HIPNotifyRequest) existingLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
     List<ConsentCareContexts> listOfCareContexts =
         hipNotifyRequest.getNotification().getConsentDetail().getCareContexts();
     List<HealthInformationStatusResponse> healthInformationStatusResponseList = new ArrayList<>();
@@ -415,6 +437,12 @@ public class HIPHealthInformationV3Service implements HIPHealthInformationV3Inte
             .notification(healthInformationNotificationStatus)
             .build();
     log.info(healthInformationPushNotification.toString());
+    if (allSuccess) {
+      requestLogV3Service.updateConsentStatus(consentId, null, RequestStatus.DATA_TRANSFER_SUCCESS);
+    } else {
+      requestLogV3Service.updateConsentStatus(consentId, null, RequestStatus.DATA_TRANSFER_ERROR);
+      log.error("Data transfer failed for consent id: " + consentId);
+    }
     try {
       ResponseEntity<GenericV3Response> response =
           requestV3Manager.fetchResponseFromGateway(

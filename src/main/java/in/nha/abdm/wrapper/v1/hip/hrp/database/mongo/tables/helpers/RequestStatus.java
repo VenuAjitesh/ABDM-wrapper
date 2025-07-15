@@ -53,7 +53,15 @@ public enum RequestStatus {
   ENCRYPTED_HEALTH_INFORMATION_RECEIVED("Encrypted Health Information received by HIU from HIP"),
   ENCRYPTED_HEALTH_INFORMATION_ERROR(
       "Error while receiving encrypted Health Information by HIU from HIP"),
-  DECRYPTION_ERROR("Unable to decrypt the data sent by HIP");
+  DECRYPTION_ERROR("Unable to decrypt the data sent by HIP"),
+  FETCHING_BUNDLE("Fetching bundle from HIP"),
+  FETCHING_BUNDLE_ERROR("Error while fetching bundle from HIP"),
+  FETCHING_BUNDLE_SUCCESS("Bundle fetched successfully from HIP"),
+  ENCRYPTION_ERROR("Error while encrypting the data"),
+  ENCRYPTION_SUCCESS("Data encrypted successfully"),
+  DATA_TRANSFER_INITIATED("Data transfer initiated successfully"),
+  DATA_TRANSFER_ERROR("Error while initiating data transfer"),
+  DATA_TRANSFER_SUCCESS("Data transfer completed successfully");
 
   private String value;
 
