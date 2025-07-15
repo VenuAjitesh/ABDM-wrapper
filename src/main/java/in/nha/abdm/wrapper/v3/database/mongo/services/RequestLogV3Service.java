@@ -29,12 +29,14 @@ import in.nha.abdm.wrapper.v3.hip.hrp.link.hipInitiated.responses.LinkOnAddCareC
 import in.nha.abdm.wrapper.v3.hip.hrp.link.userInitiated.responses.InitV3Response;
 import in.nha.abdm.wrapper.v3.hip.hrp.share.requests.OnShareV3Request;
 import in.nha.abdm.wrapper.v3.hip.hrp.share.requests.ProfileShareV3Request;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -102,6 +104,17 @@ public class RequestLogV3Service {
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.ERROR, errors);
+    update.set(FieldIdentifiers.STATUS, requestStatus);
+    update.set(FieldIdentifiers.LAST_UPDATED, Utils.getCurrentDateTime());
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void updateConsentStatus(String consentId, Object errors, RequestStatus requestStatus) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.CONSENT_ID).is(consentId));
+    Update update = new Update();
+    if (errors != null) {
+      update.set(FieldIdentifiers.ERROR, errors);
+    }
     update.set(FieldIdentifiers.STATUS, requestStatus);
     update.set(FieldIdentifiers.LAST_UPDATED, Utils.getCurrentDateTime());
     mongoTemplate.updateFirst(query, update, RequestLog.class);
@@ -241,43 +254,44 @@ public class RequestLogV3Service {
    */
   public void persistHipLinkRequest(
       LinkRecordsV3Request linkRecordsV3Request, RequestStatus status, Object errors) {
+
     if (Objects.isNull(linkRecordsV3Request)) {
       return;
     }
-    RequestLog existingLog = logsRepo.findByClientRequestId(linkRecordsV3Request.getRequestId());
-    if (Objects.isNull(existingLog)) {
-      RequestLog requestLog = new RequestLog();
-      requestLog.setAbhaAddress(linkRecordsV3Request.getAbhaAddress());
-      requestLog.setModule(FieldIdentifiers.HIP_INITIATED_LINKING);
-      requestLog.setCreatedOn(Utils.getCurrentDateTime());
-      requestLog.setLastUpdated(Utils.getCurrentDateTime());
-      requestLog.setClientRequestId(linkRecordsV3Request.getRequestId());
-      requestLog.setGatewayRequestId(linkRecordsV3Request.getRequestId());
-      requestLog.setHipId(linkRecordsV3Request.getRequesterId());
-      requestLog.setStatus(status);
-      HashMap<String, Object> map = new HashMap<>();
-      map.put(FieldIdentifiers.LINK_RECORDS_REQUEST, linkRecordsV3Request);
-      requestLog.setRequestDetails(map);
-      if (Objects.nonNull(errors)) {
-        requestLog.setError(errors);
-      }
-      mongoTemplate.save(requestLog);
-      return;
+    String requestId = linkRecordsV3Request.getRequestId();
+    LocalDateTime now = Utils.getCurrentDateTime();
+
+    RequestLog existingLog = logsRepo.findByClientRequestId(requestId);
+
+    Map<String, Object> requestDetails =
+        Optional.ofNullable(existingLog != null ? existingLog.getRequestDetails() : null)
+            .orElse(new HashMap<>());
+
+    requestDetails.put(FieldIdentifiers.LINK_RECORDS_REQUEST, linkRecordsV3Request);
+
+    Query query = Query.query(Criteria.where(FieldIdentifiers.CLIENT_REQUEST_ID).is(requestId));
+
+    Update update =
+        new Update()
+            .set(FieldIdentifiers.LAST_UPDATED, now)
+            .set(FieldIdentifiers.STATUS, status)
+            .set(FieldIdentifiers.REQUEST_DETAILS, requestDetails);
+
+    if (existingLog == null) {
+      update
+          .setOnInsert(FieldIdentifiers.ABHA_ADDRESS, linkRecordsV3Request.getAbhaAddress())
+          .setOnInsert(FieldIdentifiers.MODULE, FieldIdentifiers.HIP_INITIATED_LINKING)
+          .setOnInsert(FieldIdentifiers.CREATED_ON, now)
+          .setOnInsert(FieldIdentifiers.CLIENT_REQUEST_ID, requestId)
+          .setOnInsert(FieldIdentifiers.GATEWAY_REQUEST_ID, requestId)
+          .setOnInsert(FieldIdentifiers.HIP_ID, linkRecordsV3Request.getRequesterId());
     }
-    Query query =
-        new Query(
-            Criteria.where(FieldIdentifiers.CLIENT_REQUEST_ID)
-                .is(linkRecordsV3Request.getRequestId()));
-    Map<String, Object> map = existingLog.getRequestDetails();
-    if (Objects.isNull(map)) {
-      map = new HashMap<>();
+
+    if (Objects.nonNull(errors)) {
+      update.set(FieldIdentifiers.ERROR, errors);
     }
-    map.replace(FieldIdentifiers.LINK_RECORDS_REQUEST, linkRecordsV3Request);
-    Update update = new Update();
-    update.set(FieldIdentifiers.REQUEST_DETAILS, map);
-    update.set(FieldIdentifiers.STATUS, status);
-    update.set(FieldIdentifiers.LAST_UPDATED, Utils.getCurrentDateTime());
-    mongoTemplate.updateFirst(query, update, RequestLog.class);
+
+    mongoTemplate.upsert(query, update, RequestLog.class);
   }
 
   /**
@@ -602,38 +616,57 @@ public class RequestLogV3Service {
    *
    * <p>Adding linkOnAddCareContextsResponse dump into db.
    *
-   * @param linkOnAddCareContextsV3Response Acknowledgement from ABDM gateway for HipLinking.
+   * @param response Acknowledgement from ABDM gateway for HipLinking.
    */
-  public void setHipOnAddCareContextResponse(
-      LinkOnAddCareContextsV3Response linkOnAddCareContextsV3Response)
+  public void setHipOnAddCareContextResponse(LinkOnAddCareContextsV3Response response)
       throws IllegalDataStateException {
-    RequestLog RequestLog =
-        logsRepo.findByGatewayRequestId(
-            linkOnAddCareContextsV3Response.getResponse().getRequestId());
 
-    if (RequestLog == null) {
-      throw new IllegalDataStateException(
-          "Request not found in database for: "
-              + linkOnAddCareContextsV3Response.getResponse().getRequestId());
-    }
-    HashMap<String, Object> map = RequestLog.getRequestDetails();
-    map.put(FieldIdentifiers.HIP_ON_ADD_CARE_CONTEXT_RESPONSE, linkOnAddCareContextsV3Response);
-    Query query =
-        new Query(
-            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
-                .is(linkOnAddCareContextsV3Response.getResponse().getRequestId()));
-    Update update = new Update();
-    if ((Objects.nonNull(linkOnAddCareContextsV3Response.getError()))) {
-      update.set(FieldIdentifiers.ERROR, linkOnAddCareContextsV3Response.getError());
+    String requestId = response.getResponse().getRequestId();
+    log.info("Processing HIP OnAddCareContext response for requestId: {}", requestId);
+
+    Query query = Query.query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    Update update =
+        new Update()
+            .set(
+                FieldIdentifiers.REQUEST_DETAILS
+                    + "."
+                    + FieldIdentifiers.HIP_ON_ADD_CARE_CONTEXT_RESPONSE,
+                response)
+            .set(FieldIdentifiers.LAST_UPDATED, Utils.getCurrentDateTime());
+
+    if (response.getError() != null) {
+      update.set(FieldIdentifiers.ERROR, response.getError());
     } else {
       update.set(FieldIdentifiers.STATUS, RequestStatus.CARE_CONTEXT_LINKED);
-      LinkRecordsV3Request linkRecordsV3Request =
-          (LinkRecordsV3Request)
-              RequestLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
-      patientService.addPatientCareContexts(linkRecordsV3Request);
     }
-    update.set(FieldIdentifiers.REQUEST_DETAILS, map);
-    mongoTemplate.updateFirst(query, update, RequestLog.class);
+    log.info("Querying gatewayRequestId = {}", requestId);
+    log.info("Query for requestId: {} {}", query, requestId);
+    log.info("Update for requestId: {} {}", update, requestId);
+    RequestLog updatedLog =
+        mongoTemplate.findAndModify(
+            query, update, FindAndModifyOptions.options().returnNew(true), RequestLog.class);
+
+    if (updatedLog == null) {
+      log.warn(
+          "findAndModify returned null, fallback to fetch manually for requestId: {}", requestId);
+      updatedLog = logsRepo.findByGatewayRequestId(requestId);
+
+      if (updatedLog == null) {
+        throw new IllegalDataStateException("Request not found in database for: " + requestId);
+      }
+    }
+
+    if (response.getError() == null) {
+      Object raw = updatedLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
+      if (raw instanceof LinkRecordsV3Request) {
+        patientService.addPatientCareContexts((LinkRecordsV3Request) raw);
+      } else {
+        log.warn(
+            "Expected LinkRecordsV3Request but got: {}",
+            raw == null ? "null" : raw.getClass().getName());
+      }
+    }
+    log.info("Successfully updated requestId: {}", requestId);
   }
 
   public RequestLog getLogsByAbhaAddress(String abhaAddress, String hipId) {

@@ -99,7 +99,7 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
             linkRecordsV3Request.getRequesterId(),
             linkRecordsV3Request.getCareContexts());
 
-    if (Objects.nonNull(sameCareContexts)) {
+    if (Objects.nonNull(sameCareContexts) && !sameCareContexts.isEmpty()) {
       return hipContextNotify(linkRecordsV3Request, patient, sameCareContexts);
     }
 
@@ -153,6 +153,7 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
   private FacadeV3Response sendAddCareContextsRequest(
       LinkRecordsV3Request request, AddCareContexts addCareContexts, String linkToken) {
     try {
+      requestLogV3Service.persistHipLinkRequest(request, RequestStatus.INITIATING, null);
       ResponseEntity<GenericV3Response> response =
           requestV3Manager.fetchResponseFromGateway(
               addCareContextsPath,
@@ -210,6 +211,15 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
         .build();
   }
 
+  private FacadeV3Response buildErrorResponse(
+      LinkRecordsV3Request request, List<ErrorV3Response> errors) {
+    return FacadeV3Response.builder()
+        .clientRequestId(request.getRequestId())
+        .httpStatusCode(HttpStatus.BAD_REQUEST)
+        .errors(errors)
+        .build();
+  }
+
   private FacadeV3Response handleAddCareContextError(LinkRecordsV3Request request) {
     ErrorResponse errorResponse =
         ErrorResponse.builder()
@@ -228,8 +238,10 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
   private FacadeV3Response handleWebClientBadRequest(
       LinkRecordsV3Request request, WebClientResponseException.BadRequest ex) {
     Object error = BadRequestHandler.getError(ex);
-    requestLogV3Service.persistHipLinkRequest(request, RequestStatus.ADD_CARE_CONTEXT_ERROR, error);
-    return buildErrorResponse(request, "Wrapper-1001", ex.getMessage());
+    List<ErrorV3Response> errorList = ErrorHandler.getErrors(error);
+    requestLogV3Service.persistHipLinkRequest(
+        request, RequestStatus.ADD_CARE_CONTEXT_ERROR, errorList);
+    return buildErrorResponse(request, errorList);
   }
 
   private FacadeV3Response handleGeneralException(LinkRecordsV3Request request, Exception ex) {
