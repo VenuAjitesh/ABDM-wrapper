@@ -1,3 +1,0 @@
-[submodule "FHIR-Mapper"]
-	path = FHIR-Mapper
-	url = https://github.com/VenuAjitesh/FHIR-Mapper.git
