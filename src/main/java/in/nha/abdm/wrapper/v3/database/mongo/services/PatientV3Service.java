@@ -353,10 +353,20 @@ public class PatientV3Service {
       }
 
       if (patient.getCareContexts() != null && !patient.getCareContexts().isEmpty()) {
+        List<Document> careContextDocs =
+            patient.getCareContexts().stream()
+                .map(
+                    careContext ->
+                        new Document()
+                            .append("referenceNumber", careContext.getReferenceNumber())
+                            .append("display", careContext.getDisplay())
+                            .append("isLinked", Boolean.FALSE)
+                            .append("hiType", careContext.getHiType()))
+                .collect(Collectors.toList());
+
         update.append(
             "$addToSet",
-            new Document(
-                FieldIdentifiers.CARE_CONTEXTS, new Document("$each", patient.getCareContexts())));
+            new Document(FieldIdentifiers.CARE_CONTEXTS, new Document("$each", careContextDocs)));
       }
       if (!update.isEmpty()) {
         updates.add(new UpdateOneModel<>(filter, update, new UpdateOptions().upsert(true)));
