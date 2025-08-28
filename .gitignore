@@ -1,5 +1,8 @@
 build
 .gradle
+logs/
+sample-hip/generated/
+src/main/resources/Predator_HIP.png
 
 ### IntelliJ IDEA ###
 .idea/

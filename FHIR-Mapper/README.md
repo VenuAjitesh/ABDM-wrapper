@@ -34,182 +34,196 @@ Recommended RAM: Systems with more than 8 GB RAM
 - The HI type is primarily defined based on the data being collected. However the type of interaction should also be considered.
 - If the data which is collected is not defined in the structured field for any HI-type you can create a pdf and attach to the particular bundle in the documents.
 
-| Name                    | Definition                                                                                                                                                |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DiagnosticReportRecord  | The Clinical Artifact represents diagnostic reports including Radiology and Laboratory reports that can be shared across the health ecosystem.              |
-| DischargeSummaryRecord  | Clinical document used to represent the discharge summary record for ABDM HDE data set.                                                                     |
-| HealthDocumentRecord    | The Clinical Artifact represents the unstructured historical health records as a single or multiple Health Record Documents generally uploaded by the patients through the Health Locker and can be shared across the health ecosystem.  |
-| ImmunizationRecord      | The Clinical Artifact represents the Immunization records with any additional documents such as vaccine certificate, the next immunization recommendations, etc. This can be further shared across the health ecosystem.               |
-| OPConsultRecord         | The Clinical Artifact represents the outpatient visit consultation note which may include clinical information on any OP examinations, procedures along with medication administered, and advice that can be shared across the health ecosystem. |
-| PrescriptionRecord      | The Clinical Artifact represents the medication advice to the patient in compliance with the Pharmacy Council of India (PCI) guidelines, which can be shared across the health ecosystem.                                                |
-| WellnessRecord          | The Clinical Artifact represents regular wellness information of patients typically through the Patient Health Record (PHR) application covering clinical information such as vitals, physical examination, general wellness, women wellness, etc., that can be shared across the health ecosystem.                            |
+| Name                   | Definition                                                                                                                                                |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DiagnosticReportRecord | The Clinical Artifact represents diagnostic reports including Radiology and Laboratory reports that can be shared across the health ecosystem.              |
+| DischargeSummaryRecord | Clinical document used to represent the discharge summary record for ABDM HDE data set.                                                                     |
+| HealthDocumentRecord   | The Clinical Artifact represents the unstructured historical health records as a single or multiple Health Record Documents generally uploaded by the patients through the Health Locker and can be shared across the health ecosystem.  |
+| ImmunizationRecord     | The Clinical Artifact represents the Immunization records with any additional documents such as vaccine certificate, the next immunization recommendations, etc. This can be further shared across the health ecosystem.               |
+| OPConsultRecord        | The Clinical Artifact represents the outpatient visit consultation note which may include clinical information on any OP examinations, procedures along with medication administered, and advice that can be shared across the health ecosystem. |
+| PrescriptionRecord     | The Clinical Artifact represents the medication advice to the patient in compliance with the Pharmacy Council of India (PCI) guidelines, which can be shared across the health ecosystem.                                                |
+| WellnessRecord         | The Clinical Artifact represents regular wellness information of patients typically through the Patient Health Record (PHR) application covering clinical information such as vitals, physical examination, general wellness, women wellness, etc., that can be shared across the health ecosystem.                            |
+| InvoiceRecord          | The billing artifact represents the invoice details such as pharmacy invoice, consultation invoice etc. along with the support for scanned documents attached for the patient which can be shared across the health ecosystem.                                                                                                                                                                                                                                                                                                             |
 
+---
 ### APIs for generating the FHIR bundle
-- For Swagger-ui, check [here](https://wrapper-sbx.abdm.gov.in/swagger/fhir)
-#### DiagnosticReportRecord
-- for the DiagnosticReportRecord bundle you need to 
-  * `POST` Request `/v1/bundle/diagnostic-report`
-    ```
-      {
-        "bundleType":"DiagnosticReportRecord", //mandatory
-        "careContextReference":"visist 21-03-2024", //mandatory
-        "authoredOn":"2006-04-22", //mandatory
-        "patient":{ //mandatory
-            "name":"Venu Ajitesh", //mandatory
-            "patientReference":"ajitesh6x", //mandatory
-            "gender":"male",
-            "birthDate":"2001-04-27"
-        },
-        "practitioners":[{  //mandatory
-            "name":"Dr.Venu Ajitesh", //mandatory
-            "practitionerId":"Predator"
-        }],
-        "organisation":{
-            "facilityName":"Predator_HIP", //mandatory
-            "facilityId":"Predator_HIP"
-        },
-        "encounter":"Ambula",
-        "diagnostics":[{
-            "serviceName":"BloodTest", //mandatory
-            "serviceCategory":"Hematography", //mandatory
-            "result":[{ //you can pass either result or valueQuantity not both
-                "observation":"Height", //mandatory
-                "result":"Normal",
-                "valueQuantity": {
-                        "unit": "CM",
-                        "value": 170
-                }
-            }],
-            "conclusion":"Normal", //mandatory
-            "presentedForm":{
-                "contentType":"application/pdf",
-                "data":"Base64 data of the pdf"
-            }
-        }],
-        "documents":[{
-            "type":"diagnosticReport", //mandatory 
-            "contentType":"application/pdf", //mandatory
-            "data":"Base64 data of the pdf" //mandatory
-      }]
-      }
-    ```
-#### DischargeSummaryRecord
-  - for the DischargeSummaryRecord bundle you need to
-    * `POST` Request `/v1/bundle/discharge-summary`
-    ```
-    {
-      "bundleType":"DischargeSummaryRecord", //mandatory
-      "careContextReference":"visist 21-03-2024", //mandatory
-      "patient":{ //mandatory
-          "name":"Venu Ajitesh", //mandatory
-          "patientReference":"ajitesh6x", //mandatory
-          "gender":"male",
-          "birthDate":"2001-04-27"
-      },
-      "practitioners":[{ //mandatory
-          "name":"Dr.Venu Ajitesh", //mandatory
-          "practitionerId":"Predator"
-      }],
-      "organisation":{ //mandatory
-          "facilityName":"Predator_HIP", //mandatory
-          "facilityId":"Predator_HIP"
-      },
-      "chiefComplaints":[
-          {
-              "complaint":"Sugar", //mandatory
-              "recordedDate":"2024-05-20", //mandatory
-              "dateRange":{
-                  "from":"2018-04-27",
-                  "to":"2018-05-26"
-              }
-          }
-      ],
-      "physicalExaminations":[
-          {
-              "observation":"Height", //mandatory
-              "result":"Normal", //you can pass either result or valueQuantity not both
-              "valueQuantity": {
-                      "unit": "CM",
-                      "value": 170
-              }
-          }
-      ],
-      "allergies":[
-          "Walnuts"
-      ],
-      "medicalHistories":[
-          {
-              "complaint":"Sugar", //mandatory
-              "recordedDate":"2024-05-20", //mandatory
-              "dateRange":{
-                  "from":"2018-04-27",
-                  "to":"2018-05-26"
-              }
-          }
-      ],
-      "familyHistories":[
-          {
-              "relationship":"Friend", //mandatory
-              "observation":"Toxic" //mandatory
-          }
-      ],
-      "authoredOn":"2024-02-03", //mandatory
-      "medications":[
-          {
-            "medicine":"Aspirin 75 mg oral tablet", //mandatory
-            "dosage":"1-0-1", //mandatory
-            "timing":"2-5-d",
-            "route":"Oral",
-            "method":"swallow",
-            "additionalInstructions":"Take them after food",
-            "reason": "fever"
-        }
-        ,{
-            "medicine":"Disprin",  //mandatory
-            "dosage":"0-0-1", //mandatory
-            "timing":"1-2-d",
-            "route":"Syrup",
-            "method":"drink",
-            "additionalInstructions":"Take them before food",
-            "reason": "Cough"
-        }
-      ],
-      "diagnostics":[{
-          "serviceName":"BloodTest", //mandatory
-          "serviceCategory":"Hematography", //mandatory
-          "result":[{ 
-              "observation":"Height", //mandatory
-              "result":"Normal", //you can pass either result or valueQuantity not both
-              "valueQuantity": {
-                      "unit": "CM",
-                      "value": 170
-              }
-          }],
-          "conclusion":"Normal", //mandatory
-          "presentedForm":{
-              "contentType":"application/pdf",
-              "data":"Base64 data of the pdf"
-            }
-      }],
-    
-      "procedures":[
-          {
-              "date":"2001-04-20", //mandatory
-              "status":"INPROGRESS", //mandatory
-              "procedureReason":"Severe", //mandatory
-              "outcome":"Healthy",
-              "procedureName":"Operation" //mandatory
-          }
-      ],
+- For Swagger-ui, check [here](https://venuajitesh.github.io/FHIR-Mapper/)
 
-      "documents":[{
-          "type":"Discharge record", //mandatory
-          "contentType":"application/pdf", //mandatory
-          "data":"Base64 data of the pdf" //mandatory
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 📄 DiagnosticReportRecord </span></summary>
+
+- for the DiagnosticReportRecord bundle you need to 
+   * `POST` Request `/v1/bundle/diagnostic-report`
+
+    ``` 
+    {
+      "bundleType": "DiagnosticReportRecord", 
+      "careContextReference": "visist 21-03-2024", 
+      "authoredOn": "2006-04-22", 
+      "patient": { 
+        "name": "Venu Ajitesh", 
+        "patientReference": "ajitesh6x", 
+        "gender": "male",
+        "birthDate": "2001-04-27"
+      },
+      "practitioners": [{  
+        "name": "Dr.Venu Ajitesh", 
+        "practitionerId": "Predator"
+      }],
+      "organisation": {
+        "facilityName": "Predator_HIP", 
+        "facilityId": "Predator_HIP"
+      },
+      "encounter": "Ambula",
+      "diagnostics": [{
+        "serviceName": "BloodTest", 
+        "serviceCategory": "Hematography", 
+        "result": [{ 
+          "observation": "Height", 
+          "result": "Normal",
+          "valueQuantity": {
+            "unit": "CM",
+            "value": 170
+          }
+        }],
+        "conclusion": "Normal", 
+        "presentedForm": {
+          "contentType": "application/pdf",
+          "data": "Base64 data of the pdf"
+        }
+      }],
+      "documents": [{
+        "type": "diagnosticReport",  
+        "contentType": "application/pdf",  
+        "data": "Base64 data of the pdf"  
       }]
-    }
-    ```
-#### HealthDocumentRecord
+    } ```
+</details> 
+
+<details>
+  <summary> <span style="font-weight:bold; font-size:16px;"> 🏥 DischargeSummaryRecord </span></summary>
+
+- For the DischargeSummaryRecord bundle you need to
+  * `POST` Request `/v1/bundle/discharge-summary`
+
+  ```
+  {
+    "bundleType":"DischargeSummaryRecord", //mandatory
+    "careContextReference":"visist 21-03-2024", //mandatory
+    "patient":{ //mandatory
+        "name":"Venu Ajitesh", //mandatory
+        "patientReference":"ajitesh6x", //mandatory
+        "gender":"male",
+        "birthDate":"2001-04-27"
+    },
+    "practitioners":[{ //mandatory
+        "name":"Dr.Venu Ajitesh", //mandatory
+        "practitionerId":"Predator"
+    }],
+    "organisation":{ //mandatory
+        "facilityName":"Predator_HIP", //mandatory
+        "facilityId":"Predator_HIP"
+    },
+    "chiefComplaints":[
+        {
+            "complaint":"Sugar", //mandatory
+            "recordedDate":"2024-05-20", //mandatory
+            "dateRange":{
+                "from":"2018-04-27",
+                "to":"2018-05-26"
+            }
+        }
+    ],
+    "physicalExaminations":[
+        {
+            "observation":"Height", //mandatory
+            "result":"Normal", //you can pass either result or valueQuantity not both
+            "valueQuantity": {
+                    "unit": "CM",
+                    "value": 170
+            }
+        }
+    ],
+    "allergies":[
+        "Walnuts"
+    ],
+    "medicalHistories":[
+        {
+            "complaint":"Sugar", //mandatory
+            "recordedDate":"2024-05-20", //mandatory
+            "dateRange":{
+                "from":"2018-04-27",
+                "to":"2018-05-26"
+            }
+        }
+    ],
+    "familyHistories":[
+        {
+            "relationship":"Friend", //mandatory
+            "observation":"Toxic" //mandatory
+        }
+    ],
+    "authoredOn":"2024-02-03", //mandatory
+    "medications":[
+        {
+          "medicine":"Aspirin 75 mg oral tablet", //mandatory
+          "dosage":"1-0-1", //mandatory
+          "timing":"2-5-d",
+          "route":"Oral",
+          "method":"swallow",
+          "additionalInstructions":"Take them after food",
+          "reason": "fever"
+      }
+      ,{
+          "medicine":"Disprin",  //mandatory
+          "dosage":"0-0-1", //mandatory
+          "timing":"1-2-d",
+          "route":"Syrup",
+          "method":"drink",
+          "additionalInstructions":"Take them before food",
+          "reason": "Cough"
+      }
+    ],
+    "diagnostics":[{
+        "serviceName":"BloodTest", //mandatory
+        "serviceCategory":"Hematography", //mandatory
+        "result":[{ 
+            "observation":"Height", //mandatory
+            "result":"Normal", //you can pass either result or valueQuantity not both
+            "valueQuantity": {
+                    "unit": "CM",
+                    "value": 170
+            }
+        }],
+        "conclusion":"Normal", //mandatory
+        "presentedForm":{
+            "contentType":"application/pdf",
+            "data":"Base64 data of the pdf"
+          }
+    }],
+    
+    "procedures":[
+        {
+            "date":"2001-04-20", //mandatory
+            "status":"INPROGRESS", //mandatory
+            "procedureReason":"Severe", //mandatory
+            "outcome":"Healthy",
+            "procedureName":"Operation" //mandatory
+        }
+    ],
+
+    "documents":[{
+        "type":"Discharge record", //mandatory
+        "contentType":"application/pdf", //mandatory
+        "data":"Base64 data of the pdf" //mandatory
+    }]
+  }
+  ```
+  </details>
+
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 📑 HealthDocumentRecord </span></summary>
+
 - for the HealthDocumentRecord bundle you need to
   * `POST` Request `/v1/bundle/health-document`
   ```
@@ -239,7 +253,10 @@ Recommended RAM: Systems with more than 8 GB RAM
     }]
   }
   ```
-#### ImmunizationRecord
+  </details>
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 💉 ImmunizationRecord </span></summary>
+
 - for the ImmunizationRecord bundle you need to
   * `POST` Request `/v1/bundle/immunization`
   ```
@@ -275,7 +292,10 @@ Recommended RAM: Systems with more than 8 GB RAM
       }]
   }
   ```
-#### OPConsultRecord
+  </details>
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 👨‍⚕️ OPConsultRecord </span></summary>
+
 - for the OPConsultRecord bundle you need to
   * `POST` Request `/v1/bundle/op-consultation`
   ```
@@ -403,7 +423,10 @@ Recommended RAM: Systems with more than 8 GB RAM
       }]
   }
   ```
-#### PrescriptionRecord
+    </details>
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 💊 PrescriptionRecord </span></summary>
+
 - for the PrescriptionRecord bundle you need to
   * `POST` Request `/v1/bundle/prescription`
   ```
@@ -453,7 +476,10 @@ Recommended RAM: Systems with more than 8 GB RAM
       }]
   }
   ```
-#### WellnessRecord
+  </details>
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 🌿 WellnessRecord </span></summary>
+
 - for the WellnessRecord bundle you need to
   * `POST` Request `/v1/bundle/wellness-record`
   ```
@@ -551,7 +577,134 @@ Recommended RAM: Systems with more than 8 GB RAM
       }]
   }
   ```
-#### Error response in 400 BadRequest
+  </details>
+<details>
+  <summary><span style="font-weight:bold; font-size:16px;"> 🧾 InvoiceRecord </span></summary>
+
+  - for the InvoiceRecord bundle you need to
+      * `POST` Request `/v1/bundle/invoice`
+    ```
+    {
+      "bundleType": "Invoice",
+      "careContextReference": "visit-{{$isoTimestamp}}",
+      "invoiceDate": "2024-05-01T06:33:37.361Z",
+      "status": "issued",
+      "encounter": "",
+      "patient": {
+          "name": "Venu Ajitesh",
+          "patientReference": "ajitesh6x",
+          "gender": "male",
+          "birthDate": "1940-04-27"
+      },
+      "practitioners": [
+          {
+              "name": "Dr.Venu Ajitesh",
+              "practitionerId": "Predator"
+          }
+      ],
+      "organisation": {
+          "facilityName": "Predator_HIP",
+          "facilityId": "Predator_HIP"
+      },
+      "invoice": {
+          "id": "INV-12345", // Required
+          "status": "issued", // Required - issued | balanced | cancelled | draft | entered-in-error
+          "type": "Pharmacy", // Required - Consultation | Pharmacy | IPD | OPD | Others
+          "date": "2025-08-12T10:30:00+05:30", // Required
+          "totalNet": 2000.00, // Required
+          "totalGross": 2200.00, // Required
+          "currency": "INR", // Required
+          "paymentTerms": "Due in 15 days", // Optional
+          "note": "Surgery + post-op medicines" // Optional
+      },
+      "chargeItems": [ // Required - at least one
+          {
+              "id": "CHG-002",
+              "productType": "medication", // medication | device | substance
+              "chargeType": "Pharmacy",
+              "status": "billed", // planned | billable | not-billable | aborted | billed | entered-in-error | unknown
+              "description": "Amoxicillin 500mg",
+              "quantity": 14,
+              "price": [
+                  {
+                      "priceType": "base", // base | surcharge | deduction | discount | SGST | CGST | informational
+                      "amount": "100"
+                  }
+              ],
+              "medication": { // Only for type=medication
+                  "medicineName": "AMOX500",
+                  "manufacturer": "ABC Pharma",
+                  "medicationForm": "tablet",
+                  "lotNumber": "ABC123",
+                  "expiryDate": "{{$isoTimestamp}}"
+              }
+          },
+          {
+              "id": "CHG-003",
+              "productType": "device", // medication | device | substance
+              "chargeType": "OPD",
+              "status": "billed",
+              "description": "Surgical Gloves",
+              "quantity": 5,
+              "price": [
+                  {
+                      "priceType": "base", // base | surcharge | deduction | discount | SGST | CGST | informational
+                      "amount": "200"
+                  }
+              ],
+              "device": { // Only for type=device
+                  "udiCarrier": "UDI-GLV-001",
+                  "manufacturer": "MedGlove Inc.",
+                  "modelNumber": "MG-GLV-SRG",
+                  "lotNumber": "194847-0",
+                  "serialNumber": "SN-98347",
+                  "manufactureDate": "2025-01-10",
+                  "expirationDate": "2028-01-10",
+                  "status": "active",
+                  "safety": [
+                      "Latex Free",
+                      "Sterile"
+                  ],
+                  "deviceName": "Surgical Gloves",
+                  "note": "Used for major surgery"
+              }
+          },
+          {
+              "id": "CHG-004",
+              "productType": "substance", // medication | device | substance
+              "chargeType": "IPD",
+              "status": "billed",
+              "description": "Lab Reagent Kit",
+              "quantity": 1,
+              "price": [
+                  {
+                      "priceType": "base", // base | surcharge | deduction | discount | SGST | CGST | informational
+                      "amount": "300"
+                  }
+              ],
+              "substance": { // Only for type=substance
+                  "id": "",
+                  "code": "LAB-REAGENT-001",
+                  "category": "chemical",
+                  "description": "Used to treat infections",
+                  "expiry": "{{$isoTimestamp}}",
+                  "quantity": "2.0"
+              }
+          }
+      ],
+      "payment": {
+          "method": "upi", // Optional
+          "status":"active", // Optional
+          "paymentDate":"", /// Optional
+          "paidAmount": 2200.00, // Optional
+          "transactionId": "TXN-98765" // Optional
+      },
+    }
+      ```
+    </details>
+
+---
+### Error response in 400 BadRequest
 - There are two kinds of error
   * Validation errors : The errors are thrown when mandatory fields are missing
     ```
@@ -576,6 +729,7 @@ Recommended RAM: Systems with more than 8 GB RAM
        }
     }
     ```
+---
 ### Things To Consider
 - If the FHIR bundle is generated the HttpStatus will be `201 created`
 - The authoredOn will accept date in the format of string in format : `yyyy-MM-dd` or `yyyy-MM-dd'T'HH:mm:ss.SSSX` - UTC iso time format
