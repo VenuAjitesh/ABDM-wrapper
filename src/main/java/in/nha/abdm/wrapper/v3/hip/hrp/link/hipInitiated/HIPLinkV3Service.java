@@ -423,7 +423,7 @@ public class HIPLinkV3Service implements HIPLinkV3Interface {
               .hip(ConsentHIP.builder().id(linkRecordsV3Request.getRequesterId()).build())
               .hiTypes(Collections.singletonList(careContext.getHiType()))
               .date(Utils.getCurrentTimeStamp())
-              .careContexts(
+              .careContext(
                   ConsentCareContexts.builder()
                       .careContextReference(careContext.getReferenceNumber())
                       .patientReference(patient.getPatientReference())
