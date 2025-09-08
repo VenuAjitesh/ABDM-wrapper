@@ -29,12 +29,12 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - mongodb_data:/data/db
+      - mongodb_vol:/data/db
     networks:
       - docker_network
 
 volumes:
-  mongodb_data:
+  mongodb_vol:
 
 networks:
   docker_network:
