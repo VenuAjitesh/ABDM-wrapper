@@ -84,17 +84,17 @@ public class PatientV3Service {
    * @param careContexts List of careContext to update the status.
    */
   public void updateCareContext(
-      String patientReference, List<CareContext> careContexts, String hipId)
+      String abhaAddress, String patientReference, List<CareContext> careContexts, String hipId)
       throws IllegalDataStateException {
     Query query =
         new Query(
-            Criteria.where(FieldIdentifiers.PATIENT_REFERENCE)
-                .is(patientReference)
+            Criteria.where(FieldIdentifiers.ABHA_ADDRESS)
+                .is(abhaAddress)
                 .and(FieldIdentifiers.HIP_ID)
                 .is(hipId));
     Patient patient = mongoTemplate.findOne(query, Patient.class);
     if (Objects.isNull(patient)) {
-      throw new IllegalDataStateException("Patient not found in database: " + patientReference);
+      throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
     }
     if (patient.getCareContexts() == null) {
       Update update = new Update().set(FieldIdentifiers.CARE_CONTEXTS, careContexts);
@@ -102,34 +102,30 @@ public class PatientV3Service {
       return;
     }
     Update update = new Update().addToSet(FieldIdentifiers.CARE_CONTEXTS).each(careContexts);
-    log.info(
-        "updateCareContextStatus: patientReference: "
-            + patientReference
-            + " careContexts: "
-            + careContexts);
+    log.info("updateCareContext: abhaAddress: " + abhaAddress + " careContexts: " + careContexts);
     this.mongoTemplate.updateFirst(query, update, Patient.class);
   }
 
   public void updateCareContextStatus(
-      String patientReference, List<CareContext> careContexts, String hipId) {
+      String abhaAddress, List<CareContext> careContexts, String hipId) {
     Query query =
         new Query(
-            Criteria.where(FieldIdentifiers.PATIENT_REFERENCE)
-                .is(patientReference)
+            Criteria.where(FieldIdentifiers.ABHA_ADDRESS)
+                .is(abhaAddress)
                 .and(FieldIdentifiers.HIP_ID)
                 .is(hipId));
 
     Patient patient = this.mongoTemplate.findOne(query, Patient.class);
 
     if (patient == null) {
-      log.error("Patient not found with reference: {} and facility: {}", patientReference, hipId);
+      log.error("Patient not found with abhaAddress: {} and facility: {}", abhaAddress, hipId);
       return;
     }
 
     List<CareContext> existingCareContexts = patient.getCareContexts();
 
     if (existingCareContexts == null) {
-      log.info("No care contexts found for patient reference: {}", patientReference);
+      log.info("No care contexts found for abhaAddress: {}", abhaAddress);
       return;
     }
 
@@ -145,10 +141,7 @@ public class PatientV3Service {
     this.mongoTemplate.updateFirst(query, update, Patient.class);
 
     log.info(
-        "updateCareContextStatus: patientReference: "
-            + patientReference
-            + " careContexts: "
-            + careContexts);
+        "updateCareContextStatus: abhaAddress: " + abhaAddress + " careContexts: " + careContexts);
   }
 
   /**

@@ -479,7 +479,7 @@ public class RequestLogV3Service {
   public void setDiscoverResponse(
       DiscoverRequest discoverRequest,
       OnDiscoverV3Request onDiscoverV3Request,
-      String patientReference) {
+      String abhaAddress) {
     if (Objects.isNull(discoverRequest)) {
       return;
     }
@@ -494,8 +494,7 @@ public class RequestLogV3Service {
     newRecord.setHipId(discoverRequest.getHipId());
     newRecord.setCreatedOn(Utils.getCurrentDateTime());
     newRecord.setLastUpdated(Utils.getCurrentDateTime());
-    newRecord.setAbhaAddress(
-        patientService.getAbhaAddress(patientReference, discoverRequest.getHipId()));
+    newRecord.setAbhaAddress(abhaAddress);
     mongoTemplate.save(newRecord);
   }
 

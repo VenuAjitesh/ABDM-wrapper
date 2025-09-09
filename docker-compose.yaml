@@ -11,17 +11,12 @@ services:
     depends_on:
       - mongodb
     environment:
-      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_HOST: host.docker.internal
       SPRING_DATA_MONGODB_PORT: 27017
     networks:
       - docker_network
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
 
   mongodb:
     image: mongodb/mongodb-community-server:latest
@@ -29,12 +24,12 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - mongodb_data:/data/db
+      - mongodb_vol:/data/db
     networks:
       - docker_network
 
 volumes:
-  mongodb_data:
+  mongodb_vol:
 
 networks:
   docker_network:

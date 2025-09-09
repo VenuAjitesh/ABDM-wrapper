@@ -120,6 +120,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
           () ->
               onDiscoverRequest(
                   discoverRequest,
+                  hipPatient.getAbhaAddress(),
                   hipPatient.getPatientReference(),
                   hipPatient.getPatientDisplay(),
                   hipPatient.getCareContexts(),
@@ -164,6 +165,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
 
       onDiscoverRequest(
           discoverRequest,
+          patient.getAbhaAddress(),
           patient.getPatientReference(),
           patient.getPatientDisplay(),
           unlinkedCareContexts,
@@ -221,6 +223,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
 
     onDiscoverRequest(
         discoverRequest,
+        patient.getAbhaAddress(),
         patient.getPatientReference(),
         patient.getPatientDisplay(),
         unlinkedCareContexts,
@@ -240,6 +243,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
    */
   private void onDiscoverRequest(
       DiscoverRequest discoverRequest,
+      String abhaAddress,
       String patientReference,
       String display,
       List<CareContext> discoveredCareContexts,
@@ -293,11 +297,10 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
                   discoverRequest.getHipId(),
                   UUID.randomUUID().toString()));
       log.info(onDiscoverPath + " : onDiscoverCall: " + responseEntity.getStatusCode());
-      requestLogV3Service.setDiscoverResponse(
-          discoverRequest, onDiscoverV3Request, patientReference);
+      requestLogV3Service.setDiscoverResponse(discoverRequest, onDiscoverV3Request, abhaAddress);
       log.info("Updating the careContexts into patient");
       patientV3Service.updateCareContext(
-          patientReference, discoveredCareContexts, discoverRequest.getHipId());
+          abhaAddress, patientReference, discoveredCareContexts, discoverRequest.getHipId());
     } catch (WebClientResponseException.BadRequest ex) {
       Object error = BadRequestHandler.getError(ex);
       log.error("HTTP error {}: {}", ex.getStatusCode(), error);
