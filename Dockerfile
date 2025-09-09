@@ -1,7 +1,7 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-COPY build.gradle settings.gradle gradlew gradle/ ./
+COPY build.gradle settings.gradle ./
 RUN gradle dependencies --no-daemon || true
 
 COPY . .
@@ -13,4 +13,4 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
 
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.data.mongodb.host=mongodb"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

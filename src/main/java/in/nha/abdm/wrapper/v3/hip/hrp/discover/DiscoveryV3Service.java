@@ -297,8 +297,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
                   discoverRequest.getHipId(),
                   UUID.randomUUID().toString()));
       log.info(onDiscoverPath + " : onDiscoverCall: " + responseEntity.getStatusCode());
-      requestLogV3Service.setDiscoverResponse(
-          discoverRequest, onDiscoverV3Request, patientReference);
+      requestLogV3Service.setDiscoverResponse(discoverRequest, onDiscoverV3Request, abhaAddress);
       log.info("Updating the careContexts into patient");
       patientV3Service.updateCareContext(
           abhaAddress, patientReference, discoveredCareContexts, discoverRequest.getHipId());
