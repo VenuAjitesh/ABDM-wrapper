@@ -6,7 +6,6 @@ import in.nha.abdm.wrapper.v1.common.Utils;
 import in.nha.abdm.wrapper.v1.common.models.CareContext;
 import in.nha.abdm.wrapper.v1.common.models.RespRequest;
 import in.nha.abdm.wrapper.v1.common.responses.ErrorResponse;
-import in.nha.abdm.wrapper.v1.hip.HIPClient;
 import in.nha.abdm.wrapper.v1.hip.HIPPatient;
 import in.nha.abdm.wrapper.v1.hip.hrp.database.mongo.repositories.PatientRepo;
 import in.nha.abdm.wrapper.v1.hip.hrp.database.mongo.tables.Patient;
@@ -16,6 +15,7 @@ import in.nha.abdm.wrapper.v3.common.exceptions.BadRequestHandler;
 import in.nha.abdm.wrapper.v3.common.models.GenericV3Response;
 import in.nha.abdm.wrapper.v3.database.mongo.services.PatientV3Service;
 import in.nha.abdm.wrapper.v3.database.mongo.services.RequestLogV3Service;
+import in.nha.abdm.wrapper.v3.hip.HIPV3Client;
 import in.nha.abdm.wrapper.v3.hip.hrp.discover.requests.OnDiscoverV3Request;
 import in.nha.abdm.wrapper.v3.hip.hrp.link.hipInitiated.requests.helpers.PatientCareContextHIType;
 import java.util.*;
@@ -37,7 +37,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
 
   private final PatientRepo patientRepo;
   private final RequestV3Manager requestV3Manager;
-  private final HIPClient hipClient;
+  private final HIPV3Client hipClient;
   private final RequestLogV3Service requestLogV3Service;
   private final PatientV3Service patientV3Service;
 
@@ -46,7 +46,7 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
 
   @Autowired
   public DiscoveryV3Service(
-      HIPClient hipClient,
+      HIPV3Client hipClient,
       PatientRepo patientRepo,
       RequestV3Manager requestV3Manager,
       RequestLogV3Service requestLogV3Service,
@@ -94,39 +94,72 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
 
       log.info("Patient found {}::{}", patient.getName(), patient.getAbhaAddress());
       CompletableFuture.runAsync(
-          () ->
-              processCareContexts(patient, abhaAddress, discoverRequest, headers, "ABHA_ADDRESS"));
-      return new ResponseEntity<>(HttpStatus.OK);
+          () -> {
+            try {
+              processCareContexts(patient, abhaAddress, discoverRequest, headers, "ABHA_ADDRESS");
+            } catch (Exception ex) {
+              log.error("Error processing care contexts for patient: {}", abhaAddress, ex);
+              ErrorResponse errorResponse = new ErrorResponse();
+              errorResponse.setCode(GatewayConstants.ERROR_CODE);
+              errorResponse.setMessage("Error processing care contexts");
+              onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers);
+            }
+          });
+      return new ResponseEntity<>(HttpStatus.ACCEPTED);
 
     } else {
 
-      log.warn("Patient not found DB Requesting HIP");
+      log.warn("Patient not found in DB. Requesting from HIP");
       // Patient not found in database. Request Patient details from HIP.
-      ResponseEntity<HIPPatient> responseEntity = hipClient.patientDiscover(discoverRequest);
-      // If patient was not found at HIP as well.
-      if (Objects.isNull(responseEntity)
-          || responseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)
-          || Objects.isNull(responseEntity.getBody().getCareContexts())) {
+      try {
+        ResponseEntity<HIPPatient> responseEntity = hipClient.patientDiscover(discoverRequest);
+
+        // If patient was not found at HIP as well.
+        if (Objects.isNull(responseEntity)
+            || responseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)
+            || Objects.isNull(responseEntity.getBody())
+            || Objects.isNull(responseEntity.getBody().getCareContexts())) {
+          ErrorResponse errorResponse = new ErrorResponse();
+          errorResponse.setCode(GatewayConstants.NO_PATIENT_FOUND_CODE);
+          errorResponse.setMessage(GatewayConstants.NO_PATIENT_FOUND);
+          CompletableFuture.runAsync(
+              () -> onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers));
+          return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        HIPPatient hipPatient = responseEntity.getBody();
+        addPatientToDatabase(hipPatient);
+
+        CompletableFuture.runAsync(
+            () -> {
+              try {
+                onDiscoverRequest(
+                    discoverRequest,
+                    hipPatient.getAbhaAddress(),
+                    hipPatient.getPatientReference(),
+                    hipPatient.getPatientDisplay(),
+                    hipPatient.getCareContexts(),
+                    headers,
+                    "MR");
+              } catch (Exception ex) {
+                log.error("Error in onDiscoverRequest for patient: {}", abhaAddress, ex);
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setCode(GatewayConstants.ERROR_CODE);
+                errorResponse.setMessage("Error sending discover response: " + ex.getMessage());
+                onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers);
+              }
+            });
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+
+      } catch (Exception ex) {
+        log.error("Error calling HIP for patient discovery: {}", abhaAddress, ex);
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setCode(GatewayConstants.NO_PATIENT_FOUND_CODE);
-        errorResponse.setMessage(GatewayConstants.NO_PATIENT_FOUND);
+        errorResponse.setCode(GatewayConstants.ERROR_CODE);
+        errorResponse.setMessage("Error connecting to HIP: " + ex.getMessage());
         CompletableFuture.runAsync(
             () -> onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers));
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      HIPPatient hipPatient = responseEntity.getBody();
-      addPatientToDatabase(hipPatient);
-      CompletableFuture.runAsync(
-          () ->
-              onDiscoverRequest(
-                  discoverRequest,
-                  hipPatient.getAbhaAddress(),
-                  hipPatient.getPatientReference(),
-                  hipPatient.getPatientDisplay(),
-                  hipPatient.getCareContexts(),
-                  headers,
-                  "MR"));
-      return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
   }
 
@@ -156,13 +189,24 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
 
     List<CareContext> linkedCareContexts = patient.getCareContexts();
 
-    if (linkedCareContexts != null
-        && linkedCareContexts.stream().anyMatch(careContext -> !careContext.isLinked())) {
-      List<CareContext> unlinkedCareContexts =
-          linkedCareContexts.stream()
-              .filter(careContext -> !careContext.isLinked())
-              .collect(Collectors.toList());
+    // Handle null or empty care contexts - fetch from HIP
+    if (CollectionUtils.isEmpty(linkedCareContexts)) {
+      log.info("No care contexts found in DB for patient: {}. Fetching from HIP", abhaAddress);
+      fetchAndProcessHipCareContexts(patient, discoverRequest, headers, matchedBy, null);
+      return;
+    }
 
+    // Check for unlinked contexts
+    List<CareContext> unlinkedCareContexts =
+        linkedCareContexts.stream()
+            .filter(careContext -> !careContext.isLinked())
+            .collect(Collectors.toList());
+
+    if (!unlinkedCareContexts.isEmpty()) {
+      log.info(
+          "Found {} unlinked care contexts for patient: {}",
+          unlinkedCareContexts.size(),
+          abhaAddress);
       onDiscoverRequest(
           discoverRequest,
           patient.getAbhaAddress(),
@@ -174,25 +218,33 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
       return;
     }
 
+    // All care contexts are linked - fetch new ones from HIP
+    log.info(
+        "All care contexts linked for patient: {}. Fetching new contexts from HIP", abhaAddress);
+    fetchAndProcessHipCareContexts(
+        patient, discoverRequest, headers, matchedBy, linkedCareContexts);
+  }
+
+  private void fetchAndProcessHipCareContexts(
+      Patient patient,
+      DiscoverRequest discoverRequest,
+      HttpHeaders headers,
+      String matchedBy,
+      List<CareContext> linkedCareContexts) {
+
     CareContextRequest careContextRequest =
         CareContextRequest.builder()
             .abhaAddress(discoverRequest.getPatient().getId())
             .hipId(discoverRequest.getHipId())
             .build();
+
     HIPPatient hipPatient = hipClient.getPatientCareContexts(careContextRequest);
 
-    if (Objects.isNull(hipPatient)) {
+    if (Objects.isNull(hipPatient) || CollectionUtils.isEmpty(hipPatient.getCareContexts())) {
+      log.warn("No care contexts found at HIP for patient: {}", patient.getAbhaAddress());
       ErrorResponse errorResponse = new ErrorResponse();
-      errorResponse.setCode(GatewayConstants.ERROR_CODE);
-      errorResponse.setMessage("Care Contexts not found for patient");
-      onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers);
-      return;
-    }
-
-    if (CollectionUtils.isEmpty(hipPatient.getCareContexts())) {
-      ErrorResponse errorResponse = new ErrorResponse();
-      errorResponse.setCode(GatewayConstants.ERROR_CODE);
-      errorResponse.setMessage("Care Contexts not found for patient");
+      errorResponse.setCode(GatewayConstants.NO_PATIENT_FOUND_CODE);
+      errorResponse.setMessage("No care contexts found for patient");
       onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers);
       return;
     }
@@ -214,13 +266,18 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
     }
 
     if (unlinkedCareContexts.isEmpty()) {
+      log.warn("No new unlinked care contexts found for patient: {}", patient.getAbhaAddress());
       ErrorResponse errorResponse = new ErrorResponse();
-      errorResponse.setCode(GatewayConstants.ERROR_CODE);
-      errorResponse.setMessage("Care Contexts not found for patient");
+      errorResponse.setCode(GatewayConstants.NO_PATIENT_FOUND_CODE);
+      errorResponse.setMessage("No new care contexts available for linking");
       onDiscoverNoPatientRequest(discoverRequest, errorResponse, headers);
       return;
     }
 
+    log.info(
+        "Found {} new care contexts for patient: {}",
+        unlinkedCareContexts.size(),
+        patient.getAbhaAddress());
     onDiscoverRequest(
         discoverRequest,
         patient.getAbhaAddress(),
