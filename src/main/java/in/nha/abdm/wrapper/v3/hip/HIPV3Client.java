@@ -96,8 +96,8 @@ public class HIPV3Client {
 
   @Retryable(
       value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
-      maxAttempts = 2,
-      backoff = @Backoff(delay = 1000, multiplier = 2))
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 200, multiplier = 2))
   public ResponseEntity<HIPPatient> patientDiscover(DiscoverRequest discoverRequest) {
     return webClient
         .post()
@@ -106,21 +106,13 @@ public class HIPV3Client {
         .body(BodyInserters.fromValue(discoverRequest))
         .retrieve()
         .toEntity(HIPPatient.class)
-        .retryWhen(
-            Retry.backoff(2, Duration.ofSeconds(2))
-                .filter(
-                    throwable ->
-                        throwable instanceof HttpServerErrorException
-                            || throwable instanceof WebClientRequestException
-                            || throwable instanceof ReadTimeoutException
-                            || throwable instanceof TimeoutException))
         .block();
   }
 
   @Retryable(
       value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
-      maxAttempts = 2,
-      backoff = @Backoff(delay = 1000, multiplier = 2))
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 200, multiplier = 3))
   public HIPPatient getPatientCareContexts(CareContextRequest careContextRequest) {
     ResponseEntity<HIPPatient> responseEntity =
         webClient
@@ -130,14 +122,6 @@ public class HIPV3Client {
             .body(BodyInserters.fromValue(careContextRequest))
             .retrieve()
             .toEntity(HIPPatient.class)
-            .retryWhen(
-                Retry.backoff(2, Duration.ofSeconds(2))
-                    .filter(
-                        throwable ->
-                            throwable instanceof HttpServerErrorException
-                                || throwable instanceof WebClientRequestException
-                                || throwable instanceof ReadTimeoutException
-                                || throwable instanceof TimeoutException))
             .block();
 
     return responseEntity.getBody();
@@ -156,14 +140,6 @@ public class HIPV3Client {
         .body(BodyInserters.fromValue(healthInformationBundleRequest))
         .retrieve()
         .toEntity(HealthInformationBundleResponse.class)
-        .retryWhen(
-            Retry.backoff(2, Duration.ofSeconds(2))
-                .filter(
-                    throwable ->
-                        throwable instanceof HttpServerErrorException
-                            || throwable instanceof WebClientRequestException
-                            || throwable instanceof ReadTimeoutException
-                            || throwable instanceof TimeoutException))
         .block();
   }
 
@@ -180,21 +156,13 @@ public class HIPV3Client {
         .body(BodyInserters.fromValue(shareProfileRequest))
         .retrieve()
         .toEntity(ProfileV3Acknowledgement.class)
-        .retryWhen(
-            Retry.backoff(2, Duration.ofSeconds(2))
-                .filter(
-                    throwable ->
-                        throwable instanceof HttpServerErrorException
-                            || throwable instanceof WebClientRequestException
-                            || throwable instanceof ReadTimeoutException
-                            || throwable instanceof TimeoutException))
         .block();
   }
 
   @Retryable(
       value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
       maxAttempts = 2,
-      backoff = @Backoff(delay = 1000, multiplier = 2))
+      backoff = @Backoff(delay = 200, multiplier = 2))
   public <T> ResponseEntity<ResponseOtp> requestOtp(String uri, T request) {
     return webClient
         .post()
@@ -202,21 +170,13 @@ public class HIPV3Client {
         .body(BodyInserters.fromValue(request))
         .retrieve()
         .toEntity(ResponseOtp.class)
-        .retryWhen(
-            Retry.backoff(2, Duration.ofSeconds(2))
-                .filter(
-                    throwable ->
-                        throwable instanceof HttpServerErrorException
-                            || throwable instanceof WebClientRequestException
-                            || throwable instanceof ReadTimeoutException
-                            || throwable instanceof TimeoutException))
         .block();
   }
 
   @Retryable(
       value = {WebClientRequestException.class, ReadTimeoutException.class, TimeoutException.class},
       maxAttempts = 2,
-      backoff = @Backoff(delay = 1000, multiplier = 2))
+      backoff = @Backoff(delay = 5000, multiplier = 2))
   public <T> ResponseEntity<RequestStatusResponse> fetchResponseFromHIP(String uri, T request) {
     return webClient
         .post()
@@ -224,14 +184,6 @@ public class HIPV3Client {
         .body(BodyInserters.fromValue(request))
         .retrieve()
         .toEntity(RequestStatusResponse.class)
-        .retryWhen(
-            Retry.backoff(2, Duration.ofSeconds(2))
-                .filter(
-                    throwable ->
-                        throwable instanceof HttpServerErrorException
-                            || throwable instanceof WebClientRequestException
-                            || throwable instanceof ReadTimeoutException
-                            || throwable instanceof TimeoutException))
         .block();
   }
 }
