@@ -20,6 +20,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 @Component
@@ -64,8 +65,20 @@ public class HIUV3Client {
 
                 log.info("Pushed health information. Response headers: {}", response.getHeaders());
                 return response;
+              } catch (WebClientResponseException e) {
+                log.error(
+                    "WebClient error for request {}. Status: {}, headers: {}, body: {}",
+                    request,
+                    e.getStatusCode(),
+                    e.getHeaders(),
+                    e.getResponseBodyAsString());
+                return null;
               } catch (Exception e) {
-                log.error("Failed to push health information for request: {} {}", request, e);
+                log.error(
+                    "Failed to push health information for request: {} {}",
+                    request,
+                    e.getMessage(),
+                    e);
                 return null;
               }
             })

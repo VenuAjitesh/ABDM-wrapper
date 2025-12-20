@@ -308,7 +308,12 @@ public class DiscoveryV3Service implements DiscoveryV3Interface {
       String matchedBy) {
 
     Map<String, List<CareContext>> groupedByHiType =
-        discoveredCareContexts.stream().collect(Collectors.groupingBy(CareContext::getHiType));
+        discoveredCareContexts.stream()
+            .collect(
+                Collectors.groupingBy(
+                    careContext ->
+                        Optional.ofNullable(careContext.getHiType())
+                            .orElse("HealthDocumentRecord")));
     List<PatientCareContextHIType> patients =
         groupedByHiType.entrySet().stream()
             .map(
