@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package in.nha.abdm.wrapper.v3.database.mongo.services;
 
+import com.mongodb.MongoBulkWriteException;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
@@ -307,77 +308,199 @@ public class PatientV3Service {
    */
   @Transactional
   public FacadeV3Response upsertPatients(List<Patient> patients) {
-    MongoCollection<Document> collection =
-        mongoTemplate.getCollection(FieldIdentifiers.TABLE_PATIENT);
-    List<WriteModel<Document>> updates = new ArrayList<>();
-
-    for (Patient patient : patients) {
-      Document filter =
-          new Document()
-              .append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress())
-              .append(FieldIdentifiers.HIP_ID, patient.getHipId());
-
-      Document document = new Document();
-      if (patient.getName() != null) {
-        document.append(FieldIdentifiers.NAME, patient.getName());
-      }
-      if (patient.getGender() != null) {
-        document.append(FieldIdentifiers.GENDER, patient.getGender());
-      }
-      if (patient.getDateOfBirth() != null) {
-        document.append(FieldIdentifiers.DATE_OF_BIRTH, patient.getDateOfBirth());
-      }
-      if (patient.getPatientReference() != null) {
-        document.append(FieldIdentifiers.PATIENT_REFERENCE, patient.getPatientReference());
-      }
-      if (patient.getPatientDisplay() != null) {
-        document.append(FieldIdentifiers.PATIENT_DISPLAY, patient.getPatientDisplay());
-      }
-      if (patient.getPatientMobile() != null) {
-        document.append(FieldIdentifiers.PATIENT_MOBILE, patient.getPatientMobile());
-      }
-
-      document.append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress());
-      document.append(FieldIdentifiers.HIP_ID, patient.getHipId());
-
-      Document update = new Document();
-      if (!document.isEmpty()) {
-        update.append("$set", document);
-      }
-
-      if (patient.getCareContexts() != null && !patient.getCareContexts().isEmpty()) {
-        List<Document> careContextDocs =
-            patient.getCareContexts().stream()
-                .map(
-                    careContext ->
-                        new Document()
-                            .append("referenceNumber", careContext.getReferenceNumber())
-                            .append("display", careContext.getDisplay())
-                            .append("isLinked", Boolean.FALSE)
-                            .append("hiType", careContext.getHiType()))
-                .collect(Collectors.toList());
-
-        update.append(
-            "$addToSet",
-            new Document(FieldIdentifiers.CARE_CONTEXTS, new Document("$each", careContextDocs)));
-      }
-      if (!update.isEmpty()) {
-        updates.add(new UpdateOneModel<>(filter, update, new UpdateOptions().upsert(true)));
-      }
+    if (patients == null || patients.isEmpty()) {
+      return FacadeV3Response.builder().message("No patients provided for upsertion").build();
     }
 
-    if (!updates.isEmpty()) {
-      BulkWriteResult bulkWriteResult = collection.bulkWrite(updates);
-      int updatedPatientCount =
-          bulkWriteResult.getUpserts().size() > 0
-              ? bulkWriteResult.getUpserts().size()
-              : bulkWriteResult.getModifiedCount();
+    try {
+      MongoCollection<Document> collection =
+          mongoTemplate.getCollection(FieldIdentifiers.TABLE_PATIENT);
+      List<WriteModel<Document>> updates = new ArrayList<>();
 
-      return FacadeV3Response.builder()
-          .message(String.format("Successfully upserted %d patients", updatedPatientCount))
-          .build();
+      for (Patient patient : patients) {
+        try {
+          if (patient.getAbhaAddress() == null
+              || patient.getPatientReference() == null
+              || patient.getHipId() == null) {
+            log.warn("Skipping patient with missing required fields: {}", patient);
+            continue;
+          }
+
+          Document filter =
+              new Document()
+                  .append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress())
+                  .append(FieldIdentifiers.PATIENT_REFERENCE, patient.getPatientReference())
+                  .append(FieldIdentifiers.HIP_ID, patient.getHipId());
+
+          Document document = new Document();
+          if (patient.getName() != null) {
+            document.append(FieldIdentifiers.NAME, patient.getName());
+          }
+          if (patient.getGender() != null) {
+            document.append(FieldIdentifiers.GENDER, patient.getGender());
+          }
+          if (patient.getDateOfBirth() != null) {
+            document.append(FieldIdentifiers.DATE_OF_BIRTH, patient.getDateOfBirth());
+          }
+          if (patient.getPatientReference() != null) {
+            document.append(FieldIdentifiers.PATIENT_REFERENCE, patient.getPatientReference());
+          }
+          if (patient.getPatientDisplay() != null) {
+            document.append(FieldIdentifiers.PATIENT_DISPLAY, patient.getPatientDisplay());
+          }
+          if (patient.getPatientMobile() != null) {
+            document.append(FieldIdentifiers.PATIENT_MOBILE, patient.getPatientMobile());
+          }
+
+          document.append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress());
+          document.append(FieldIdentifiers.HIP_ID, patient.getHipId());
+          document.append("updatedAt", new Date());
+          document.append("isDefault", false);
+
+          Document update = new Document();
+          if (!document.isEmpty()) {
+            update.append("$set", document);
+          }
+
+          update.append("$setOnInsert", new Document("createdAt", new Date()));
+
+          if (patient.getCareContexts() != null && !patient.getCareContexts().isEmpty()) {
+            List<Document> careContextDocs =
+                patient.getCareContexts().stream()
+                    .map(
+                        careContext ->
+                            new Document()
+                                .append("referenceNumber", careContext.getReferenceNumber())
+                                .append("display", careContext.getDisplay())
+                                .append("isLinked", Boolean.FALSE)
+                                .append("hiType", careContext.getHiType()))
+                    .collect(Collectors.toList());
+
+            update.append(
+                "$addToSet",
+                new Document(
+                    FieldIdentifiers.CARE_CONTEXTS, new Document("$each", careContextDocs)));
+          }
+
+          if (!update.isEmpty()) {
+            updates.add(new UpdateOneModel<>(filter, update, new UpdateOptions().upsert(true)));
+          }
+        } catch (Exception e) {
+          log.error("Error processing patient: {}", patient, e);
+        }
+      }
+
+      if (!updates.isEmpty()) {
+        try {
+          BulkWriteResult bulkWriteResult = collection.bulkWrite(updates);
+          int updatedPatientCount =
+              bulkWriteResult.getUpserts().size() > 0
+                  ? bulkWriteResult.getUpserts().size()
+                  : bulkWriteResult.getModifiedCount();
+
+          setLatestAsDefaultForBatch(patients);
+
+          return FacadeV3Response.builder()
+              .message(String.format("Successfully upserted %d patients", updatedPatientCount))
+              .build();
+        } catch (MongoBulkWriteException e) {
+          log.error("Bulk write error occurred", e);
+          int successCount =
+              e.getWriteResult().getInsertedCount() + e.getWriteResult().getModifiedCount();
+          return FacadeV3Response.builder()
+              .message(
+                  String.format(
+                      "Partially completed: %d patients upserted, %d failed",
+                      successCount, e.getWriteErrors().size()))
+              .build();
+        }
+      }
+
+      return FacadeV3Response.builder().message("No updates were performed").build();
+
+    } catch (Exception e) {
+      log.error("Unexpected error during patient upsert operation", e);
+      throw new RuntimeException("Failed to upsert patients: " + e.getMessage(), e);
     }
-    return FacadeV3Response.builder().message("No updates were performed").build();
+  }
+
+  /** Sets the latest record as default for each unique patientReference + hipId combination */
+  private void setLatestAsDefaultForBatch(List<Patient> patients) {
+    try {
+      Set<String> processedCombinations = new HashSet<>();
+
+      for (Patient patient : patients) {
+        if (patient.getPatientReference() == null || patient.getHipId() == null) {
+          continue;
+        }
+
+        String key = patient.getPatientReference() + "|" + patient.getHipId();
+
+        if (!processedCombinations.contains(key)) {
+          processedCombinations.add(key);
+          setLatestAsDefault(patient.getPatientReference(), patient.getHipId());
+        }
+      }
+    } catch (Exception e) {
+      log.error("Error setting latest records as default", e);
+    }
+  }
+
+  /** Sets the most recently updated record as default for a given patientReference and hipId */
+  private void setLatestAsDefault(String patientReference, String hipId) {
+    try {
+      MongoCollection<Document> collection =
+          mongoTemplate.getCollection(FieldIdentifiers.TABLE_PATIENT);
+
+      Document latestDoc =
+          collection
+              .find(
+                  new Document()
+                      .append(FieldIdentifiers.PATIENT_REFERENCE, patientReference)
+                      .append(FieldIdentifiers.HIP_ID, hipId))
+              .sort(new Document("updatedAt", -1))
+              .limit(1)
+              .first();
+
+      if (latestDoc != null) {
+        String latestAbhaAddress = latestDoc.getString(FieldIdentifiers.ABHA_ADDRESS);
+
+        List<WriteModel<Document>> updates = new ArrayList<>();
+
+        Document disableFilter =
+            new Document()
+                .append(FieldIdentifiers.PATIENT_REFERENCE, patientReference)
+                .append(FieldIdentifiers.HIP_ID, hipId);
+
+        Document disableUpdate = new Document("$set", new Document("isDefault", false));
+
+        updates.add(new UpdateManyModel<>(disableFilter, disableUpdate));
+
+        Document enableFilter =
+            new Document()
+                .append(FieldIdentifiers.ABHA_ADDRESS, latestAbhaAddress)
+                .append(FieldIdentifiers.PATIENT_REFERENCE, patientReference)
+                .append(FieldIdentifiers.HIP_ID, hipId);
+
+        Document enableUpdate = new Document("$set", new Document("isDefault", true));
+
+        updates.add(new UpdateOneModel<>(enableFilter, enableUpdate));
+
+        collection.bulkWrite(updates, new BulkWriteOptions().ordered(true));
+
+        log.debug(
+            "Set default for patientReference: {}, hipId: {}, abhaAddress: {}",
+            patientReference,
+            hipId,
+            latestAbhaAddress);
+      }
+    } catch (Exception e) {
+      log.error(
+          "Error setting latest as default for patientReference: {}, hipId: {}",
+          patientReference,
+          hipId,
+          e);
+    }
   }
 
   /**
