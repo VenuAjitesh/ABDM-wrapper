@@ -18,6 +18,7 @@ public class FieldIdentifiers {
   public static final String HIP_ID = "hipId";
   public static final String IS_DEFAULT = "isDefault";
   public static final String CREATED_AT = "createdAt";
+  public static final String UPDATED_AT = "updatedAt";
   public static final String CARE_CONTEXTS = "careContexts";
   public static final String EXPIRY = "expiry";
   public static final String LINK_TOKEN = "linkToken";

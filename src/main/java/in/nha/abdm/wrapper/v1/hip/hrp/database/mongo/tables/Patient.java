@@ -60,6 +60,9 @@ public class Patient {
   @Field(FieldIdentifiers.IS_DEFAULT)
   private Boolean isDefault = false;
 
+  @Field(FieldIdentifiers.UPDATED_AT)
+  private Date updatedAt;
+
   @Field(FieldIdentifiers.CREATED_AT)
   private Date createdAt;
 
