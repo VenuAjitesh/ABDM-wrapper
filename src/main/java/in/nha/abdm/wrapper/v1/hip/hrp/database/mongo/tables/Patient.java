@@ -6,6 +6,7 @@ import in.nha.abdm.wrapper.v1.common.models.Consent;
 import in.nha.abdm.wrapper.v1.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,6 +56,15 @@ public class Patient {
 
   @Field(FieldIdentifiers.HIP_ID)
   public String hipId;
+
+  @Field(FieldIdentifiers.IS_DEFAULT)
+  private Boolean isDefault = false;
+
+  @Field(FieldIdentifiers.UPDATED_AT)
+  private Date updatedAt;
+
+  @Field(FieldIdentifiers.CREATED_AT)
+  private Date createdAt;
 
   public Patient() {}
 }
