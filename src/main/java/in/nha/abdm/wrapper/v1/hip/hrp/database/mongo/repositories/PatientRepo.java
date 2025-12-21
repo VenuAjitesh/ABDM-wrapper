@@ -18,7 +18,8 @@ public interface PatientRepo extends MongoRepository<Patient, String> {
   @Query("{ 'abhaAddress': ?0, 'hipId': ?1 }")
   Patient findByAbhaAddress(String abhaAddress, String hipId);
 
-  @Query("{ 'patientReference': ?0, 'hipId': ?1, 'isDefault': true  }")
+  @Query(value = "{ 'patientReference': ?0, 'hipId': ?1 }",
+          sort = "{'isDefault': -1}")
   Patient findByPatientReference(String patientReference, String hipId);
 
   @Query("{ 'patientMobile': ?0, 'hipId': ?1 }")
