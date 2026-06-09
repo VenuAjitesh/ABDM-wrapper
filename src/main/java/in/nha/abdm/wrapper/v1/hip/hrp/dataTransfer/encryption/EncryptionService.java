@@ -199,7 +199,7 @@ public class EncryptionService {
 
   private byte[] getEncodedHIPPublicKey(PublicKey key) {
     ECPublicKey ecKey = (ECPublicKey) key;
-    return ecKey.getEncoded();
+    return ecKey.getQ().getEncoded(false);
   }
 
   private PublicKey getKey(String key)
